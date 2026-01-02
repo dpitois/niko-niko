@@ -1,6 +1,6 @@
 using System.Reflection;
 using System.Text;
-
+using System.Net; // Add this
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -46,6 +46,22 @@ builder.Services.AddDataProtection()
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
     options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    // Only loopback proxies are trusted by default.
+    // Clear that default and add the proxy that is running in docker-compose.
+    options.KnownNetworks.Clear(); // This is obsolete, will be replaced with KnownIPNetworks
+    options.KnownProxies.Clear();
+    // In a production environment, you might specify known proxies/networks.
+    // For a typical Docker setup, trusting all is often necessary due to dynamic IPs.
+    // Be cautious with this in a highly sensitive environment.
+    options.KnownIPNetworks.Add(new System.Net.IPNetwork(IPAddress.Parse("0.0.0.0"), 0)); // Trust all networks
+    options.KnownProxies.Add(IPAddress.Parse("0.0.0.0")); // Trust all proxies
+});
+
+// Configure Https Redirection
+builder.Services.AddHttpsRedirection(options =>
+{
+    options.RedirectStatusCode = (int)HttpStatusCode.TemporaryRedirect;
+    options.HttpsPort = 443;
 });
 
 // Configure Authentication
@@ -110,6 +126,8 @@ app.UseCookiePolicy(new CookiePolicyOptions
 {
     MinimumSameSitePolicy = SameSiteMode.Lax
 });
+
+app.UseHttpsRedirection(); // Add this line
 
 app.UseRouting();
 

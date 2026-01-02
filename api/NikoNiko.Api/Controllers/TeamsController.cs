@@ -1,16 +1,19 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
-using NikoNiko.Data; // Updated using directive
-using NikoNiko.Core.DTOs.Sprint; // Updated using directive
-using NikoNiko.Core.DTOs.Team; // Updated using directive
-using NikoNiko.Core.Models; // Updated using directive
+using NikoNiko.Data;
+using NikoNiko.Core.DTOs.Sprint;
+using NikoNiko.Core.DTOs.Team;
+using NikoNiko.Core.DTOs.User; // New using directive
+using NikoNiko.Core.Models;
+using System.Security.Claims;
 
 namespace NikoNiko.Api.Controllers;
 
 /// <summary>
 /// Contrôleur pour la gestion des équipes.
 /// </summary>
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class TeamsController : ControllerBase
@@ -30,9 +33,20 @@ public class TeamsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<TeamWithSprintsDto>>> GetTeams()
     {
+        // 1. Récupérer l'ID de l'utilisateur authentifié
+        var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!Guid.TryParse(userIdString, out var userId))
+        {
+            return Unauthorized("User ID not found or invalid.");
+        }
+
+        // 2. Filtrer les équipes
         var teams = await _context.Teams
-            .Include(t => t.Sprints) // Include sprints
-            .Select(t => new TeamWithSprintsDto // Use new DTO
+            .Where(t => t.AdminId == userId || t.TeamUsers.Any(tu => tu.UserId == userId)) // Filtrage par AdminId ou UserId dans TeamUsers
+            .Include(t => t.Sprints)
+            .Include(t => t.TeamUsers) // Include TeamUsers
+            .ThenInclude(tu => tu.User) // Include the User for each TeamUser
+            .Select(t => new TeamWithSprintsDto
             {
                 Id = t.Id,
                 Name = t.Name,
@@ -42,9 +56,17 @@ public class TeamsController : ControllerBase
                 {
                     Id = s.Id,
                     Name = s.Name,
-                    StartDate = s.StartDate.ToUniversalTime(), // Convert to UTC
-                    EndDate = s.EndDate.ToUniversalTime(),     // Convert to UTC
+                    StartDate = s.StartDate.ToUniversalTime(),
+                    EndDate = s.EndDate.ToUniversalTime(),
                     TeamId = s.TeamId
+                }).ToList(),
+                Members = t.TeamUsers.Select(tu => new UserDto // Map TeamUsers to Members
+                {
+                    Id = tu.User.Id,
+                    Email = tu.User.Email,
+                    Name = tu.User.Name,
+                    AvatarUrl = tu.User.AvatarUrl,
+                    CreatedAt = tu.User.CreatedAt
                 }).ToList()
             })
             .ToListAsync();
@@ -60,11 +82,13 @@ public class TeamsController : ControllerBase
     [HttpGet("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<TeamWithSprintsDto>> GetTeam(Guid id) // Use new DTO
+    public async Task<ActionResult<TeamWithSprintsDto>> GetTeam(Guid id)
     {
         var team = await _context.Teams
-            .Include(t => t.Sprints) // Include sprints
-            .Select(t => new TeamWithSprintsDto // Use new DTO
+            .Include(t => t.Sprints)
+            .Include(t => t.TeamUsers) // Include TeamUsers
+            .ThenInclude(tu => tu.User) // Include the User for each TeamUser
+            .Select(t => new TeamWithSprintsDto
             {
                 Id = t.Id,
                 Name = t.Name,
@@ -74,9 +98,17 @@ public class TeamsController : ControllerBase
                 {
                     Id = s.Id,
                     Name = s.Name,
-                    StartDate = s.StartDate.ToUniversalTime(), // Convert to UTC
-                    EndDate = s.EndDate.ToUniversalTime(),     // Convert to UTC
+                    StartDate = s.StartDate.ToUniversalTime(),
+                    EndDate = s.EndDate.ToUniversalTime(),
                     TeamId = s.TeamId
+                }).ToList(),
+                Members = t.TeamUsers.Select(tu => new UserDto // Map TeamUsers to Members
+                {
+                    Id = tu.User.Id,
+                    Email = tu.User.Email,
+                    Name = tu.User.Name,
+                    AvatarUrl = tu.User.AvatarUrl,
+                    CreatedAt = tu.User.CreatedAt
                 }).ToList()
             })
             .FirstOrDefaultAsync(t => t.Id == id);

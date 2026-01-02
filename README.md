@@ -21,7 +21,7 @@ Créer une application **distribuée** et **auto-hébergée** (via Docker) pour 
 ## 3. Fonctionnalités Clés
 
 - **Authentification** : OAuth2 (GitHub). Google et Microsoft sont temporairement désactivés.
-- **Gestion d'Équipes** : Création d'équipes (via le tableau de bord admin), ajout de membres (rôle admin).
+- **Gestion d'Équipes** : Création d'équipes (via le tableau de bord admin), gestion des membres et des invitations (création, acceptation, suppression).
 - **Sprints** : Définition de périodes de travail par les admins et suivi des sprints sur le tableau de bord, y compris la création de sprints et une page dédiée pour la creation de sprint.
 - **Suivi d'Humeur** : Enregistrement quotidien (😊/😐/🙁) par sprint, désormais fonctionnel sur le frontend et mis à jour de manière effective, avec une page dédiée pour la saisie de l'humeur.
 - **Notifications Temps Réel** : SignalR pour notifier les actions importantes.
@@ -45,9 +45,9 @@ Pour que l'authentification OAuth 2.0 fonctionne, vous devez configurer les four
     *   [GitHub Developer Settings](https://github.com/settings/developers)
 
 2.  **Configurez les URI de redirection** : Lors de la création de vos applications, utilisez les callbacks suivants pour l'environnement de développement. Il est important que cette URL corresponde exactement à celle configurée dans votre application GitHub.
-    *   GitHub : `http://localhost:3000/signin-github`
+    *   GitHub : `http://localhost:5000/signin-github`
 
-3.  **Mettez à jour `appsettings.json` et `docker-compose.yml`** : Remplacez les valeurs de `ClientId` et `ClientSecret` avec les vôtres.
+3.  **Mettez à jour `appsettings.json` et votre fichier `.env`** : Remplacez les valeurs de `ClientId` et `ClientSecret` avec les vôtres. Assurez-vous également que la variable `JWT_KEY` est définie dans `.env`.
 
     ```json
     "Authentication": {
@@ -72,6 +72,29 @@ Le projet peut être configuré pour utiliser **PostgreSQL** ou **SQLite**.
   2.  Dans `docker-compose.yml`, décommentez le service `db`.
   3.  **Note** : Les migrations EF Core sont spécifiques au fournisseur. Pour changer de base de données, vous devrez peut-être supprimer le dossier `Migrations` et en créer de nouvelles.
 
+## 5.2. Gestion des Migrations Entity Framework Core
+
+Les migrations EF Core doivent être exécutées à l'intérieur du conteneur `backend` pour assurer l'accès à la base de données SQLite mappée.
+
+1.  **Assurez-vous que le service `backend` est lancé** (au moins `docker compose up -d backend`).
+2.  **Accédez au shell du conteneur `backend`** :
+    ```bash
+    docker compose exec backend bash
+    ```
+3.  **Naviguez vers le dossier du projet API** à l'intérieur du conteneur :
+    ```bash
+    cd /app/api/NikoNiko.Api
+    ```
+4.  **Ajoutez une nouvelle migration** (remplacez `NomDeVotreMigration` par un nom descriptif) :
+    ```bash
+    dotnet ef migrations add NomDeVotreMigration --project ../NikoNiko.Data --startup-project .
+    ```
+5.  **Les migrations sont appliquées automatiquement** au démarrage du service `backend` via `dbContext.Database.Migrate()` dans `Program.cs`. Vous n'avez pas besoin d'exécuter `dotnet ef database update` manuellement.
+6.  **Quittez le shell du conteneur** :
+    ```bash
+    exit
+    ```
+
 ## 6. Plan de Développement
 
 Nous allons construire cette application étape par étape, en commençant par la mise en place de l'environnement de développement, puis en développant le backend et le frontend en parallèle.
@@ -93,10 +116,11 @@ Nous allons construire cette application étape par étape, en commençant par l
     *   Créer un second projet backend (`SignalR.Service`) dédié à la gestion des connexions SignalR.
     *   Le backend actuel (`backend`) enverra des messages (ex: RabbitMQ ou autre queue légère) suite à des événements.
     *   Le `SignalR.Service` écoutera ces messages et les dispatchera aux clients connectés via SignalR.
-  - [ ] **Gestion des Membres et Invitations d'Équipe (pour les Admins)**:
-    *   Permettre aux admins de lister les membres de leurs équipes.
-    *   Implémenter la création d'invitations d'équipe (liens web).
-    *   Gérer l'acceptation de ces invitations par les utilisateurs pour rejoindre une équipe.
+  - [x] **Gestion des Membres et Invitations d'Équipe (pour les Admins)**:
+    *   [x] Permettre aux admins de lister les membres de leurs équipes.
+    *   [x] Implémenter la création d'invitations d'équipe (liens web).
+    *   [x] Gérer l'acceptation de ces invitations par les utilisateurs pour rejoindre une équipe.
+    *   [x] Implémenter la suppression logique (`soft delete`) des invitations.
   - [ ] Implémenter la logique de gamification (attribution de badges).
 - **Étape 3 : Développement Frontend (React)**
   - [x] Initialiser l'application React avec Vite et TypeScript.
@@ -110,10 +134,11 @@ Nous allons construire cette application étape par étape, en commençant par l
   - [x] Implémenter une page dédiée pour la création de sprints.
   - [x] Implémenter la déconnexion utilisateur.
   - [x] **Connecter le client SignalR** au `SignalR.Service` pour recevoir les notifications en temps réel.
-  - [ ] **Interface de Gestion des Membres et Invitations (pour les Admins)**:
-    *   Développer l'UI pour lister les membres de l'équipe.
-    *   Implémenter le formulaire pour créer des liens d'invitation.
-    *   Gérer la logique côté client pour accepter une invitation via un lien.
+  - [x] **Interface de Gestion des Membres et Invitations (pour les Admins)**:
+    *   [x] Développer l'UI pour lister les membres de l'équipe.
+    *   [x] Implémenter le formulaire pour créer des liens d'invitation.
+    *   [x] Gérer la logique côté client pour accepter une invitation via un lien.
+    *   [x] Ajouter le bouton de suppression d'invitation dans l'UI.
 - **Étape 4 : Finalisation et Tests**
   - [ ] Écrire des tests unitaires et d'intégration.
   - [ ] Rédiger la documentation finale.

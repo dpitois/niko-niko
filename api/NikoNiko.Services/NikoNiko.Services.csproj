@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NikoNiko.Core\NikoNiko.Core.csproj" />
+    <ProjectReference Include="..\NikoNiko.Data\NikoNiko.Data.csproj" />
   </ItemGroup>
 
   <ItemGroup>

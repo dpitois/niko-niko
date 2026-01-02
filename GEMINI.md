@@ -16,10 +16,10 @@ The Niko Niko Calendar is a distributed and self-hosted (via Docker) application
 ## Key Features
 
 *   **Authentication**: OAuth2 (currently GitHub functional; Google and Microsoft temporarily disabled).
-*   **Team Management**: Creation of teams (via admin dashboard) and member management (admin role).
+*   **Team Management**: Creation of teams (via admin dashboard), member management (admin role), team invitation (creation, acceptance, soft deletion).
 *   **Sprints**: Admins define work periods, and sprints are tracked on the dashboard, including dedicated pages for creation.
 *   **Mood Tracking**: Daily mood entry (😊/😐/🙁) per sprint. The date of the mood can be specified, defaulting to the current day if not provided. The date must be within the sprint's date range and not in the future.
-*   **Real-time Notifications**: Planned integration of SignalR for important actions.
+*   **Real-time Notifications**: Implemented integration of SignalR for important actions.
 *   **Gamification**: Planned badge attribution to encourage participation.
 *   **Dashboard**: Centralized view of teams, sprints, and calendars, featuring basic navigation, an administration dashboard, and a "My Teams" page for the user.
 *   **User Logout**: Frontend logout functionality is fully implemented.
@@ -48,9 +48,9 @@ For OAuth 2.0 authentication (currently GitHub), you must configure external pro
 
 1.  **Create an OAuth 2.0 application** for GitHub:
     *   [GitHub Developer Settings](https://github.com/settings/developers)
-2.  **Configure Redirect URIs**: Use the following callback for development:
-    *   GitHub: `http://localhost:3000/signin-github`
-3.  **Update `docker-compose.yml`**: Replace `ClientId` and `ClientSecret` values with your own. You can find these environment variables under the `backend` service in `docker-compose.yml`.
+2.  **Configure Redirect URIs**: Use the following callback for development. It is important that this URL exactly matches the one configured in your GitHub application.
+    *   GitHub: `http://localhost:5000/signin-github`
+3.  **Update your `.env` file**: Replace `ClientId` and `ClientSecret` values with your own. Ensure the `JWT_KEY` variable is also defined in `.env`. You can find these environment variables under the `backend` service in `docker-compose.yml`.
 
     ```yaml
     # Example snippet from docker-compose.yml
@@ -58,8 +58,9 @@ For OAuth 2.0 authentication (currently GitHub), you must configure external pro
       environment:
         - Authentication__GitHub__ClientId=YOUR_CLIENT_ID_GITHUB
         - Authentication__GitHub__ClientSecret=YOUR_CLIENT_SECRET_GITHUB
+        - Authentication__FrontendRedirectUrl=http://localhost:3000/auth/callback # The frontend callback URL after successful authentication
+        - JWT_KEY=YOUR_VERY_SECRET_KEY # Must be a strong, random key
     ```
-
 ### 1.1. Database Configuration
 
 The project can be configured to use **PostgreSQL** or **SQLite**.
@@ -72,6 +73,29 @@ The project can be configured to use **PostgreSQL** or **SQLite**.
   1.  In `api/backend/appsettings.json`, change `DatabaseProvider` to `"PostgreSQL"` (or any value other than "SQLite").
   2.  In `docker-compose.yml`, uncomment the `db` service.
   3.  **Note**: EF Core migrations are provider-specific. To change the database, you may need to delete the `Migrations` folder and create new ones.
+
+### 1.2. Managing Entity Framework Core Migrations
+
+EF Core migrations must be run inside the `backend` Docker container to ensure access to the mapped SQLite database.
+
+1.  **Ensure the `backend` service is running** (at least `docker compose up -d backend`).
+2.  **Access the `backend` container's shell**:
+    ```bash
+    docker compose exec backend bash
+    ```
+3.  **Navigate to the API project folder** inside the container:
+    ```bash
+    cd /app/api/NikoNiko.Api
+    ```
+4.  **Add a new migration** (replace `YourMigrationName` with a descriptive name):
+    ```bash
+    dotnet ef migrations add YourMigrationName --project ../NikoNiko.Data --startup-project .
+    ```
+5.  **Les migrations sont appliquées automatiquement** au démarrage du service `backend` via `dbContext.Database.Migrate()` dans `Program.cs`. Vous n'avez pas besoin d'exécuter `dotnet ef database update` manuellement.
+6.  **Quittez le shell du conteneur** :
+    ```bash
+    exit
+    ```
 
 ### 2. Run with Docker Compose (Recommended)
 
@@ -158,10 +182,11 @@ If you wish to run frontend and/or backend locally without Docker Compose, follo
     *   Créer un second projet backend (`SignalR.Service`) dédié à la gestion des connexions SignalR.
     *   Le backend actuel (`backend`) enverra des messages (ex: RabbitMQ ou autre queue légère) suite à des événements.
     *   Le `SignalR.Service` écoutera ces messages et les dispatchera aux clients connectés via SignalR.
-  - [ ] **Gestion des Membres et Invitations d'Équipe (pour les Admins)**:
-    *   Permettre aux admins de lister les membres de leurs équipes.
-    *   Implémenter la création d'invitations d'équipe (liens web).
-    *   Gérer l'acceptation de ces invitations par les utilisateurs pour rejoindre une équipe.
+  - [x] **Gestion des Membres et Invitations d'Équipe (pour les Admins)**:
+    *   [x] Permettre aux admins de lister les membres de leurs équipes.
+    *   [x] Implémenter la création d'invitations d'équipe (liens web).
+    *   [x] Gérer l'acceptation de ces invitations par les utilisateurs pour rejoindre une équipe.
+    *   [x] Implémenter la suppression logique (`soft delete`) des invitations.
   - [ ] Implémenter la logique de gamification (attribution de badges).
 - **Étape 3 : Développement Frontend (React)**
   - [x] Initialiser l'application React avec Vite et TypeScript.
@@ -176,10 +201,11 @@ If you wish to run frontend and/or backend locally without Docker Compose, follo
   - [x] Implémenter la déconnexion utilisateur.
   - [x] **Connecter le client SignalR** au `SignalR.Service` pour recevoir les notifications en temps réel.
   - [x] Intégrer un sélecteur de date pour la saisie d'humeur, avec validation et liaison à l'API.
-  - [ ] **Interface de Gestion des Membres et Invitations (pour les Admins)**:
+  - [x] **Interface de Gestion des Membres et Invitations (pour les Admins)**:
     *   Développer l'UI pour lister les membres de l'équipe.
     *   Implémenter le formulaire pour créer des liens d'invitation.
     *   Gérer la logique côté client pour accepter une invitation via un lien.
+    *   Ajouter le bouton de suppression d'invitation dans l'UI.
 - **Étape 4 : Finalisation et Tests**
   - [ ] Écrire des tests unitaires et d'intégration.
   - [ ] Rédiger la documentation finale.

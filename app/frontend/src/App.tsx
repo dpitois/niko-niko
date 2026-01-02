@@ -4,6 +4,7 @@ import DashboardPage from './pages/DashboardPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import CreateSprintPage from './pages/CreateSprintPage';
 import MoodEntryStandalonePage from './pages/MoodEntryStandalonePage';
+import AcceptInvitationPage from './pages/AcceptInvitationPage'; // Import AcceptInvitationPage
 import AuthCallbackPage from './pages/AuthCallbackPage';
 import Header from './components/Header';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -91,12 +92,21 @@ function App() {
           <Header />
           <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
             <Routes>
-              <Route path="/" element={<Navigate to="/dashboard" />} />
+              <Route path="/" element={<Navigate to="/my-teams" />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/auth/callback" element={<AuthCallbackPage />} />
+              <Route path="/accept-invitation/:token" element={<AcceptInvitationPage />} />
 
               <Route
-                path="/dashboard"
+                path="/my-teams" // Nouvelle route pour les équipes de l'utilisateur
+                element={
+                  <ProtectedRoute>
+                    <DashboardPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/dashboard" // Conserver l'ancienne route /dashboard pour compatibilité ou supprimer si inutile.
                 element={
                   <ProtectedRoute>
                     <DashboardPage />

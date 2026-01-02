@@ -1,5 +1,5 @@
 import React from 'react';
-import type { TeamWithSprints } from '../models/TeamWithSprints';
+import type { TeamWithMembersAndSprints } from '../models/Team/TeamWithMembersAndSprints'; // Use new DTO
 import MoodEntryForm from './MoodEntryForm';
 import { Link } from 'react-router-dom';
 
@@ -11,7 +11,7 @@ import Button from '@mui/material/Button';
 import Box from '@mui/material/Box'; // For layout
 
 interface TeamListItemProps {
-  team: TeamWithSprints;
+  team: TeamWithMembersAndSprints;
 }
 
 const TeamListItem: React.FC<TeamListItemProps> = ({ team }) => {

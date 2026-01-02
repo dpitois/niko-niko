@@ -23,7 +23,7 @@ const DashboardPage: React.FC = () => {
       {teams && teams.length > 0 ? (
         <Grid container spacing={3}>
           {teams.map(team => (
-            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={team.id}> {/* Removed item prop and component="div", used size prop */}
+            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={team.id}> {/* Reverted */}
               <TeamListItem team={team} />
             </Grid>
           ))}

@@ -19,6 +19,7 @@ var config = builder.Configuration;
 // -----------------------------------------------------------------------------
 builder.Services.AddControllers();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<ITeamInvitationService, TeamInvitationService>();
 
 // Add HttpClient for SignalR Service communication
 builder.Services.AddHttpClient<INotificationService, NotificationService>(client =>
@@ -48,8 +49,6 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
     // Only loopback proxies are trusted by default.
     // Clear that default and add the proxy that is running in docker-compose.
-    options.KnownNetworks.Clear(); // This is obsolete, will be replaced with KnownIPNetworks
-    options.KnownProxies.Clear();
     // In a production environment, you might specify known proxies/networks.
     // For a typical Docker setup, trusting all is often necessary due to dynamic IPs.
     // Be cautious with this in a highly sensitive environment.
@@ -105,7 +104,10 @@ builder.Services.AddSwaggerGen(options =>
 // -----------------------------------------------------------------------------
 var app = builder.Build();
 
-app.UseForwardedHeaders();
+if (app.Environment.IsProduction())
+{
+    app.UseForwardedHeaders();
+}
 
 // Apply migrations on startup
 using (var scope = app.Services.CreateScope())
@@ -127,7 +129,11 @@ app.UseCookiePolicy(new CookiePolicyOptions
     MinimumSameSitePolicy = SameSiteMode.Lax
 });
 
-app.UseHttpsRedirection(); // Add this line
+// Configure Https Redirection
+if (app.Environment.IsProduction())
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseRouting();
 

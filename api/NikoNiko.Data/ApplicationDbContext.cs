@@ -16,6 +16,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Sprint> Sprints { get; set; }
     public DbSet<MoodEntry> MoodEntries { get; set; }
     public DbSet<Badge> Badges { get; set; }
+    public DbSet<TeamInvitation> TeamInvitations { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -42,6 +43,26 @@ public class ApplicationDbContext : DbContext
             .HasForeignKey(t => t.AdminId)
             .OnDelete(DeleteBehavior.Restrict); // Prevent deleting a user who is an admin
 
+        // Configure TeamInvitation relationships
+        modelBuilder.Entity<TeamInvitation>()
+            .HasOne(ti => ti.Team)
+            .WithMany() // A team can have many invitations, but we don't necessarily need a navigation property on the Team side for this example.
+            .HasForeignKey(ti => ti.TeamId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<TeamInvitation>()
+            .HasOne(ti => ti.CreatorUser)
+            .WithMany()
+            .HasForeignKey(ti => ti.CreatorUserId)
+            .OnDelete(DeleteBehavior.Restrict); // Prevent deleting a user who created an invitation
+
+        modelBuilder.Entity<TeamInvitation>()
+            .HasOne(ti => ti.AcceptedByUser)
+            .WithMany()
+            .HasForeignKey(ti => ti.AcceptedByUserId)
+            .IsRequired(false) // AcceptedByUser can be null
+            .OnDelete(DeleteBehavior.Restrict); // Prevent deleting a user who accepted an invitation
+
         // Add unique constraints
         modelBuilder.Entity<User>()
             .HasIndex(u => u.Email)
@@ -54,6 +75,14 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<Team>()
             .HasIndex(t => t.Name)
             .IsUnique();
+        
+        modelBuilder.Entity<TeamInvitation>()
+            .HasIndex(ti => ti.Token)
+            .IsUnique();
+
+        // Filtre global pour le soft delete
+        modelBuilder.Entity<TeamInvitation>()
+            .HasQueryFilter(ti => !ti.IsDeleted);
 
         // Add check constraint for Sprint dates
         modelBuilder.Entity<Sprint>()

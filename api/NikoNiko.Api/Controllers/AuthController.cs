@@ -25,6 +25,7 @@ public class AuthController : ControllerBase
     private readonly ITokenService _tokenService;
     private readonly IConfiguration _config;
     private readonly ILogger<AuthController> _logger;
+    private readonly string _frontendRedirectUrl;
 
     public AuthController(ApplicationDbContext context, ITokenService tokenService, IConfiguration config, ILogger<AuthController> logger)
     {
@@ -32,6 +33,7 @@ public class AuthController : ControllerBase
         _tokenService = tokenService;
         _config = config;
         _logger = logger;
+        _frontendRedirectUrl = _config["Authentication:FrontendRedirectUrl"] ?? throw new ArgumentNullException("FrontendRedirectUrl is not configured.");
     }
 
     // /// <summary>
@@ -54,7 +56,7 @@ public class AuthController : ControllerBase
     // public async Task<IActionResult> SigninGoogle()
     // {
     //     var (user, token) = await HandleSignIn(GoogleDefaults.AuthenticationScheme);
-    //     var redirectUrl = $"http://localhost:3000/auth/callback?token={token}";
+    //     var redirectUrl = $"{_frontendRedirectUrl}/auth/callback?token={token}";
     //     return Redirect(redirectUrl);
     // }
 
@@ -78,7 +80,7 @@ public class AuthController : ControllerBase
     // public async Task<IActionResult> SigninMicrosoft()
     // {
     //     var (user, token) = await HandleSignIn(MicrosoftAccountDefaults.AuthenticationScheme);
-    //     var redirectUrl = $"http://localhost:3000/auth/callback?token={token}";
+    //     var redirectUrl = $"{_frontendRedirectUrl}/auth/callback?token={token}";
     //     return Redirect(redirectUrl);
     // }
 
@@ -105,7 +107,7 @@ public class AuthController : ControllerBase
         _logger.LogInformation("Signin-GitHub Request Headers: [{Headers}]", headers);
 
         var (user, token) = await HandleSignIn(GitHubAuthenticationDefaults.AuthenticationScheme);
-        var redirectUrl = $"http://localhost:3000/auth/callback?token={token}";
+        var redirectUrl = $"{_frontendRedirectUrl}/auth/callback?token={token}";
         return Redirect(redirectUrl);
     }
 

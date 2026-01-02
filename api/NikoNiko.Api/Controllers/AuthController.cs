@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Http.Extensions; // For UriHelper
+using Microsoft.AspNetCore.Http; // For HostString
 using System.Security.Claims;
 
 using AspNet.Security.OAuth.GitHub;
@@ -91,9 +93,33 @@ public class AuthController : ControllerBase
     [ApiExplorerSettings(IgnoreApi = true)]
     public IActionResult LoginGitHub()
     {
+        var properties = new AuthenticationProperties { RedirectUri = "/api/auth/signin-github" };
+
+        // Force HTTPS for RedirectUri if in Production and X-Forwarded-Proto is HTTPS
+        if (_config.GetValue<string>("ASPNETCORE_ENVIRONMENT") == "Production")
+        {
+            if (HttpContext.Request.Headers.TryGetValue("X-Forwarded-Proto", out var forwardedProto) && forwardedProto == "https")
+            {
+                properties.RedirectUri = UriHelper.BuildAbsolute(
+                    "https",
+                    new HostString(HttpContext.Request.Host.Value),
+                    PathString.FromUriComponent(properties.RedirectUri)
+                ).ToString();
+            }
+            // If the application is directly exposed via HTTPS (no proxy or proxy not setting X-Forwarded-Proto)
+            else if (HttpContext.Request.IsHttps)
+            {
+                properties.RedirectUri = UriHelper.BuildAbsolute(
+                    "https",
+                    new HostString(HttpContext.Request.Host.Value),
+                    PathString.FromUriComponent(properties.RedirectUri)
+                ).ToString();
+            }
+        }
+        
         var headers = string.Join(", ", Request.Headers.Select(h => $"'{h.Key}': '{h.Value}'"));
         _logger.LogInformation("Login-GitHub Request Headers: [{Headers}]", headers);
-        return Challenge(new AuthenticationProperties { RedirectUri = "/api/auth/signin-github" }, GitHubAuthenticationDefaults.AuthenticationScheme);
+        return Challenge(properties, GitHubAuthenticationDefaults.AuthenticationScheme);
     }
 
     /// <summary>

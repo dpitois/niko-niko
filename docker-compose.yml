@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  # db:
+  #   image: postgres:16
+  #   container_name: nikoniko_db
+  #   environment:
+  #     - POSTGRES_DB=nikoniko
+  #     - POSTGRES_USER=nikoniko
+  #     - POSTGRES_PASSWORD=nikoniko
+  #   volumes:
+  #     - ./postgres_data:/var/lib/postgresql/data # Bind mount to a local directory for backup
+  #   ports:
+  #     - "5432:5432"
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U nikoniko -d nikoniko"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: api/NikoNiko.Api/Dockerfile
+    container_name: nikoniko_backend
+    volumes:
+      - ./data:/app/data # Mount data directory
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - DatabaseProvider=SQLite
+      - ConnectionStrings__SQLiteConnection=Data Source=/app/data/nikoniko.db
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=nikoniko;Username=nikoniko;Password=nikoniko
+      - Authentication__Jwt__Issuer=NikoNiko
+      - Authentication__Jwt__Audience=NikoNikoClient
+      - Authentication__Jwt__Key=${JWT_KEY}
+      - Authentication__Google__ClientId=
+      - Authentication__Google__ClientSecret=
+      - Authentication__Microsoft__ClientId=
+      - Authentication__Microsoft__ClientSecret=
+      - Authentication__GitHub__ClientId=${GITHUB_CLIENT_ID}
+      - Authentication__GitHub__ClientSecret=${GITHUB_CLIENT_SECRET}
+      - SignalRService__BaseUrl=http://nikoniko_notifications:8080 # SignalR Service URL for backend
+    ports:
+      - "5000:8080"
+  notifications: # New SignalR Service
+    build:
+      context: .
+      dockerfile: api/NikoNiko.Notifications/Dockerfile
+    container_name: nikoniko_notifications
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - Cors__AllowedOrigins=http://localhost:3000 # Allow frontend origin
+      - Authentication__Jwt__Issuer=NikoNiko
+      - Authentication__Jwt__Audience=NikoNikoClient
+      - Authentication__Jwt__Key=${JWT_KEY}
+    ports:
+      - "5001:8080" # Map to an external port
+    # depends_on:
+    #   db: # SignalR might need DB access for user management etc.
+    #     condition: service_healthy
+
+  frontend:
+    build:
+      context: ./app/frontend
+      dockerfile: Dockerfile
+    container_name: nikoniko_frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+      - notifications # Frontend will depend on notifications

@@ -1,0 +1,157 @@
+using System.Security.Claims;
+
+using AspNet.Security.OAuth.GitHub;
+
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
+using NikoNiko.Data; // Updated using directive
+using NikoNiko.Core.Models; // Updated using directive
+using NikoNiko.Services; // Updated using directive
+
+namespace NikoNiko.Api.Controllers;
+
+/// <summary>
+/// Controller for handling authentication.
+/// </summary>
+[ApiController]
+[Route("api/[controller]")]
+public class AuthController : ControllerBase
+{
+    private readonly ApplicationDbContext _context;
+    private readonly ITokenService _tokenService;
+    private readonly IConfiguration _config;
+    private readonly ILogger<AuthController> _logger;
+
+    public AuthController(ApplicationDbContext context, ITokenService tokenService, IConfiguration config, ILogger<AuthController> logger)
+    {
+        _context = context;
+        _tokenService = tokenService;
+        _config = config;
+        _logger = logger;
+    }
+
+    // /// <summary>
+    // /// Initiates the Google login flow.
+    // /// </summary>
+    // [HttpGet("login-google")]
+    // [ApiExplorerSettings(IgnoreApi = true)] // Hide from Swagger as it's a redirect
+    // public IActionResult LoginGoogle()
+    // {
+    //     var headers = string.Join(", ", Request.Headers.Select(h => $"'{h.Key}': '{h.Value}'"));
+    //     _logger.LogInformation("Login-Google Request Headers: [{Headers}]", headers);
+    //     return Challenge(new AuthenticationProperties { RedirectUri = "/api/auth/signin-google" }, GoogleDefaults.AuthenticationScheme);
+    // }
+
+    // /// <summary>
+    // /// Google sign-in callback.
+    // /// </summary>
+    // [HttpGet("signin-google")]
+    // [ApiExplorerSettings(IgnoreApi = true)]
+    // public async Task<IActionResult> SigninGoogle()
+    // {
+    //     var (user, token) = await HandleSignIn(GoogleDefaults.AuthenticationScheme);
+    //     var redirectUrl = $"http://localhost:3000/auth/callback?token={token}";
+    //     return Redirect(redirectUrl);
+    // }
+
+    // /// <summary>
+    // /// Initiates the Microsoft login flow.
+    // /// </summary>
+    // [HttpGet("login-microsoft")]
+    // [ApiExplorerSettings(IgnoreApi = true)]
+    // public IActionResult LoginMicrosoft()
+    // {
+    //     var headers = string.Join(", ", Request.Headers.Select(h => $"'{h.Key}': '{h.Value}'"));
+    //     _logger.LogInformation("Login-Microsoft Request Headers: [{Headers}]", headers);
+    //     return Challenge(new AuthenticationProperties { RedirectUri = "/api/auth/signin-microsoft" }, MicrosoftAccountDefaults.AuthenticationScheme);
+    // }
+
+    // /// <summary>
+    // /// Microsoft sign-in callback.
+    // /// </summary>
+    // [HttpGet("signin-microsoft")]
+    // [ApiExplorerSettings(IgnoreApi = true)]
+    // public async Task<IActionResult> SigninMicrosoft()
+    // {
+    //     var (user, token) = await HandleSignIn(MicrosoftAccountDefaults.AuthenticationScheme);
+    //     var redirectUrl = $"http://localhost:3000/auth/callback?token={token}";
+    //     return Redirect(redirectUrl);
+    // }
+
+    /// <summary>
+    /// Initiates the GitHub login flow.
+    /// </summary>
+    [HttpGet("login-github")]
+    [ApiExplorerSettings(IgnoreApi = true)]
+    public IActionResult LoginGitHub()
+    {
+        var headers = string.Join(", ", Request.Headers.Select(h => $"'{h.Key}': '{h.Value}'"));
+        _logger.LogInformation("Login-GitHub Request Headers: [{Headers}]", headers);
+        return Challenge(new AuthenticationProperties { RedirectUri = "/api/auth/signin-github" }, GitHubAuthenticationDefaults.AuthenticationScheme);
+    }
+
+    /// <summary>
+    /// GitHub sign-in callback.
+    /// </summary>
+    [HttpGet("signin-github")]
+    [ApiExplorerSettings(IgnoreApi = true)]
+    public async Task<IActionResult> SigninGitHub()
+    {
+        var headers = string.Join(", ", Request.Headers.Select(h => $"'{h.Key}': '{h.Value}'"));
+        _logger.LogInformation("Signin-GitHub Request Headers: [{Headers}]", headers);
+
+        var (user, token) = await HandleSignIn(GitHubAuthenticationDefaults.AuthenticationScheme);
+        var redirectUrl = $"http://localhost:3000/auth/callback?token={token}";
+        return Redirect(redirectUrl);
+    }
+
+    private async Task<(User, string)> HandleSignIn(string provider)
+    {
+        var result = await HttpContext.AuthenticateAsync(provider);
+        if (!result.Succeeded)
+        {
+            _logger.LogError(result.Failure, "Authentication failed for provider {Provider}.", provider);
+            throw new Exception($"Error authenticating with {provider}: {result.Failure?.Message}");
+        }
+
+        var claims = result.Principal.Claims;
+        var oauthId = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+        var email = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+        var name = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
+
+        // GitHub-specific claims
+        var avatar = claims.FirstOrDefault(c => c.Type == "urn:github:avatar_url")?.Value;
+        var githubLogin = claims.FirstOrDefault(c => c.Type == "urn:github:login")?.Value;
+
+
+        if (oauthId == null || name == null)
+        {
+            throw new Exception("Could not retrieve required user information from provider.");
+        }
+
+        // For GitHub, the public email might be null. We'll use a placeholder if needed.
+        email ??= $"{githubLogin}@users.noreply.github.com";
+
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.OAuthId == oauthId && u.Email == email);
+
+        if (user == null)
+        {
+            user = new User
+            {
+                OAuthId = oauthId,
+                Email = email,
+                Name = name,
+                AvatarUrl = avatar
+            };
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+        }
+
+        var token = _tokenService.CreateToken(user);
+        return (user, token);
+    }
+}

@@ -1,0 +1,15 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="api/NikoNiko.Api/NikoNiko.Api.csproj" />
+  <Project Path="api/NikoNiko.Core/NikoNiko.Core.csproj" />
+  <Project Path="api/NikoNiko.Data.PostgreSql/NikoNiko.Data.PostgreSql.csproj" />
+  <Project Path="api/NikoNiko.Data.Sqlite/NikoNiko.Data.Sqlite.csproj" />
+  <Project Path="api/NikoNiko.Data/NikoNiko.Data.csproj" />
+  <Project Path="api/NikoNiko.Notifications.IntegrationTests/NikoNiko.Notifications.IntegrationTests.csproj" />
+  <Project Path="api/NikoNiko.Notifications/NikoNiko.Notifications.csproj" />
+  <Project Path="api/NikoNiko.Services/NikoNiko.Services.csproj" />
+</Solution>

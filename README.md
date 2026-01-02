@@ -1,0 +1,182 @@
+# Projet : Niko Niko Calendar
+
+## 1. Objectif de l'Application
+
+Créer une application **distribuée** et **auto-hébergée** (via Docker) pour permettre aux équipes Agile de suivre leur moral quotidien.
+
+- **Transparence** : Visualiser l’humeur collective.
+- **Détection précoce** : Identifier les baisses de moral.
+- **Empathie** : Comprendre les défis de l'équipe.
+- **Motivation** : Encourager l'utilisation via la gamification.
+
+**Public Cible** : Équipes Agile, Managers, Scrum Masters, et membres de projets.
+
+## 2. Stack Technique
+
+- **Backend** : API RESTful en **.NET 10** (WebAPI).
+- **Frontend** : Application **React 19+** avec TypeScript, Material UI, Axios, et SWR.
+- **Base de Données** : **PostgreSQL / SQLite (configurable)**.
+- **Déploiement** : **Docker** (3 services : backend, frontend, db).
+
+## 3. Fonctionnalités Clés
+
+- **Authentification** : OAuth2 (GitHub). Google et Microsoft sont temporairement désactivés.
+- **Gestion d'Équipes** : Création d'équipes (via le tableau de bord admin), ajout de membres (rôle admin).
+- **Sprints** : Définition de périodes de travail par les admins et suivi des sprints sur le tableau de bord, y compris la création de sprints et une page dédiée pour la creation de sprint.
+- **Suivi d'Humeur** : Enregistrement quotidien (😊/😐/🙁) par sprint, désormais fonctionnel sur le frontend et mis à jour de manière effective, avec une page dédiée pour la saisie de l'humeur.
+- **Notifications Temps Réel** : SignalR pour notifier les actions importantes.
+- **Gamification** : Attribution de badges pour encourager la participation.
+- **Tableau de Bord** : Vue centralisée des équipes, sprints et calendriers, avec une navigation basique, un tableau de bord d'administration et une page "Mes Équipes" pour l'utilisateur.
+- **Déconnexion utilisateur** : Fonctionnalité de déconnexion implémentée côté frontend.
+
+## 4. Modèles de Données Principaux
+
+- `User` : Utilisateur avec infos OAuth, équipes et badges.
+- `Team` : Équipe avec un admin, des membres et des sprints.
+- `Sprint` : Période de temps avec des dates de début/fin.
+- `MoodEntry` : Enregistrement d'humeur d'un utilisateur pour une date donnée.
+- `Badge` : Récompense de gamification.
+
+## 5. Configuration de l'Authentification
+
+Pour que l'authentification OAuth 2.0 fonctionne, vous devez configurer les fournisseurs externes. Actuellement, seul GitHub est activé.
+
+1.  **Créez une application OAuth 2.0** pour chaque fournisseur :
+    *   [GitHub Developer Settings](https://github.com/settings/developers)
+
+2.  **Configurez les URI de redirection** : Lors de la création de vos applications, utilisez les callbacks suivants pour l'environnement de développement. Il est important que cette URL corresponde exactement à celle configurée dans votre application GitHub.
+    *   GitHub : `http://localhost:3000/signin-github`
+
+3.  **Mettez à jour `appsettings.json` et `docker-compose.yml`** : Remplacez les valeurs de `ClientId` et `ClientSecret` avec les vôtres.
+
+    ```json
+    "Authentication": {
+      "GitHub": {
+        "ClientId": "VOTRE_CLIENT_ID_GITHUB",
+        "ClientSecret": "VOTRE_CLIENT_SECRET_GITHUB"
+      },
+      // Google et Microsoft sont temporairement désactivés.
+    }
+    ```
+
+## 5.1. Configuration de la Base de Données
+
+Le projet peut être configuré pour utiliser **PostgreSQL** ou **SQLite**.
+
+- **Pour utiliser SQLite (par défaut dans la branche `feature/back_sqlite`)** :
+  1.  Dans `api/backend/appsettings.json`, assurez-vous que `DatabaseProvider` est défini sur `"SQLite"`.
+  2.  Dans `docker-compose.yml`, le service `db` (PostgreSQL) doit être commenté.
+
+- **Pour revenir à PostgreSQL** :
+  1.  Dans `api/backend/appsettings.json`, changez `DatabaseProvider` pour `"PostgreSQL"` (ou toute autre valeur que "SQLite").
+  2.  Dans `docker-compose.yml`, décommentez le service `db`.
+  3.  **Note** : Les migrations EF Core sont spécifiques au fournisseur. Pour changer de base de données, vous devrez peut-être supprimer le dossier `Migrations` et en créer de nouvelles.
+
+## 6. Plan de Développement
+
+Nous allons construire cette application étape par étape, en commençant par la mise en place de l'environnement de développement, puis en développant le backend et le frontend en parallèle.
+
+- **Étape 1 : Initialisation du Projet**
+  - [x] Mettre en place la structure des dossiers (backend, frontend).
+  - [x] Configurer `docker-compose.yml` pour les services.
+  - [x] Réorganiser la structure du projet en déplaçant le backend dans un répertoire `api` et le frontend dans un répertoire `app`.
+- **Étape 2 : Développement Backend (.NET)**
+  - [x] Créer les modèles de données et la configuration Entity Framework Core.
+  - [x] Mettre en place les migrations de base de données.
+  - [x] Développer les contrôleurs API de base (CRUD).
+  - [x] Implémenter l'authentification OAuth 2.0 (GitHub fonctionnel, Google/Microsoft temporairement désactivés).
+  - [x] Résoudre le problème d'enregistrement des dates UTC dans PostgreSQL.
+  - [x] Mettre à jour l'API MoodEntry pour permettre la mise à jour des entrées existantes et la récupération par sprint/utilisateur/date.
+  - [x] Mise à jour de l'API Team pour inclure les sprints dans les informations d'équipe.
+  - [x] Mettre à jour l'API de création de Mood pour permettre de spécifier une date, avec validation (dans la plage du sprint, pas de date future).
+  - [x] **Intégrer SignalR pour les notifications** :
+    *   Créer un second projet backend (`SignalR.Service`) dédié à la gestion des connexions SignalR.
+    *   Le backend actuel (`backend`) enverra des messages (ex: RabbitMQ ou autre queue légère) suite à des événements.
+    *   Le `SignalR.Service` écoutera ces messages et les dispatchera aux clients connectés via SignalR.
+  - [ ] **Gestion des Membres et Invitations d'Équipe (pour les Admins)**:
+    *   Permettre aux admins de lister les membres de leurs équipes.
+    *   Implémenter la création d'invitations d'équipe (liens web).
+    *   Gérer l'acceptation de ces invitations par les utilisateurs pour rejoindre une équipe.
+  - [ ] Implémenter la logique de gamification (attribution de badges).
+- **Étape 3 : Développement Frontend (React)**
+  - [x] Initialiser l'application React avec Vite et TypeScript.
+  - [x] Mettre en place l'authentification OAuth (côté client).
+  - [x] Créer les pages et composants principaux (Login, Dashboard, Callback), incluant désormais la gestion des sprints et des humeurs.
+  - [x] Implémenter un tableau de bord d'administration et la création d'équipes.
+  - [x] Ajouter une navigation basique et des styles initiaux.
+  - [x] Intégrer SWR pour la récupération des données.
+  - [x] Rendre la sauvegarde de l'humeur effective avec affichage et mise à jour.
+  - [x] Créer une page dédiée "Mes Équipes" listant les équipes de l'utilisateur avec leurs sprints actifs et une redirection vers la saisie d'humeur.
+  - [x] Implémenter une page dédiée pour la création de sprints.
+  - [x] Implémenter la déconnexion utilisateur.
+  - [x] **Connecter le client SignalR** au `SignalR.Service` pour recevoir les notifications en temps réel.
+  - [ ] **Interface de Gestion des Membres et Invitations (pour les Admins)**:
+    *   Développer l'UI pour lister les membres de l'équipe.
+    *   Implémenter le formulaire pour créer des liens d'invitation.
+    *   Gérer la logique côté client pour accepter une invitation via un lien.
+- **Étape 4 : Finalisation et Tests**
+  - [ ] Écrire des tests unitaires et d'intégration.
+  - [ ] Rédiger la documentation finale.
+  - [ ] Valider le workflow de déploiement Docker.
+
+### 2. Run with Docker Compose (Recommended)
+
+To build and run all services in detached mode:
+
+```bash
+docker compose up -d --build
+```
+
+**Note sur la persistance des données PostgreSQL**: Les données de la base de données PostgreSQL sont désormais stockées dans un répertoire local (`./postgres_data`) à côté du fichier `docker-compose.yml`. Cela facilite la sauvegarde et la gestion directe des données de la base de données pour les environnements de développement.
+
+To stop the services:
+
+```bash
+docker compose down
+```
+
+### 3. Local Development (Optional)
+
+If you wish to run frontend and/or backend locally without Docker Compose, follow these steps:
+
+#### Backend (.NET)
+
+1.  Navigate to the `api/NikoNiko.Api` directory:
+    ```bash
+    cd api/NikoNiko.Api
+    ```
+2.  Install .NET dependencies:
+    ```bash
+    dotnet restore
+    ```
+3.  **After any change in .NET projects, execute `dotnet format` to apply code style preferences defined in `.editorconfig`**.
+4.  Update `appsettings.json` with your database connection string and OAuth settings. Ensure the PostgreSQL database is running (e.g., via `docker compose up db`).
+5.  Run the backend API:
+    ```bash
+    dotnet run
+    ```
+    The API will typically run on `http://localhost:5000` (or as configured in `launchSettings.json`).
+
+#### Frontend (React)
+
+1.  Navigate to the `app/frontend` directory:
+    ```bash
+    cd app/frontend
+    ```
+2.  Install Node.js dependencies:
+    ```bash
+    npm install
+    # or yarn install
+    ```
+3.  Start the development server:
+    ```bash
+    npm run dev
+    # or yarn dev
+    ```
+    The frontend application will typically be accessible at `http://localhost:5173` (or as configured by Vite).
+
+4. Control every changes using ES Lint:
+   ```bash
+   npm run lint
+   ```
+   Fix any lint or Typescript error.

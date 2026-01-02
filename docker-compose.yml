@@ -26,7 +26,7 @@ services:
     volumes:
       - ./data:/app/data # Mount data directory
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
       - ASPNETCORE_URLS=http://+:8080
       - DatabaseProvider=SQLite
       - ConnectionStrings__SQLiteConnection=Data Source=/app/data/nikoniko.db
@@ -50,7 +50,7 @@ services:
       dockerfile: api/NikoNiko.Notifications/Dockerfile
     container_name: nikoniko_notifications
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
       - ASPNETCORE_URLS=http://+:8080
       - Cors__AllowedOrigins=http://localhost:3000 # Allow frontend origin
       - Authentication__Jwt__Issuer=NikoNiko

@@ -57,11 +57,14 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 });
 
 // Configure Https Redirection
-builder.Services.AddHttpsRedirection(options =>
+if (builder.Environment.IsProduction())
 {
-    options.RedirectStatusCode = (int)HttpStatusCode.TemporaryRedirect;
-    options.HttpsPort = 443;
-});
+    builder.Services.AddHttpsRedirection(options =>
+    {
+        options.RedirectStatusCode = (int)HttpStatusCode.TemporaryRedirect;
+        options.HttpsPort = 443;
+    });
+}
 
 // Configure Authentication
 builder.Services.AddAuthentication(options =>

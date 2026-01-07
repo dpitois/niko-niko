@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using NikoNiko.Core.DTOs.Team.Invitation;
 using NikoNiko.Data;
 using NikoNiko.Services;
+using NikoNiko.Api.Authorization; // Add for policies
 
 namespace NikoNiko.Api.Controllers
 {
@@ -34,6 +35,7 @@ namespace NikoNiko.Api.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize(Policy = "IsTeamAdmin")] // Policy will check if user is admin of createDto.TeamId
         public async Task<IActionResult> CreateTeamInvitation([FromBody] CreateTeamInvitationDto createDto)
         {
             var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -46,14 +48,6 @@ namespace NikoNiko.Api.Controllers
             if (team == null)
             {
                 return NotFound("Team not found.");
-            }
-
-            var isSuperAdmin = User.HasClaim("is_super_admin", "true");
-            var isTeamAdmin = team.AdminId == userId;
-
-            if (!isSuperAdmin && !isTeamAdmin)
-            {
-                return Forbid();
             }
 
             try
@@ -110,7 +104,8 @@ namespace NikoNiko.Api.Controllers
         /// </summary>
         /// <param name="teamId">L'ID de l'équipe.</param>
         /// <returns>Une liste d'objets TeamInvitationDto.</returns>
-        [HttpGet("/api/teams/{teamId}/invitations")]
+        [HttpGet("/api/teams/{teamId}/invitations")] // This route is absolute and not ideal, but matches existing front-end calls.
+        [Authorize(Policy = "IsTeamMember")] // Policy will check if user is member of this team
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -123,19 +118,8 @@ namespace NikoNiko.Api.Controllers
                 return Unauthorized();
             }
 
-            var team = await _context.Teams.Include(t => t.TeamUsers).FirstOrDefaultAsync(t => t.Id == teamId);
-            if (team == null)
-            {
-                return NotFound("Team not found.");
-            }
-            
-            var isSuperAdmin = User.HasClaim("is_super_admin", "true");
-            var isTeamMember = team.AdminId == userId || team.TeamUsers.Any(tu => tu.UserId == userId);
-
-            if (!isSuperAdmin && !isTeamMember)
-            {
-                return Forbid();
-            }
+            // The policy IsTeamMember already handles checking if the user is a member/admin or super-admin.
+            // So, we can directly call the service or query the context.
 
             try
             {
@@ -144,8 +128,9 @@ namespace NikoNiko.Api.Controllers
             }
             catch (UnauthorizedAccessException)
             {
-                // The service might have stricter rules (e.g., only admin), so we catch and allow if our controller logic passed.
-                // A better long-term solution is to align service/controller logic. For now, we query directly.
+                // This catch block might be redundant if the policy correctly handles all cases.
+                // However, the service itself might throw UnauthorizedAccessException.
+                // We keep it for now.
                 var invitations = await _context.TeamInvitations
                                         .Where(i => i.TeamId == teamId)
                                         .Select(i => new TeamInvitationDto
@@ -170,6 +155,7 @@ namespace NikoNiko.Api.Controllers
         /// </summary>
         /// <param name="invitationId">L'ID de l'invitation à supprimer.</param>
         [HttpDelete("{invitationId}")]
+        [Authorize(Policy = "IsTeamAdmin")] // Policy will check if user is admin of the team for this invitation
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -182,19 +168,8 @@ namespace NikoNiko.Api.Controllers
                 return Unauthorized();
             }
 
-            var invitation = await _context.TeamInvitations.Include(i => i.Team).FirstOrDefaultAsync(i => i.Id == invitationId);
-            if (invitation == null)
-            {
-                return NotFound("Invitation not found.");
-            }
-
-            var isSuperAdmin = User.HasClaim("is_super_admin", "true");
-            var isTeamAdmin = invitation.Team.AdminId == userId;
-
-            if (!isSuperAdmin && !isTeamAdmin)
-            {
-                return Forbid();
-            }
+            // The policy IsTeamAdmin already handles checking if the user is an admin or super-admin.
+            // So, we can directly call the service.
 
             try
             {

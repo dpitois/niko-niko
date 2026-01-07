@@ -1,7 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -11,6 +15,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using NikoNiko.Core.Models;
 using NikoNiko.Data;
 using NikoNiko.Services;
 
@@ -32,7 +37,8 @@ public class NikoNikoApiTestApplication : WebApplicationFactory<Program>
             {
                 {"Authentication:Jwt:Key", "supersecretjwtkeythatisatleast32characterslong"}, // Dummy key for testing
                 {"Authentication:Jwt:Issuer", "NikoNikoTestIssuer"},
-                {"Authentication:Jwt:Audience", "NikoNikoTestAudience"}
+                {"Authentication:Jwt:Audience", "NikoNikoTestAudience"},
+                {"SignalRService:BaseUrl", "http://localhost"} // Dummy URL for testing
             });
         });
 
@@ -128,6 +134,45 @@ public class NikoNikoApiTestApplication : WebApplicationFactory<Program>
         }
 
         return host;
+    }
+
+    public async Task<(User user, HttpClient client)> CreateUserAndClient(string name, bool isSuperAdmin = false)
+    {
+        using var scope = Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var user = new User
+        {
+            Id = Guid.NewGuid(),
+            Name = name,
+            OAuthId = $"github|{name.ToLower().Replace(" ", "")}",
+            Email = $"{name.ToLower().Replace(" ", "")}@example.com",
+            IsSuperAdmin = isSuperAdmin
+        };
+        dbContext.Users.Add(user);
+        await dbContext.SaveChangesAsync();
+
+        var client = CreateClient();
+        var tokenService = scope.ServiceProvider.GetRequiredService<ITokenService>();
+        var claims = new List<Claim> { new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()) };
+        if (user.IsSuperAdmin)
+        {
+            claims.Add(new Claim("is_super_admin", "true"));
+        }
+
+        var jwtToken = tokenService.GenerateToken(claims.ToArray());
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
+
+        return (user, client);
+    }
+
+    public async Task<Team> CreateTeam(string name, Guid adminId)
+    {
+        using var scope = Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var team = new Team { Id = Guid.NewGuid(), Name = name, AdminId = adminId };
+        dbContext.Teams.Add(team);
+        await dbContext.SaveChangesAsync();
+        return team;
     }
 
     protected override void Dispose(bool disposing)

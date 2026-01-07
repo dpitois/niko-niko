@@ -59,43 +59,77 @@
 
 ---
 
-#### **Étape 1 : Backend - Mise à Jour du Modèle de Données**
+#### **Étape 1 : Améliorer la couverture des tests d'intégration**
 
-1.  **Modification de l'entité :** J'ajoute la propriété `public bool IsSuperAdmin { get; set; }` à la classe `User` dans `NikoNiko.Core/Models/User.cs`.
-2.  **Migration de la base de données :** Je génère une nouvelle migration EF Core pour appliquer cette colonne à la base de données.
-
----
-
-#### **Étape 2 : Backend - Logique d'Assignation du Rôle `super-admin`**
-
-1.  **Service au Démarrage :** Je crée une logique dans `Program.cs` qui s'exécute au lancement de l'API.
-2.  **Lecture de la Configuration :** Ce service lit la variable d'environnement `SUPER_ADMINS` (liste d'emails).
-3.  **Synchronisation :** Il met à jour en base de données les utilisateurs qui doivent devenir ou cesser d'être `super-admin` en fonction de cette liste.
-4.  **Logique de Repli :** Si la variable d'environnement est vide, la règle du "premier utilisateur devient administrateur" sera appliquée comme fallback.
+1.  **Création du fichier de test :** Je vais créer un nouveau fichier `AuthorizationTests.cs` dans le projet `NikoNiko.Api.IntegrationTests` pour héberger les tests de permissions.
+2.  **Enrichir le contexte de test :** J'améliorerai la classe `NikoNikoApiTestApplication.cs` pour fournir des méthodes utilitaires permettant de créer et d'authentifier facilement des utilisateurs avec des rôles spécifiques (`user`, `team-admin`, `super-admin`).
 
 ---
 
-#### **Étape 3 : Backend - Sécurisation et Tests d'Intégration**
+#### **Étape 2 : Écriture des scénarios de test par rôle**
 
-1.  **Mise à jour du Jeton JWT :** J'ajoute la `claim` `is_super_admin` au jeton généré par `TokenService.cs` si l'utilisateur a le rôle.
-2.  **Politiques d'Autorisation :** Je définis des politiques d'autorisation claires (ex: "IsSuperAdminPolicy") dans `Program.cs`.
-3.  **Protection des Endpoints :** J'applique ces politiques sur les actions des contrôleurs pour restreindre l'accès (`TeamsController`, `UsersController`, etc.).
-4.  **Écriture des Tests d'Intégration :** Dans le projet `NikoNiko.Api.IntegrationTests`, je vais créer de nouveaux tests pour couvrir les scénarios suivants :
-    *   Un utilisateur non authentifié est bien rejeté (401 Unauthorized).
-    *   Un utilisateur standard qui tente d'accéder à une ressource d'administrateur (ex: lister tous les utilisateurs) reçoit une erreur (403 Forbidden).
-    *   Un `team-admin` peut gérer les ressources de son équipe, mais pas celles des autres.
-    *   Un `super-admin` a bien accès à toutes les ressources, y compris la suppression de n'importe quelle équipe.
+1.  **Tests pour le rôle `user` :**
+    *   Vérifier qu'un utilisateur ne peut voir que les équipes dont il est membre.
+    *   Vérifier qu'un utilisateur ne peut pas accéder aux endpoints d'administration (création/suppression d'équipes, de sprints, etc.).
+    *   Confirmer qu'il reçoit une erreur `403 Forbidden` lorsqu'il tente une action non autorisée.
+
+2.  **Tests pour le rôle `team-admin` :**
+    *   Vérifier qu'un `team-admin` peut créer des sprints et des invitations pour l'équipe qu'il administre.
+    *   Vérifier qu'il peut supprimer son équipe.
+    *   Confirmer qu'il ne peut pas gérer les ressources d'une équipe qu'il n'administre pas.
+
+3.  **Tests pour le rôle `super-admin` :**
+    *   Vérifier que le `super-admin` peut lister toutes les équipes, tous les utilisateurs et toutes les ressources de l'application.
+    *   Vérifier qu'il peut supprimer n'importe quelle équipe, utilisateur ou autre ressource.
+    *   Confirmer que ses accès sont globaux et ne sont pas limités à une seule équipe.
 
 ---
 
-#### **Étape 4 : Frontend - Adaptation de l'Interface Utilisateur**
+#### **Étape 3 : Exécution et validation**
 
-1.  **Contexte d'Authentification :** Je mets à jour `AuthContext.tsx` pour extraire et stocker le statut `is_super_admin` depuis le jeton JWT.
-2.  **Affichage Conditionnel :** J'utilise ce statut pour afficher/masquer les éléments de l'interface (boutons de suppression, liens vers les panneaux d'administration) en fonction des droits de l'utilisateur connecté.
+1.  **Lancement des tests :** J'exécuterai la suite de tests complète pour m'assurer que les nouvelles validations sont correctes et qu'aucune régression n'a été introduite.
+2.  **Validation :** Je confirmerai que tous les tests passent, garantissant que les règles de gestion des rôles sont bien appliquées par l'API.
 
----
 
-#### **Étape 5 : Configuration**
+## backup 
 
-1.  **Mise à jour de `docker-compose.yml` :** J'ajoute la variable d'environnement `SUPER_ADMINS` au service `backend`.
-2.  **Mise à jour du Template `.env.template` :** Je documente la nouvelle variable pour expliquer son utilité et son format.
+  Plan d'action complet (mis à jour)
+
+  Je n'effectuerai aucune modification avant votre validation.
+
+  Phase 1 : Analyse et Refactoring de l'Autorisation
+
+   1. Recherche des `[AllowAnonymous]` : Je vais commencer par rechercher toutes les occurrences de l'attribut [AllowAnonymous] dans le code source de l'API pour
+      m'assurer qu'elles sont justifiées (ex: callbacks OAuth, endpoints publics de documentation comme Swagger). Je vous soumettrai les résultats pour validation.
+
+   2. Création de Politiques d'Autorisation personnalisées :
+       * Je vais créer un Requirement et un Handler pour la politique IsTeamMember. Ce handler vérifiera si l'utilisateur authentifié est membre de l'équipe spécifiée
+         dans la route.
+       * Je ferai de même pour la politique IsTeamAdmin, qui vérifiera si l'utilisateur est l'administrateur de l'équipe.
+       * J'enregistrerai ces politiques dans Program.cs.
+
+  Phase 2 : Correction de la logique de l'API Backend
+
+   1. Refactoring des Contrôleurs : Je remplacerai les vérifications de permissions manuelles dans les contrôleurs (TeamsController, SprintsController, etc.) par les
+      nouveaux attributs [Authorize(Policy = "...")].
+
+   2. Correction de `GET /api/users` : Je modifierai cet endpoint pour qu'il retourne une liste d'utilisateurs filtrée en fonction des équipes de l'appelant (sauf pour
+      le super-admin).
+
+   3. Correction de `POST /api/teams` : Je restreindrai cet endpoint pour qu'il ne soit plus accessible par le rôle user de base, mais seulement par les team-admin (et
+      super-admin).
+
+  Phase 3 : Mise à jour des Tests d'Intégration
+
+   1. Mise à jour des Données de Test : Je vais enrichir le setup de test pour inclure un scénario plus complexe avec plusieurs équipes et utilisateurs aux rôles
+      variés.
+   2. Mise à jour des Tests : Je vais corriger et ajouter les tests nécessaires dans AuthorizationTests.cs pour valider tous les cas de la matrice de permissions, en
+      particulier :
+       * Qu'un user ne peut pas créer d'équipe.
+       * Qu'un user voit bien une liste d'utilisateurs et de sprints limitée à ses équipes.
+       * Que les politiques d'autorisation personnalisées (IsTeamAdmin, IsTeamMember) fonctionnent correctement pour bloquer/autoriser l'accès aux ressources.
+
+  Phase 4 : Documentation
+
+   1. Mise à jour du `README.md` : Une fois les changements validés et testés, j'ajouterai la matrice de permissions au fichier README.md pour documenter clairement les
+      règles de l'application.

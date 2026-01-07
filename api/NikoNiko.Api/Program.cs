@@ -6,10 +6,12 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using NikoNiko.Api.Authorization;
 using NikoNiko.Data;
 using NikoNiko.Data.PostgreSql;
 using NikoNiko.Data.Sqlite;
 using NikoNiko.Services;
+using IAuthorizationHandler = Microsoft.AspNetCore.Authorization.IAuthorizationHandler;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
@@ -19,6 +21,13 @@ var config = builder.Configuration;
 builder.Services.AddControllers();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<ITeamInvitationService, TeamInvitationService>();
+
+// Add HttpContextAccessor
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+// Add custom authorization handlers
+builder.Services.AddScoped<IAuthorizationHandler, IsTeamAdminHandler>();
+builder.Services.AddScoped<IAuthorizationHandler, IsTeamMemberHandler>();
 
 // Add HttpClient for SignalR Service communication
 builder.Services.AddHttpClient<INotificationService, NotificationService>(client =>
@@ -100,6 +109,12 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("SuperAdmin", policy =>
         policy.RequireAuthenticatedUser()
               .RequireClaim("is_super_admin", "true"));
+    
+    options.AddPolicy("IsTeamAdmin", policy =>
+        policy.Requirements.Add(new IsTeamAdminRequirement()));
+
+    options.AddPolicy("IsTeamMember", policy =>
+        policy.Requirements.Add(new IsTeamMemberRequirement()));
 });
 
 // Add services for API documentation

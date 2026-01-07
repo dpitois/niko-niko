@@ -57,79 +57,36 @@
 
 # Le plan d'action
 
----
+# Le plan d'action
 
-#### **Étape 1 : Améliorer la couverture des tests d'intégration**
+### Plan d'action : Intégration des Rôles/Permissions et Modification de la Page de Connexion
 
-1.  **Création du fichier de test :** Je vais créer un nouveau fichier `AuthorizationTests.cs` dans le projet `NikoNiko.Api.IntegrationTests` pour héberger les tests de permissions.
-2.  **Enrichir le contexte de test :** J'améliorerai la classe `NikoNikoApiTestApplication.cs` pour fournir des méthodes utilitaires permettant de créer et d'authentifier facilement des utilisateurs avec des rôles spécifiques (`user`, `team-admin`, `super-admin`).
+**Objectif principal** : Intégrer les rôles et permissions des utilisateurs dans le frontend pour contrôler l'accès aux fonctionnalités et modifier l'affichage de la page de connexion.
 
----
+**Détail du Plan :**
 
-#### **Étape 2 : Écriture des scénarios de test par rôle**
+- [x] **1. Analyse de l'Existant**
+    - [x] Identifier le composant ou la logique responsable du rendu de l'en-tête global de l'application.
+    - [x] Identifier le composant de la page de connexion (`Login`) et son intégration dans le routage.
+    - [x] Examiner `app/frontend/src/context/AuthContext.tsx` pour comprendre comment l'état d'authentification est géré et où les informations de l'utilisateur (incluant potentiellement les rôles) peuvent être stockées.
+    - [x] Vérifier les appels API liés à l'authentification pour voir si le backend renvoie déjà des informations sur les rôles de l'utilisateur. Si ce n'est pas le cas, cela pourrait nécessiter une modification backend (mais je me concentrerai sur le frontend pour l'instant, en supposant que l'API peut être étendue ou que les rôles sont déjà disponibles via un autre endpoint).
 
-1.  **Tests pour le rôle `user` :**
-    *   Vérifier qu'un utilisateur ne peut voir que les équipes dont il est membre.
-    *   Vérifier qu'un utilisateur ne peut pas accéder aux endpoints d'administration (création/suppression d'équipes, de sprints, etc.).
-    *   Confirmer qu'il reçoit une erreur `403 Forbidden` lorsqu'il tente une action non autorisée.
+- [x] **2. Mise à jour du Contexte d'Authentification (`AuthContext`) pour les Rôles**
+    - [x] Modifier l'interface `AuthContextType` dans `app/frontend/src/context/AuthContext.tsx` pour inclure des propriétés pour les rôles (ex: `isSuperAdmin: boolean`, `isTeamAdmin: boolean`, `isTeamMember: boolean`).
+    - [x] Mettre à jour la fonction de connexion (ex: `login` ou `handleAuthCallback`) dans `AuthContext` pour extraire ces informations de l'objet utilisateur retourné par l'API (ou via une nouvelle requête si nécessaire) et les stocker dans l'état de l'authentification.
+    - [x] Assurer la persistance de ces rôles (ex: dans le `localStorage` ou les `cookies`) avec les autres informations d'authentification si nécessaire.
 
-2.  **Tests pour le rôle `team-admin` :**
-    *   Vérifier qu'un `team-admin` peut créer des sprints et des invitations pour l'équipe qu'il administre.
-    *   Vérifier qu'il peut supprimer son équipe.
-    *   Confirmer qu'il ne peut pas gérer les ressources d'une équipe qu'il n'administre pas.
+- [x] **3. Implémentation du Contrôle d'Accès basé sur les Rôles**
+    - [x] **Créer un Hook d'Autorisation (`usePermissions.ts`)**: Développer un hook personnalisé (ex: `app/frontend/src/hooks/usePermissions.ts`) qui utilise le `AuthContext` pour vérifier si l'utilisateur a les rôles nécessaires pour accéder à une fonctionnalité ou une route. Ce hook pourrait offrir des fonctions comme `canManageTeams()`, `isSuperAdmin()`, `isTeamMemberOf(teamId)`.
+    - [x] **Mettre à jour les Composants Protégés**:
+        - [x] Dans `app/frontend/src/components/ProtectedRoute.tsx`, étendre la logique pour non seulement vérifier l'authentification, mais aussi les rôles requis pour la route si spécifié.
+        - [x] Appliquer ce hook ou des vérifications directes de rôles dans les composants frontend qui gèrent les fonctionnalités sensibles (ex: `CreateTeamForm.tsx`, `CreateTeamInvitationForm.tsx`, panneaux d'administration) pour afficher/masquer des éléments UI ou des redirections.
 
-3.  **Tests pour le rôle `super-admin` :**
-    *   Vérifier que le `super-admin` peut lister toutes les équipes, tous les utilisateurs et toutes les ressources de l'application.
-    *   Vérifier qu'il peut supprimer n'importe quelle équipe, utilisateur ou autre ressource.
-    *   Confirmer que ses accès sont globaux et ne sont pas limités à une seule équipe.
+- [x] **4. Modification de l'Affichage de la Page de Connexion**
+    - [x] **Identification du Composant Header**: Localiser le fichier du composant `Header` (probablement `app/frontend/src/components/Header.tsx`).
+    - [x] **Logique de Rendu Conditionnel**: Dans le composant principal de l'application (ex: `app/frontend/src/App.tsx`), ajouter une logique pour ne pas rendre le `Header` lorsque l'utilisateur est sur la page de connexion. Ceci peut être réalisé en vérifiant la route actuelle via `react-router-dom` (ex: `useLocation().pathname`).
+    - [x] S'assurer que la page de connexion (`app/frontend/src/pages/Login.tsx` ou équivalent) n'inclut pas directement le `Header` mais dépend de son parent pour son rendu.
 
----
-
-#### **Étape 3 : Exécution et validation**
-
-1.  **Lancement des tests :** J'exécuterai la suite de tests complète pour m'assurer que les nouvelles validations sont correctes et qu'aucune régression n'a été introduite.
-2.  **Validation :** Je confirmerai que tous les tests passent, garantissant que les règles de gestion des rôles sont bien appliquées par l'API.
-
-
-## backup 
-
-  Plan d'action complet (mis à jour)
-
-  Je n'effectuerai aucune modification avant votre validation.
-
-  Phase 1 : Analyse et Refactoring de l'Autorisation
-
-   1. Recherche des `[AllowAnonymous]` : Je vais commencer par rechercher toutes les occurrences de l'attribut [AllowAnonymous] dans le code source de l'API pour
-      m'assurer qu'elles sont justifiées (ex: callbacks OAuth, endpoints publics de documentation comme Swagger). Je vous soumettrai les résultats pour validation.
-
-   2. Création de Politiques d'Autorisation personnalisées :
-       * Je vais créer un Requirement et un Handler pour la politique IsTeamMember. Ce handler vérifiera si l'utilisateur authentifié est membre de l'équipe spécifiée
-         dans la route.
-       * Je ferai de même pour la politique IsTeamAdmin, qui vérifiera si l'utilisateur est l'administrateur de l'équipe.
-       * J'enregistrerai ces politiques dans Program.cs.
-
-  Phase 2 : Correction de la logique de l'API Backend
-
-   1. Refactoring des Contrôleurs : Je remplacerai les vérifications de permissions manuelles dans les contrôleurs (TeamsController, SprintsController, etc.) par les
-      nouveaux attributs [Authorize(Policy = "...")].
-
-   2. Correction de `GET /api/users` : Je modifierai cet endpoint pour qu'il retourne une liste d'utilisateurs filtrée en fonction des équipes de l'appelant (sauf pour
-      le super-admin).
-
-   3. Correction de `POST /api/teams` : Je restreindrai cet endpoint pour qu'il ne soit plus accessible par le rôle user de base, mais seulement par les team-admin (et
-      super-admin).
-
-  Phase 3 : Mise à jour des Tests d'Intégration
-
-   1. Mise à jour des Données de Test : Je vais enrichir le setup de test pour inclure un scénario plus complexe avec plusieurs équipes et utilisateurs aux rôles
-      variés.
-   2. Mise à jour des Tests : Je vais corriger et ajouter les tests nécessaires dans AuthorizationTests.cs pour valider tous les cas de la matrice de permissions, en
-      particulier :
-       * Qu'un user ne peut pas créer d'équipe.
-       * Qu'un user voit bien une liste d'utilisateurs et de sprints limitée à ses équipes.
-       * Que les politiques d'autorisation personnalisées (IsTeamAdmin, IsTeamMember) fonctionnent correctement pour bloquer/autoriser l'accès aux ressources.
-
-  Phase 4 : Documentation
-
-   1. Mise à jour du `README.md` : Une fois les changements validés et testés, j'ajouterai la matrice de permissions au fichier README.md pour documenter clairement les
-      règles de l'application.
+- [x] **5. Tests**
+    - [x] Tester la page de connexion pour s'assurer que l'en-tête est correctement masqué.
+    - [x] Tester les différentes routes et fonctionnalités avec des utilisateurs ayant des rôles différents (simulés si le backend n'est pas encore prêt) pour vérifier que le contrôle d'accès fonctionne comme prévu.

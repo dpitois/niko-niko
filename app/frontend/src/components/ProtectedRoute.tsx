@@ -1,18 +1,26 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext'; // Update import path
-import { CircularProgress, Box } from '@mui/material'; // Import MUI components for loading indicator
+import { useAuth } from '../context/AuthContext';
+import { usePermissions } from '../hooks/usePermissions'; // Import the new hook
+import { CircularProgress, Box } from '@mui/material';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  adminOnly?: boolean;
+  requiredSuperAdmin?: boolean; // Replaces adminOnly
+  requiredTeamAdminOf?: string; // Requires the user to be admin of this teamId
+  requiredTeamMemberOf?: string; // Requires the user to be a member of this teamId
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, adminOnly = false }) => {
-  const { user, isLoading, isSuperAdmin } = useAuth(); // Get isLoading and isSuperAdmin from useAuth
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+  children,
+  requiredSuperAdmin = false,
+  requiredTeamAdminOf,
+  requiredTeamMemberOf,
+}) => {
+  const { user, isLoading } = useAuth();
+  const { isSuperAdmin, isTeamAdmin, isTeamMember } = usePermissions();
 
   if (isLoading) {
-    // While authentication status is being checked, display a loading indicator
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
         <CircularProgress />
@@ -21,13 +29,22 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, adminOnly = f
   }
 
   if (!user) {
-    // User is not authenticated after loading, redirect to login page
     return <Navigate to="/login" replace />;
   }
 
-  if (adminOnly && !isSuperAdmin) {
-    // User is not a super admin, redirect to a safe page
-    return <Navigate to="/dashboard" replace />;
+  // Check Super Admin requirement
+  if (requiredSuperAdmin && !isSuperAdmin) {
+    return <Navigate to="/dashboard" replace />; // Redirect if not super admin
+  }
+
+  // Check Team Admin requirement
+  if (requiredTeamAdminOf && !isTeamAdmin(requiredTeamAdminOf)) {
+    return <Navigate to="/dashboard" replace />; // Redirect if not team admin
+  }
+
+  // Check Team Member requirement
+  if (requiredTeamMemberOf && !isTeamMember(requiredTeamMemberOf)) {
+    return <Navigate to="/dashboard" replace />; // Redirect if not team member
   }
 
   return <>{children}</>;

@@ -18,6 +18,10 @@ RUN dotnet publish "NikoNiko.Api/NikoNiko.Api.csproj" -c Release -o /app/publish
 # Stage 3: Final
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app
+
+# Install curl for healthcheck
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
 COPY --from=publish /app/publish .
 
 ENTRYPOINT ["dotnet", "NikoNiko.Api.dll"]

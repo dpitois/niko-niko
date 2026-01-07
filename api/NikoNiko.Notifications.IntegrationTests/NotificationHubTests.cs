@@ -5,6 +5,7 @@ using System.Net.Http.Headers; // Added
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -13,8 +14,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+
 using NikoNiko.Notifications;
 using NikoNiko.Notifications.Services;
+
 using Xunit;
 
 namespace NikoNiko.Notifications.IntegrationTests
@@ -65,8 +68,8 @@ namespace NikoNiko.Notifications.IntegrationTests
             var userId = "testUser"; // The userId that will be associated with the connection in the hub
             var messageToSend = "Hello from test!";
             var userToSend = "TestSender";
-            
-            var payload = new 
+
+            var payload = new
             {
                 User = userToSend,
                 Message = messageToSend,

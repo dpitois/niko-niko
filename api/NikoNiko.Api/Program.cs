@@ -1,17 +1,15 @@
-using System.Net; // Add this
+using System.Net;
 using System.Reflection;
 using System.Text;
-
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-
-using NikoNiko.Data; // Using the common data project
+using NikoNiko.Data;
 using NikoNiko.Data.PostgreSql;
 using NikoNiko.Data.Sqlite;
-using NikoNiko.Services; // Using the new services project
+using NikoNiko.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
@@ -38,7 +36,6 @@ else
 {
     builder.Services.AddPostgreSqlPersistence(config);
 }
-
 
 // Configure Data Protection
 builder.Services.AddDataProtection()
@@ -105,6 +102,8 @@ builder.Services.AddSwaggerGen(options =>
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 });
 
+builder.Services.AddHealthChecks();
+
 // -----------------------------------------------------------------------------
 var app = builder.Build();
 
@@ -127,6 +126,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.MapHealthChecks("/healthz");
 
 app.UseCookiePolicy(new CookiePolicyOptions
 {

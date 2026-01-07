@@ -32,64 +32,73 @@ namespace NikoNiko.Notifications.IntegrationTests
         }
 
         [Fact]
-        public async Task SendNotification_ReceivesNotification()
+        public async Task Dispatch_ShouldNotNotifySender_ButShouldNotifyOthers()
         {
             // Arrange
-            var client = _factory.CreateClient();
-            var jwtToken = GenerateTestJwtToken("testUser", _factory.Services.GetRequiredService<IConfiguration>());
+            var senderId = "senderUser";
+            var receiverId = "receiverUser";
 
-            var connection = new HubConnectionBuilder()
+            var senderToken = GenerateTestJwtToken(senderId, _factory.Services.GetRequiredService<IConfiguration>());
+            var receiverToken = GenerateTestJwtToken(receiverId, _factory.Services.GetRequiredService<IConfiguration>());
+
+            var senderReceived = false;
+            var receiverTcs = new TaskCompletionSource<bool>();
+
+            // Setup sender connection
+            var senderConnection = new HubConnectionBuilder()
                 .WithUrl(new Uri(_factory.Server.BaseAddress, "notificationHub"), options =>
                 {
                     options.HttpMessageHandlerFactory = _ => _factory.Server.CreateHandler();
-                    options.Transports = Microsoft.AspNetCore.Http.Connections.HttpTransportType.WebSockets | Microsoft.AspNetCore.Http.Connections.HttpTransportType.LongPolling;
-                    options.AccessTokenProvider = () => Task.FromResult<string?>(jwtToken);
+                    options.AccessTokenProvider = () => Task.FromResult<string?>(senderToken);
+                })
+                .Build();
+            
+            senderConnection.On<string, string>("ReceiveNotification", (user, message) =>
+            {
+                senderReceived = true;
+            });
+
+            // Setup receiver connection
+            var receiverConnection = new HubConnectionBuilder()
+                .WithUrl(new Uri(_factory.Server.BaseAddress, "notificationHub"), options =>
+                {
+                    options.HttpMessageHandlerFactory = _ => _factory.Server.CreateHandler();
+                    options.AccessTokenProvider = () => Task.FromResult<string?>(receiverToken);
                 })
                 .Build();
 
-            var receivedUser = "";
-            var receivedMessage = "";
-
-            connection.On<string, string>("ReceiveNotification", (user, message) =>
+            receiverConnection.On<string, string>("ReceiveNotification", (user, message) =>
             {
-                receivedUser = user;
-                receivedMessage = message;
+                receiverTcs.SetResult(true);
             });
 
-            await connection.StartAsync();
+            await senderConnection.StartAsync();
+            await receiverConnection.StartAsync();
 
-            // Act
-            // The SendNotification method in NotificationHub is for testing purposes from the client.
-            // For this integration test, we simulate the server sending a notification via the controller.
-            // We need to call the NotificationsController's DispatchNotification endpoint.
-
-            var notificationClient = _factory.CreateClient();
-            notificationClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken); // Authenticate as an admin or privileged user
-            var userId = "testUser"; // The userId that will be associated with the connection in the hub
-            var messageToSend = "Hello from test!";
-            var userToSend = "TestSender";
-
+            // Act: Dispatch a notification as the 'sender'
+            var httpClient = _factory.CreateClient();
             var payload = new
             {
-                User = userToSend,
-                Message = messageToSend,
-                UserId = userId // This userId should match the one connected to the hub
+                User = "Test Message User",
+                Message = "This is a test message.",
+                UserId = senderId // Critically, we identify the sender by their UserId
             };
-
             var jsonPayload = System.Text.Json.JsonSerializer.Serialize(payload);
             var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
 
-            var response = await notificationClient.PostAsync("/api/Notifications/dispatch", content);
+            var response = await httpClient.PostAsync("/api/Notifications/dispatch", content);
             response.EnsureSuccessStatusCode();
 
             // Assert
-            // Give some time for the message to propagate
-            await Task.Delay(500);
+            var receiverTask = receiverTcs.Task;
+            var completedTask = await Task.WhenAny(receiverTask, Task.Delay(TimeSpan.FromSeconds(5)));
 
-            Assert.Equal(userToSend, receivedUser);
-            Assert.Equal(messageToSend, receivedMessage);
+            Assert.True(receiverTask.IsCompletedSuccessfully, "Receiver should have received the notification.");
+            Assert.False(senderReceived, "Sender should not have received their own notification.");
 
-            await connection.StopAsync();
+            // Cleanup
+            await senderConnection.StopAsync();
+            await receiverConnection.StopAsync();
         }
 
         // Helper method to generate a JWT token for testing

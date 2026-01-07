@@ -1,6 +1,8 @@
 using System.Text;
+
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+
 using NikoNiko.Notifications.Hubs;
 using NikoNiko.Notifications.Services;
 

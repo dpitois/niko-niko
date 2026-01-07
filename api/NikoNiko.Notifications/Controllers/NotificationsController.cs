@@ -23,7 +23,7 @@ namespace NikoNiko.Notifications.Controllers
         }
 
         [HttpPost("dispatch")]
-        public async Task<IActionResult> DispatchNotification([FromBody] NotificationPayload payload)
+        public async Task<IActionResult> Dispatch([FromBody] NotificationPayload payload)
         {
             if (string.IsNullOrEmpty(payload.User) || string.IsNullOrEmpty(payload.Message) || string.IsNullOrEmpty(payload.UserId))
             {
@@ -31,7 +31,7 @@ namespace NikoNiko.Notifications.Controllers
             }
 
             var connectionIdsToExclude = _userConnectionManager.GetConnections(payload.UserId)?.ToArray() ?? new string[0];
-            await _hubContext.Clients.All.SendAsync("ReceiveNotification", payload.User, payload.Message);
+            await _hubContext.Clients.AllExcept(connectionIdsToExclude).SendAsync("ReceiveNotification", payload.User, payload.Message);
             return Ok();
         }
     }

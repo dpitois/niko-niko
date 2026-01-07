@@ -19,6 +19,8 @@ public class User
 
     public string? AvatarUrl { get; set; }
 
+    public bool IsSuperAdmin { get; set; } = false;
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public List<TeamUser> TeamUsers { get; set; } = new();

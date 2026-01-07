@@ -1,15 +1,17 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
-using NikoNiko.Core.DTOs.Sprint; // Updated using directive
-using NikoNiko.Core.Models; // Updated using directive
-using NikoNiko.Data; // Updated using directive
+using NikoNiko.Core.DTOs.Sprint;
+using NikoNiko.Core.Models;
+using NikoNiko.Data;
 
 namespace NikoNiko.Api.Controllers;
 
 /// <summary>
 /// Controller for managing sprints.
 /// </summary>
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class SprintsController : ControllerBase
@@ -22,14 +24,36 @@ public class SprintsController : ControllerBase
     }
 
     /// <summary>
-    /// Gets a list of all sprints.
+    /// Gets a list of all sprints, optionally filtered by teamId.
+    /// A regular user can only see sprints for teams they are a member of.
+    /// A super-admin can see all sprints.
     /// </summary>
     /// <returns>A list of SprintDto objects.</returns>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<SprintDto>>> GetSprints()
+    public async Task<ActionResult<IEnumerable<SprintDto>>> GetSprints([FromQuery] Guid? teamId)
     {
-        var sprints = await _context.Sprints
+        var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!Guid.TryParse(userIdString, out var userId))
+        {
+            return Unauthorized("User ID not found or invalid.");
+        }
+
+        var isSuperAdmin = User.HasClaim("is_super_admin", "true");
+
+        var query = _context.Sprints.AsQueryable();
+
+        if (teamId.HasValue)
+        {
+            query = query.Where(s => s.TeamId == teamId.Value);
+        }
+
+        if (!isSuperAdmin)
+        {
+            query = query.Where(s => s.Team.AdminId == userId || s.Team.TeamUsers.Any(tu => tu.UserId == userId));
+        }
+
+        var sprints = await query
             .Select(s => new SprintDto
             {
                 Id = s.Id,
@@ -45,43 +69,86 @@ public class SprintsController : ControllerBase
 
     /// <summary>
     /// Gets a specific sprint by its ID.
+    /// A user must be a member of the sprint's team, or a super-admin.
     /// </summary>
     /// <param name="id">The ID of the sprint.</param>
     /// <returns>The SprintDto object, or NotFound if the sprint does not exist.</returns>
     [HttpGet("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<SprintDto>> GetSprint(Guid id)
     {
+        var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!Guid.TryParse(userIdString, out var userId))
+        {
+            return Unauthorized("User ID not found or invalid.");
+        }
+
+        var isSuperAdmin = User.HasClaim("is_super_admin", "true");
+
         var sprint = await _context.Sprints
-            .Select(s => new SprintDto
+            .Where(s => s.Id == id)
+            .Select(s => new 
             {
-                Id = s.Id,
-                Name = s.Name,
-                StartDate = s.StartDate,
-                EndDate = s.EndDate,
-                TeamId = s.TeamId
+                Sprint = s,
+                IsUserMember = s.Team.AdminId == userId || s.Team.TeamUsers.Any(tu => tu.UserId == userId)
             })
-            .FirstOrDefaultAsync(s => s.Id == id);
+            .FirstOrDefaultAsync();
 
         if (sprint == null)
         {
             return NotFound();
         }
 
-        return Ok(sprint);
+        if (!isSuperAdmin && !sprint.IsUserMember)
+        {
+            return Forbid();
+        }
+
+        return Ok(new SprintDto
+        {
+            Id = sprint.Sprint.Id,
+            Name = sprint.Sprint.Name,
+            StartDate = sprint.Sprint.StartDate,
+            EndDate = sprint.Sprint.EndDate,
+            TeamId = sprint.Sprint.TeamId
+        });
     }
 
     /// <summary>
     /// Creates a new sprint.
+    /// Only a team-admin or super-admin can create a sprint.
     /// </summary>
     /// <param name="createSprintDto">The data needed to create a sprint.</param>
     /// <returns>The SprintDto of the created sprint.</returns>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<SprintDto>> CreateSprint(CreateSprintDto createSprintDto)
     {
+        var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!Guid.TryParse(userIdString, out var userId))
+        {
+            return Unauthorized("User ID not found or invalid.");
+        }
+
+        var team = await _context.Teams.FindAsync(createSprintDto.TeamId);
+        if (team == null)
+        {
+            ModelState.AddModelError(nameof(createSprintDto.TeamId), "Team not found.");
+            return BadRequest(ModelState);
+        }
+
+        var isSuperAdmin = User.HasClaim("is_super_admin", "true");
+        var isTeamAdmin = team.AdminId == userId;
+
+        if (!isSuperAdmin && !isTeamAdmin)
+        {
+            return Forbid();
+        }
+        
         if (createSprintDto.EndDate <= createSprintDto.StartDate)
         {
             ModelState.AddModelError(nameof(createSprintDto.EndDate), "End date must be after start date.");
@@ -91,8 +158,8 @@ public class SprintsController : ControllerBase
         var sprint = new Sprint
         {
             Name = createSprintDto.Name,
-            StartDate = createSprintDto.StartDate.ToUniversalTime(), // Convert to UTC
-            EndDate = createSprintDto.EndDate.ToUniversalTime(),     // Convert to UTC
+            StartDate = createSprintDto.StartDate.ToUniversalTime(),
+            EndDate = createSprintDto.EndDate.ToUniversalTime(),
             TeamId = createSprintDto.TeamId
         };
 
@@ -109,5 +176,43 @@ public class SprintsController : ControllerBase
         };
 
         return CreatedAtAction(nameof(GetSprint), new { id = sprint.Id }, sprintDto);
+    }
+    
+    /// <summary>
+    /// Deletes a sprint.
+    /// Only the team's admin or a super-admin can delete a sprint.
+    /// </summary>
+    /// <param name="id">The ID of the sprint to delete.</param>
+    /// <returns>NoContent if successful, or an error response.</returns>
+    [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteSprint(Guid id)
+    {
+        var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!Guid.TryParse(userIdString, out var userId))
+        {
+            return Unauthorized("User ID not found or invalid.");
+        }
+
+        var sprint = await _context.Sprints.Include(s => s.Team).FirstOrDefaultAsync(s => s.Id == id);
+        if (sprint == null)
+        {
+            return NotFound();
+        }
+
+        var isSuperAdmin = User.HasClaim("is_super_admin", "true");
+        var isTeamAdmin = sprint.Team.AdminId == userId;
+
+        if (!isSuperAdmin && !isTeamAdmin)
+        {
+            return Forbid();
+        }
+
+        _context.Sprints.Remove(sprint);
+        await _context.SaveChangesAsync();
+
+        return NoContent();
     }
 }

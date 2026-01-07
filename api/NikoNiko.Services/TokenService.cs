@@ -27,6 +27,11 @@ public class TokenService : ITokenService
             new Claim(JwtRegisteredClaimNames.Name, user.Name)
         };
 
+        if (user.IsSuperAdmin)
+        {
+            claims.Add(new Claim("is_super_admin", "true"));
+        }
+
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Authentication:Jwt:Key"]!));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
 

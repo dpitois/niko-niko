@@ -1,77 +1,62 @@
 import React, { createContext, useState, useEffect, useCallback, useContext } from 'react';
+import { jwtDecode } from 'jwt-decode';
 
 interface DecodedToken {
   sub: string; // Subject (user id)
   name: string;
   email: string;
-  // ... any other fields in your token
+  is_super_admin?: string; // This claim might be optional
 }
 
 interface AuthContextType {
   user: DecodedToken | null;
+  isSuperAdmin: boolean;
   login: (token: string) => void;
   logout: () => void;
-  isLoading: boolean; // To indicate if initial auth check is ongoing
+  isLoading: boolean;
 }
-
-// Manual JWT decode for prototype purposes to bypass TS2307 error with jwt-decode library
-const manualJwtDecode = <T extends object>(token: string): T | null => { // Explicitly return T | null
-  try {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split('')
-        .map(function (c) {
-          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        })
-        .join('')
-    );
-
-    return JSON.parse(jsonPayload) as T; // Cast to T
-  } catch (e) {
-    console.error("Error decoding JWT manually:", e);
-    return null; // Return null on error
-  }
-};
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<DecodedToken | null>(null);
-  const [isLoading, setIsLoading] = useState(true); // Start loading
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const login = useCallback((token: string) => {
+  const processToken = useCallback((token: string) => {
     localStorage.setItem('jwt_token', token);
-    const decoded = manualJwtDecode<DecodedToken>(token);
-    if (decoded) {
+    try {
+      const decoded = jwtDecode<DecodedToken>(token);
       setUser(decoded);
-    } else {
-      setUser(null); // Clear user if token is invalid
+      setIsSuperAdmin(decoded.is_super_admin === 'true');
+    } catch (error) {
+      console.error("Invalid token:", error);
       localStorage.removeItem('jwt_token');
+      setUser(null);
+      setIsSuperAdmin(false);
     }
   }, []);
+
+  const login = useCallback((token: string) => {
+    processToken(token);
+  }, [processToken]);
 
   const logout = useCallback(() => {
     localStorage.removeItem('jwt_token');
     setUser(null);
+    setIsSuperAdmin(false);
   }, []);
 
   useEffect(() => {
     const token = localStorage.getItem('jwt_token');
     if (token) {
-      const decoded = manualJwtDecode<DecodedToken>(token);
-      if (decoded) {
-        setUser(decoded);
-      } else {
-        localStorage.removeItem('jwt_token'); // Remove invalid token
-      }
+      processToken(token);
     }
-    setIsLoading(false); // Finished initial loading
-  }, []);
+    setIsLoading(false);
+  }, [processToken]);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, isSuperAdmin, login, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

@@ -10,7 +10,7 @@ import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 
 const Header: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, isSuperAdmin } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -34,9 +34,11 @@ const Header: React.FC = () => {
 
         {user && (
           <Box sx={{ display: 'flex', alignItems: 'center', ml: 2 }}>
-            <Button color="inherit" component={NavLink} to="/admin">
-              Admin
-            </Button>
+            {isSuperAdmin && (
+              <Button color="inherit" component={NavLink} to="/admin">
+                Admin
+              </Button>
+            )}
             <Button color="inherit" component={NavLink} to="/sprint/create">
               Create Sprint
             </Button>

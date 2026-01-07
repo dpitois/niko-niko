@@ -13,3 +13,6 @@ export const createTeam = async (team: CreateTeam): Promise<TeamDto> => {
     return data;
 };
 
+export const deleteTeam = async (teamId: string): Promise<void> => {
+    await api.delete(`/teams/${teamId}`);
+};

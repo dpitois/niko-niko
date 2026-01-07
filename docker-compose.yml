@@ -48,6 +48,7 @@ services:
       - Authentication__GitHub__ClientSecret=${GITHUB_CLIENT_SECRET}
       - Authentication__FrontendRedirectUrl=${FRONTEND_REDIRECT_URL}
       - SignalRService__BaseUrl=http://nikoniko_notifications:8080 # SignalR Service URL for backend
+      - SUPER_ADMINS=${SUPER_ADMINS}
     ports:
       - "5000:8080"
     healthcheck:

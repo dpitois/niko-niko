@@ -42,13 +42,22 @@ public class TeamsController : ControllerBase
             return Unauthorized("User ID not found or invalid.");
         }
 
-        // 2. Filtrer les équipes
-        var teams = await _context.Teams
-            .Where(t => t.AdminId == userId || t.TeamUsers.Any(tu => tu.UserId == userId)) // Filtrage par AdminId ou UserId dans TeamUsers
+        // 2. Build the base query
+        var query = _context.Teams
             .Include(t => t.Sprints)
-            .Include(t => t.TeamUsers) // Include TeamUsers
-            .ThenInclude(tu => tu.User) // Include the User for each TeamUser
-            .Select(t => new TeamWithSprintsDto
+            .Include(t => t.TeamUsers)
+            .ThenInclude(tu => tu.User)
+            .AsQueryable();
+
+        // 3. Conditionally filter the query
+        var isSuperAdmin = User.HasClaim("is_super_admin", "true");
+        if (!isSuperAdmin)
+        {
+            query = query.Where(t => t.AdminId == userId || t.TeamUsers.Any(tu => tu.UserId == userId));
+        }
+
+        // 4. Execute the query
+        var teams = await query.Select(t => new TeamWithSprintsDto
             {
                 Id = t.Id,
                 Name = t.Name,
@@ -121,6 +130,45 @@ public class TeamsController : ControllerBase
         }
 
         return Ok(team);
+    }
+    
+    /// <summary>
+    /// Deletes a team.
+    /// Only the team's admin or a super-admin can delete a team.
+    /// </summary>
+    /// <param name="id">The ID of the team to delete.</param>
+    /// <returns>NoContent if successful, or an error response.</returns>
+    [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteTeam(Guid id)
+    {
+        var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!Guid.TryParse(userIdString, out var userId))
+        {
+            return Unauthorized("User ID not found or invalid.");
+        }
+
+        var team = await _context.Teams.FindAsync(id);
+
+        if (team == null)
+        {
+            return NotFound();
+        }
+
+        var isSuperAdmin = User.HasClaim("is_super_admin", "true");
+        var isTeamAdmin = team.AdminId == userId;
+
+        if (!isSuperAdmin && !isTeamAdmin)
+        {
+            return Forbid();
+        }
+
+        _context.Teams.Remove(team);
+        await _context.SaveChangesAsync();
+
+        return NoContent();
     }
 
     /// <summary>

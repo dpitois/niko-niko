@@ -5,10 +5,11 @@ import { CircularProgress, Box } from '@mui/material'; // Import MUI components 
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
+  adminOnly?: boolean;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { user, isLoading } = useAuth(); // Get isLoading from useAuth
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, adminOnly = false }) => {
+  const { user, isLoading, isSuperAdmin } = useAuth(); // Get isLoading and isSuperAdmin from useAuth
 
   if (isLoading) {
     // While authentication status is being checked, display a loading indicator
@@ -24,7 +25,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     return <Navigate to="/login" replace />;
   }
 
+  if (adminOnly && !isSuperAdmin) {
+    // User is not a super admin, redirect to a safe page
+    return <Navigate to="/dashboard" replace />;
+  }
+
   return <>{children}</>;
 };
 
 export default ProtectedRoute;
+

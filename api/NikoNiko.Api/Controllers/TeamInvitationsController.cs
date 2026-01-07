@@ -1,9 +1,11 @@
+using System.Collections.Generic;
+using System.Security.Claims;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 using NikoNiko.Core.DTOs.Team.Invitation;
 using NikoNiko.Services;
-using System.Security.Claims;
-using System.Collections.Generic;
 
 namespace NikoNiko.Api.Controllers
 {

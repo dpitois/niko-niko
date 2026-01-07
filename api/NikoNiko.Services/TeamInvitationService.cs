@@ -1,9 +1,11 @@
+using System.Security.Cryptography;
+using System.Text;
+
 using Microsoft.EntityFrameworkCore;
+
 using NikoNiko.Core.DTOs.Team.Invitation;
 using NikoNiko.Core.Models;
 using NikoNiko.Data;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace NikoNiko.Services
 {
@@ -116,6 +118,7 @@ namespace NikoNiko.Services
             invitation.Status = "Accepted";
             invitation.AcceptedByUserId = acceptedByUserId;
             invitation.AcceptedAt = DateTime.UtcNow;
+            invitation.IsDeleted = true; // Mark as soft-deleted after acceptance
 
             await _context.SaveChangesAsync();
 
@@ -123,9 +126,9 @@ namespace NikoNiko.Services
             {
                 Id = invitation.Id,
                 TeamId = invitation.TeamId,
-                TeamName = invitation.Team.Name,
+                TeamName = invitation.Team!.Name,
                 CreatorUserId = invitation.CreatorUserId,
-                CreatorUserName = invitation.CreatorUser.Name,
+                CreatorUserName = invitation.CreatorUser!.Name,
                 ExpirationDate = invitation.ExpirationDate,
                 Token = invitation.Token,
                 Status = invitation.Status
@@ -159,9 +162,9 @@ namespace NikoNiko.Services
                 {
                     Id = ti.Id,
                     TeamId = ti.TeamId,
-                    TeamName = ti.Team.Name,
+                    TeamName = ti.Team!.Name,
                     CreatorUserId = ti.CreatorUserId,
-                    CreatorUserName = ti.CreatorUser.Name,
+                    CreatorUserName = ti.CreatorUser!.Name,
                     ExpirationDate = ti.ExpirationDate,
                     Token = ti.Token,
                     Status = ti.Status
@@ -170,8 +173,8 @@ namespace NikoNiko.Services
 
             return invitations;
         }
-        
-        public async Task<TeamInvitation> GetTeamInvitationByTokenAsync(string token)
+
+        public async Task<TeamInvitation?> GetTeamInvitationByTokenAsync(string token)
         {
             return await _context.TeamInvitations
                 .Include(ti => ti.Team)
@@ -191,7 +194,7 @@ namespace NikoNiko.Services
                 throw new KeyNotFoundException($"Invitation with ID {invitationId} not found.");
             }
 
-            if (invitation.Team.AdminId != requestingUserId)
+            if (invitation.Team!.AdminId != requestingUserId)
             {
                 throw new UnauthorizedAccessException("Only team admins can delete invitations.");
             }

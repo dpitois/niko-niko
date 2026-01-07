@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-using NikoNiko.Data; // Updated using directive
 using NikoNiko.Core.DTOs.Sprint; // Updated using directive
 using NikoNiko.Core.Models; // Updated using directive
+using NikoNiko.Data; // Updated using directive
 
 namespace NikoNiko.Api.Controllers;
 

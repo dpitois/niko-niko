@@ -1,6 +1,7 @@
+using System.Net; // Add this
 using System.Reflection;
 using System.Text;
-using System.Net; // Add this
+
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;

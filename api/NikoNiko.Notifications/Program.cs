@@ -65,8 +65,7 @@ public class Program
 
                 ValidAudience = builder.Configuration["Authentication:Jwt:Audience"],
 
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Authentication:Jwt:Key"]))
-
+                            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Authentication:Jwt:Key"] ?? throw new InvalidOperationException("JWT Key not configured.")))
             };
 
             options.Events = new JwtBearerEvents

@@ -1,12 +1,14 @@
+using System.Security.Claims;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using NikoNiko.Data;
+
 using NikoNiko.Core.DTOs.Sprint;
 using NikoNiko.Core.DTOs.Team;
 using NikoNiko.Core.DTOs.User; // New using directive
 using NikoNiko.Core.Models;
-using System.Security.Claims;
+using NikoNiko.Data;
 
 namespace NikoNiko.Api.Controllers;
 

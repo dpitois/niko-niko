@@ -43,7 +43,7 @@ namespace NikoNiko.Notifications.Services
         {
             lock (_lock)
             {
-                return _userConnectionMap.GetValueOrDefault(userId);
+                return _userConnectionMap.GetValueOrDefault(userId) ?? new HashSet<string>();
             }
         }
     }

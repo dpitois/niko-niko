@@ -5,14 +5,14 @@
 namespace NikoNiko.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class AddIsDeletedToTeamInvitation : Migration
+    public partial class AddIsSuperAdminToUser : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<bool>(
-                name: "IsDeleted",
-                table: "TeamInvitations",
+                name: "IsSuperAdmin",
+                table: "Users",
                 type: "INTEGER",
                 nullable: false,
                 defaultValue: false);
@@ -22,8 +22,8 @@ namespace NikoNiko.Data.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "IsDeleted",
-                table: "TeamInvitations");
+                name: "IsSuperAdmin",
+                table: "Users");
         }
     }
 }

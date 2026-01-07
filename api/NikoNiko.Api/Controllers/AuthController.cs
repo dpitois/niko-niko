@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Http.Extensions; // For UriHelper
-using Microsoft.AspNetCore.Http; // For HostString
 using System.Security.Claims;
 
 using AspNet.Security.OAuth.GitHub;
@@ -7,11 +5,13 @@ using AspNet.Security.OAuth.GitHub;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
+using Microsoft.AspNetCore.Http; // For HostString
+using Microsoft.AspNetCore.Http.Extensions; // For UriHelper
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-using NikoNiko.Data; // Updated using directive
 using NikoNiko.Core.Models; // Updated using directive
+using NikoNiko.Data; // Updated using directive
 using NikoNiko.Services; // Updated using directive
 
 namespace NikoNiko.Api.Controllers;
@@ -116,7 +116,7 @@ public class AuthController : ControllerBase
                 ).ToString();
             }
         }
-        
+
         var headers = string.Join(", ", Request.Headers.Select(h => $"'{h.Key}': '{h.Value}'"));
         _logger.LogInformation("Login-GitHub Request Headers: [{Headers}]", headers);
         return Challenge(properties, GitHubAuthenticationDefaults.AuthenticationScheme);

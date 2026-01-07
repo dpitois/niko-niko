@@ -1,16 +1,17 @@
+using System.Net;
 using System.Reflection;
 using System.Text;
-using System.Net; // Add this
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-
-using NikoNiko.Data; // Using the common data project
+using NikoNiko.Api.Authorization;
+using NikoNiko.Data;
 using NikoNiko.Data.PostgreSql;
 using NikoNiko.Data.Sqlite;
-using NikoNiko.Services; // Using the new services project
+using NikoNiko.Services;
+using IAuthorizationHandler = Microsoft.AspNetCore.Authorization.IAuthorizationHandler;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
@@ -20,6 +21,13 @@ var config = builder.Configuration;
 builder.Services.AddControllers();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<ITeamInvitationService, TeamInvitationService>();
+
+// Add HttpContextAccessor
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+// Add custom authorization handlers
+builder.Services.AddScoped<IAuthorizationHandler, IsTeamAdminHandler>();
+builder.Services.AddScoped<IAuthorizationHandler, IsTeamMemberHandler>();
 
 // Add HttpClient for SignalR Service communication
 builder.Services.AddHttpClient<INotificationService, NotificationService>(client =>
@@ -37,7 +45,6 @@ else
 {
     builder.Services.AddPostgreSqlPersistence(config);
 }
-
 
 // Configure Data Protection
 builder.Services.AddDataProtection()
@@ -96,6 +103,20 @@ builder.Services.AddAuthentication(options =>
         options.Scope.Add("user:email");
     });
 
+// Configure Authorization
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("SuperAdmin", policy =>
+        policy.RequireAuthenticatedUser()
+              .RequireClaim("is_super_admin", "true"));
+    
+    options.AddPolicy("IsTeamAdmin", policy =>
+        policy.Requirements.Add(new IsTeamAdminRequirement()));
+
+    options.AddPolicy("IsTeamMember", policy =>
+        policy.Requirements.Add(new IsTeamMemberRequirement()));
+});
+
 // Add services for API documentation
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -103,6 +124,8 @@ builder.Services.AddSwaggerGen(options =>
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 });
+
+builder.Services.AddHealthChecks();
 
 // -----------------------------------------------------------------------------
 var app = builder.Build();
@@ -112,12 +135,15 @@ if (app.Environment.IsProduction())
     app.UseForwardedHeaders();
 }
 
-// Apply migrations on startup
+// Apply migrations on startup and sync roles
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     dbContext.Database.Migrate();
 }
+
+await SeedAndSyncSuperAdminRoles(app);
+
 
 // 2. Configure the HTTP request pipeline.
 // -----------------------------------------------------------------------------
@@ -126,6 +152,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.MapHealthChecks("/healthz");
 
 app.UseCookiePolicy(new CookiePolicyOptions
 {
@@ -144,6 +172,56 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// -----------------------------------------------------------------------------
+// Helper method to seed and synchronize super admin roles on startup
+async Task SeedAndSyncSuperAdminRoles(WebApplication webApp)
+{
+    using var scope = webApp.Services.CreateScope();
+    var serviceProvider = scope.ServiceProvider;
+
+    var dbContext = serviceProvider.GetRequiredService<ApplicationDbContext>();
+    var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+    
+    var superAdminEmailsConfig = configuration["SUPER_ADMINS"];
+    var superAdminEmails = !string.IsNullOrWhiteSpace(superAdminEmailsConfig)
+        ? superAdminEmailsConfig.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList()
+        : new List<string>();
+
+    if (superAdminEmails.Any())
+    {
+        // Env var method: Sync roles based on the email list
+        var allUsers = await dbContext.Users.ToListAsync();
+        
+        // First, demote all current super admins to handle removals
+        foreach (var user in allUsers.Where(u => u.IsSuperAdmin))
+        {
+            user.IsSuperAdmin = false;
+        }
+
+        // Then, promote users from the list
+        var usersToPromote = allUsers.Where(u => superAdminEmails.Contains(u.Email, StringComparer.OrdinalIgnoreCase));
+        foreach (var user in usersToPromote)
+        {
+            user.IsSuperAdmin = true;
+        }
+    }
+    else
+    {
+        // Fallback method: Ensure the first user ever created is an admin if no one else is
+        var isAnyAdmin = await dbContext.Users.AnyAsync(u => u.IsSuperAdmin);
+        if (!isAnyAdmin)
+        {
+            var firstUser = await dbContext.Users.OrderBy(u => u.CreatedAt).FirstOrDefaultAsync();
+            if (firstUser != null)
+            {
+                firstUser.IsSuperAdmin = true;
+            }
+        }
+    }
+
+    await dbContext.SaveChangesAsync();
+}
 
 // -----------------------------------------------------------------------------
 app.Run();

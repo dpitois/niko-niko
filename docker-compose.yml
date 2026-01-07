@@ -1,4 +1,12 @@
 services:
+  tests-backend:
+    build:
+      context: .
+      dockerfile: api/Dockerfile.test
+    container_name: nikoniko_tests_backend
+    volumes:
+      - ./test-results:/src/TestResults # Mount test results directory
+
   # db:
   #   image: postgres:16
   #   container_name: nikoniko_db
@@ -40,8 +48,17 @@ services:
       - Authentication__GitHub__ClientSecret=${GITHUB_CLIENT_SECRET}
       - Authentication__FrontendRedirectUrl=${FRONTEND_REDIRECT_URL}
       - SignalRService__BaseUrl=http://nikoniko_notifications:8080 # SignalR Service URL for backend
+      - SUPER_ADMINS=${SUPER_ADMINS}
     ports:
       - "5000:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fL http://localhost:8080/healthz || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      tests-backend:
+        condition: service_completed_successfully
   notifications: # New SignalR Service
     build:
       context: .
@@ -56,6 +73,14 @@ services:
       - Authentication__Jwt__Key=${JWT_KEY}
     ports:
       - "5001:8080" # Map to an external port
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fL http://localhost:8080/healthz || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      tests-backend:
+        condition: service_completed_successfully
     # depends_on:
     #   db: # SignalR might need DB access for user management etc.
     #     condition: service_healthy
@@ -68,5 +93,7 @@ services:
     ports:
       - "3000:80"
     depends_on:
-      - backend
-      - notifications # Frontend will depend on notifications
+      backend:
+        condition: service_healthy
+      notifications:
+        condition: service_healthy

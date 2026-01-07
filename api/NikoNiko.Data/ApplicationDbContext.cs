@@ -75,7 +75,7 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<Team>()
             .HasIndex(t => t.Name)
             .IsUnique();
-        
+
         modelBuilder.Entity<TeamInvitation>()
             .HasIndex(ti => ti.Token)
             .IsUnique();

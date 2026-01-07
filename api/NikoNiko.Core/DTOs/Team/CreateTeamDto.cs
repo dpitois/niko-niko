@@ -13,10 +13,4 @@ public class CreateTeamDto
     [Required]
     [MaxLength(100)]
     public string Name { get; set; } = null!;
-
-    /// <summary>
-    /// L'identifiant de l'administrateur de l'équipe.
-    /// </summary>
-    [Required]
-    public Guid AdminId { get; set; }
 }

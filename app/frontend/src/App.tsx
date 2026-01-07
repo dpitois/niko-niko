@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
@@ -83,13 +83,17 @@ const theme = createTheme({
 });
 
 function App() {
+  const location = useLocation();
+  const noHeaderPaths = ['/login']; // Paths where the header should not be displayed
+  const shouldShowHeader = !noHeaderPaths.includes(location.pathname);
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <SnackbarProvider maxSnack={3}> {/* Wrap with SnackbarProvider */}
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
           <NotificationListener /> {/* Render NotificationListener */}
-          <Header />
+          {shouldShowHeader && <Header />}
           <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
             <Routes>
               <Route path="/" element={<Navigate to="/my-teams" />} />
@@ -116,7 +120,7 @@ function App() {
               <Route
                 path="/admin"
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredSuperAdmin={true}>
                     <AdminDashboardPage />
                   </ProtectedRoute>
                 }

@@ -2,47 +2,27 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-# Copie le fichier solution
-COPY api/nikoniko.slnx .
+# Copy the entire api directory content to /src
+COPY api/ .
 
-# Crée le répertoire 'api' et ses sous-répertoires pour correspondre à la structure de la solution
-RUN mkdir -p api/NikoNiko.Api \
-           api/NikoNiko.Core \
-           api/NikoNiko.Services \
-           api/NikoNiko.Data \
-           api/NikoNiko.Data.Sqlite \
-           api/NikoNiko.Data.PostgreSql \
-           api/NikoNiko.Notifications \
-           api/NikoNiko.Notifications.IntegrationTests
-
-# Copie les fichiers .csproj vers leurs emplacements corrects
-COPY api/NikoNiko.Api/*.csproj ./api/NikoNiko.Api/
-COPY api/NikoNiko.Core/*.csproj ./api/NikoNiko.Core/
-COPY api/NikoNiko.Services/*.csproj ./api/NikoNiko.Services/
-COPY api/NikoNiko.Data/*.csproj ./api/NikoNiko.Data/
-COPY api/NikoNiko.Data.Sqlite/*.csproj ./api/NikoNiko.Data.Sqlite/
-COPY api/NikoNiko.Data.PostgreSql/*.csproj ./api/NikoNiko.Data.PostgreSql/
-COPY api/NikoNiko.Notifications/*.csproj ./api/NikoNiko.Notifications/
-COPY api/NikoNiko.Notifications.IntegrationTests/*.csproj ./api/NikoNiko.Notifications.IntegrationTests/
-
-
-# Restaure toutes les dépendances
+# Restore dependencies using the solution file now at /src/nikoniko.slnx
 RUN dotnet restore "nikoniko.slnx"
 
-# Copie le reste des fichiers source
-COPY api ./api
-
-# Construit l'application spécifique 'NikoNiko.Notifications.csproj'.
-RUN dotnet build "api/NikoNiko.Notifications/NikoNiko.Notifications.csproj" -c Release -o /app/build
+# Build the specific application
+RUN dotnet build "NikoNiko.Notifications/NikoNiko.Notifications.csproj" -c Release -o /app/build
 
 # Stage 2: Publish the application
 FROM build AS publish
-RUN dotnet publish "api/NikoNiko.Notifications/NikoNiko.Notifications.csproj" -c Release -o /app/publish
+RUN dotnet publish "NikoNiko.Notifications/NikoNiko.Notifications.csproj" -c Release -o /app/publish
 
 # Stage 3: Final
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app
+
+# Install curl for healthcheck
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
 COPY --from=publish /app/publish .
 
-# Le point d'entrée pour démarrer l'application.
+# The entry point to start the application.
 ENTRYPOINT ["dotnet", "NikoNiko.Notifications.dll"]

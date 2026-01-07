@@ -23,11 +23,11 @@ namespace NikoNiko.Notifications.Controllers
         }
 
         [HttpPost("dispatch")]
-        public async Task<IActionResult> DispatchNotification([FromBody] NotificationPayload payload)
+        public async Task<IActionResult> Dispatch([FromBody] NotificationPayload payload)
         {
-            if (string.IsNullOrEmpty(payload.User) || string.IsNullOrEmpty(payload.Message))
+            if (string.IsNullOrEmpty(payload.User) || string.IsNullOrEmpty(payload.Message) || string.IsNullOrEmpty(payload.UserId))
             {
-                return BadRequest("User and Message cannot be empty.");
+                return BadRequest("User, Message, and UserId cannot be empty.");
             }
 
             var connectionIdsToExclude = _userConnectionManager.GetConnections(payload.UserId)?.ToArray() ?? new string[0];
@@ -38,8 +38,8 @@ namespace NikoNiko.Notifications.Controllers
 
     public class NotificationPayload
     {
-        public string User { get; set; }
-        public string Message { get; set; }
-        public string UserId { get; set; }
+        public string? User { get; set; }
+        public string? Message { get; set; }
+        public string? UserId { get; set; }
     }
 }

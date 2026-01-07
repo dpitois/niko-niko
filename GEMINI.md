@@ -16,6 +16,7 @@ The Niko Niko Calendar is a distributed and self-hosted (via Docker) application
 ## Key Features
 
 *   **Authentication**: OAuth2 (currently GitHub functional; Google and Microsoft temporarily disabled).
+*   **API Documentation**: Backend includes OpenAPI/Swagger documentation.
 *   **Team Management**: Creation of teams (via admin dashboard), member management (admin role), team invitation (creation, acceptance, soft deletion).
 *   **Sprints**: Admins define work periods, and sprints are tracked on the dashboard, including dedicated pages for creation.
 *   **Mood Tracking**: Daily mood entry (😊/😐/🙁) per sprint. The date of the mood can be specified, defaulting to the current day if not provided. The date must be within the sprint's date range and not in the future.
@@ -210,3 +211,9 @@ If you wish to run frontend and/or backend locally without Docker Compose, follo
   - [ ] Écrire des tests unitaires et d'intégration.
   - [ ] Rédiger la documentation finale.
   - [ ] Valider le workflow de déploiement Docker.
+
+---
+## Gemini Added Memories
+- The user prefers to be given the command to run the development server or start the Azure Function API, instead of being asked for permission to execute it.
+- When launching the project with `docker compose up`, the user prefers the `-d` option to run services in detached mode.
+- **Material UI Grid Syntax**: When using the Material UI Grid component, the correct syntax is `<Grid size={{ xs: 12, sm: 6 }}>`. The `item` prop is deprecated and should not be used.

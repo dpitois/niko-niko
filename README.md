@@ -37,6 +37,33 @@ Créer une application **distribuée** et **auto-hébergée** (via Docker) pour 
 - `MoodEntry` : Enregistrement d'humeur d'un utilisateur pour une date donnée.
 - `Badge` : Récompense de gamification.
 
+## Roles & Permissions
+
+| Action (Endpoint) | Ressource | `user` | `team-admin` | `super-admin` |
+| :--- | :--- | :--- | :--- | :--- |
+| **Équipes** | | | | |
+| `GET /api/teams` | Lister les équipes | Uniquement celles dont il est membre | Uniquement celles dont il est membre/admin | **Toutes** |
+| `GET /api/teams/{id}` | Voir une équipe | Uniquement si membre | Uniquement si membre/admin | **Toutes** |
+| `POST /api/teams` | Créer une équipe | **Non** | ✓ (devient admin) | ✓ (devient admin) |
+| `DELETE /api/teams/{id}`| Supprimer une équipe | Non | **Uniquement son équipe** | **Toutes** |
+| **Utilisateurs** | | | | |
+| `GET /api/users` | Lister les utilisateurs | **Utilisateurs de ses équipes** | **Utilisateurs de ses équipes** | **Tous** |
+| `GET /api/users/{id}` | Voir un utilisateur | **Si dans une équipe commune** | **Si dans une équipe commune** | **Tous** |
+| `DELETE /api/users/{id}`| Supprimer un utilisateur | Non | Non | **Tous** |
+| `DELETE /api/teams/{teamId}/users/{userId}` | Retirer d'une équipe | Non | **Uniquement de son équipe** | **Toutes** |
+| **Sprints** | | | | |
+| `GET /api/sprints` | Lister les sprints | **Sprints de ses équipes** | **Sprints de ses équipes** | **Tous** |
+| `POST /api/sprints` | Créer un sprint | Non | **Uniquement pour son équipe** | **Tous** |
+| `DELETE /api/sprints/{id}` | Supprimer un sprint | Non | **Uniquement de son équipe** | **Tous** |
+| **Humeurs (Moods)** | | | | |
+| `GET /api/sprints/{sprintId}/moods`| Lister les humeurs | **Humeurs des membres de son équipe pour ce sprint** | **Humeurs des membres de son équipe pour ce sprint** | **Toutes** |
+| `POST /api/moods` | Créer une humeur | ✓ **Pour soi-même** | ✓ **Pour soi-même** | ✓ **Pour soi-même** |
+| `PUT /api/moods/{id}`| Modifier une humeur | ✓ **Uniquement la sienne**| ✓ **Uniquement la sienne**| ✓ **Uniquement la sienne**|
+| **Invitations** | | | | |
+| `GET /api/teams/{teamId}/invitations` | Lister les invitations | Non | **Uniquement de son équipe** | **Toutes** |
+| `POST /api/teams/{teamId}/invitations`| Créer une invitation | Non | **Uniquement pour son équipe** | **Toutes** |
+| `DELETE /api/invitations/{id}` | Supprimer une invitation| Non | **Uniquement de son équipe** | **Toutes** |
+
 ## 5. Configuration de l'Authentification
 
 Pour que l'authentification OAuth 2.0 fonctionne, vous devez configurer les fournisseurs externes. Actuellement, seul GitHub est activé.

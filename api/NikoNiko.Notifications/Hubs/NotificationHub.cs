@@ -21,11 +21,14 @@ namespace NikoNiko.Notifications.Hubs
         public override async Task OnConnectedAsync()
         {
             var userId = Context.UserIdentifier;
-            _userConnectionManager.AddConnection(userId, Context.ConnectionId);
+            if (userId != null) // Add null check for userId
+            {
+                _userConnectionManager.AddConnection(userId, Context.ConnectionId);
+            }
             await base.OnConnectedAsync();
         }
 
-        public override async Task OnDisconnectedAsync(System.Exception exception)
+        public override async Task OnDisconnectedAsync(System.Exception? exception) // Make exception nullable
         {
             _userConnectionManager.RemoveConnection(Context.ConnectionId);
             await base.OnDisconnectedAsync(exception);

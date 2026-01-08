@@ -43,7 +43,6 @@ const CreateTeamForm: React.FC<CreateTeamFormProps> = ({ onTeamCreated }) => {
       setName('');
     } catch (err) {
       setError('Failed to create team. Please try again.');
-      console.error(err);
     }
   };
 

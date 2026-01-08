@@ -93,7 +93,6 @@ const AdminUsersPage: React.FC = () => {
         enqueueSnackbar(`User ${userToDeleteName} deleted successfully!`, { variant: 'success' });
         mutate();
       } catch (error) {
-        console.error('Failed to delete user:', error);
         enqueueSnackbar(`Failed to delete user ${userToDeleteName}.`, { variant: 'error' });
       } finally {
         setOpenConfirmUserDialog(false);

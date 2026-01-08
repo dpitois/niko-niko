@@ -43,7 +43,6 @@ const CreateSprintForm: React.FC<CreateSprintFormProps> = ({ teamId, onSprintCre
       setEndDate('');
     } catch (err) {
       setError('Failed to create sprint. Please try again.');
-      console.error(err);
     }
   };
 

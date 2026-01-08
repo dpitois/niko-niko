@@ -1,5 +1,6 @@
 import React from 'react';
 import { Box, Typography, Paper, Avatar, useTheme } from '@mui/material';
+import { useSnackbar } from 'notistack';
 import { useSWRConfig } from 'swr';
 import type { MoodType } from '../../models/MoodType';
 import { MoodValues } from '../../models/MoodType';
@@ -57,6 +58,7 @@ const SprintMoodGrid: React.FC<SprintMoodGridProps> = ({
   const { moods, mutateMoods } = useMoods(sprintId); // Fetch moods for this sprint
   const { mutate } = useSWRConfig();
   const theme = useTheme();
+  const { enqueueSnackbar } = useSnackbar();
   const today = dayjs().startOf('day');
 
   // Generate an array of dates for the sprint
@@ -100,8 +102,7 @@ const SprintMoodGrid: React.FC<SprintMoodGridProps> = ({
       mutateMoods(); // Revalidate moods for this sprint
       mutate(`/teams/${teamId}/sprints`); // Revalidate sprints to potentially update averages
     } catch (error) {
-      console.error('Failed to update/create mood entry:', error);
-      // Handle error (e.g., show a Snackbar notification)
+      enqueueSnackbar('Failed to save mood entry.', { variant: 'error' });
     }
   };
 

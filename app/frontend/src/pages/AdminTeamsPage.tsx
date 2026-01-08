@@ -1,4 +1,5 @@
 import React from 'react';
+import { useSnackbar } from 'notistack';
 import CreateTeamForm from '../components/CreateTeamForm';
 import useTeams from '../hooks/useTeams';
 import { useAuth } from '../context/AuthContext';
@@ -11,6 +12,7 @@ import { Typography, Box, Divider, CircularProgress } from '@mui/material';
 const AdminTeamsPage: React.FC = () => {
   const { isSuperAdmin } = useAuth();
   const { teams, isLoading, isError, mutate } = useTeams();
+  const { enqueueSnackbar } = useSnackbar();
 
   const handleTeamCreated = () => {
     mutate();
@@ -21,8 +23,7 @@ const AdminTeamsPage: React.FC = () => {
       await deleteTeam(teamId);
       mutate(); // Refresh the list of teams
     } catch (error) {
-      console.error('Failed to delete team:', error);
-      // TODO: Show an error message to the user
+      enqueueSnackbar('Failed to delete team.', { variant: 'error' });
     }
   };
 

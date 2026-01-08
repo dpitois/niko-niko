@@ -47,7 +47,6 @@ const AdminCreateSprintForm: React.FC<AdminCreateSprintFormProps> = ({ teams, on
       setSelectedTeamId('');
     } catch (err) {
       setError('Failed to create sprint. Please try again.');
-      console.error(err);
     }
   };
 

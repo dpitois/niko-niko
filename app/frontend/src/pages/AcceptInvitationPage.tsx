@@ -18,13 +18,10 @@ const AcceptInvitationPage: React.FC = () => {
   useEffect(() => {
     // Si l'authentification est toujours en cours de chargement, ne rien faire
     if (isLoadingAuth) {
-      console.log('Auth is still loading, waiting...');
       return;
     }
     
-    console.log('AcceptInvitationPage - useEffect triggered');
-    console.log('Token from URL:', token);
-    console.log('User from AuthContext:', user);
+
 
     const handleAcceptInvitation = async () => {
       if (!token) {
@@ -43,7 +40,7 @@ const AcceptInvitationPage: React.FC = () => {
         return;
       }
 
-      console.log('Attempting to accept invitation with user:', user); // Log avant l'appel API
+
 
       try {
         const acceptedInvitation = await teamInvitationService.acceptTeamInvitation(token);

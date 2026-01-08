@@ -3,13 +3,14 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Box, Typography, CircularProgress, Alert, Button } from '@mui/material';
 import { teamInvitationService } from '../services/teamInvitationService';
 import { useAuth } from '../context/AuthContext';
-import { useTeams } from '../hooks/useTeams';
+import useTeams from '../hooks/useTeams';
+import axios from 'axios';
 
 const AcceptInvitationPage: React.FC = () => {
   const { token } = useParams<{ token: string }>();
   const navigate = useNavigate();
   const { user, isLoading: isLoadingAuth } = useAuth(); // Récupérer isLoading du useAuth
-  const { mutateTeams } = useTeams();
+  const { mutate } = useTeams();
   const [loading, setLoading] = useState<boolean>(true);
   const [message, setMessage] = useState<string>('');
   const [severity, setSeverity] = useState<'success' | 'error' | 'info'>('info');
@@ -17,13 +18,10 @@ const AcceptInvitationPage: React.FC = () => {
   useEffect(() => {
     // Si l'authentification est toujours en cours de chargement, ne rien faire
     if (isLoadingAuth) {
-      console.log('Auth is still loading, waiting...');
       return;
     }
     
-    console.log('AcceptInvitationPage - useEffect triggered');
-    console.log('Token from URL:', token);
-    console.log('User from AuthContext:', user);
+
 
     const handleAcceptInvitation = async () => {
       if (!token) {
@@ -42,18 +40,24 @@ const AcceptInvitationPage: React.FC = () => {
         return;
       }
 
-      console.log('Attempting to accept invitation with user:', user); // Log avant l'appel API
+
 
       try {
         const acceptedInvitation = await teamInvitationService.acceptTeamInvitation(token);
         setMessage(`Invitation to team "${acceptedInvitation.teamName}" accepted successfully!`);
         setSeverity('success');
         localStorage.removeItem('invitationToken');
-        mutateTeams();
+        mutate();
         setTimeout(() => navigate(`/my-teams`), 3000);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Error accepting invitation:', err); // Log l'erreur complète
-        setMessage(err.response?.data?.message || err.message || 'Failed to accept invitation.');
+        let errorMessage = 'Failed to accept invitation.';
+        if (axios.isAxiosError(err) && err.response?.data?.message) {
+          errorMessage = err.response.data.message;
+        } else if (err instanceof Error) {
+          errorMessage = err.message;
+        }
+        setMessage(errorMessage);
         setSeverity('error');
       } finally {
         setLoading(false);
@@ -61,7 +65,7 @@ const AcceptInvitationPage: React.FC = () => {
     };
 
     handleAcceptInvitation();
-  }, [token, navigate, user, mutateTeams, isLoadingAuth]); // Ajouter isLoadingAuth aux dépendances
+  }, [token, navigate, user, mutate, isLoadingAuth]); // Ajouter isLoadingAuth aux dépendances
 
   // Rendu : Afficher un indicateur de chargement si isLoadingAuth est vrai
   if (isLoadingAuth) {

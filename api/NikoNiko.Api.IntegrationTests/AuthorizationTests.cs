@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -37,11 +39,11 @@ public class AuthorizationTests
     {
         // Arrange
         await using var application = new NikoNikoApiTestApplication();
-        var (teamAdmin, _) = await application.CreateUserAndClient("Team Admin");
+        var (teamAdmin, _, _) = await application.CreateUserAndClient("Team Admin");
         var team = await application.CreateTeam("Test Team", teamAdmin.Id);
 
-        var (user1, client) = await application.CreateUserAndClient("User 1");
-        var (user2, _) = await application.CreateUserAndClient("User 2");
+        var (user1, client, _) = await application.CreateUserAndClient("User 1");
+        var (user2, _, _) = await application.CreateUserAndClient("User 2");
 
         using (var scope = application.Services.CreateScope())
         {
@@ -66,7 +68,7 @@ public class AuthorizationTests
     {
         // Arrange
         await using var application = new NikoNikoApiTestApplication();
-        var (_, client) = await application.CreateUserAndClient("Super Admin", isSuperAdmin: true);
+        var (_, client, _) = await application.CreateUserAndClient("Super Admin", isSuperAdmin: true);
         await application.CreateUserAndClient("Another User");
 
         // Act
@@ -84,7 +86,7 @@ public class AuthorizationTests
     {
         // Arrange
         await using var application = new NikoNikoApiTestApplication();
-        var (_, client) = await application.CreateUserAndClient("New Team Admin");
+        var (_, client, _) = await application.CreateUserAndClient("New Team Admin");
         var createTeamDto = new CreateTeamDto { Name = "My New Team" };
 
         // Act
@@ -99,7 +101,7 @@ public class AuthorizationTests
     {
         // Arrange
         await using var application = new NikoNikoApiTestApplication();
-        var (user, client) = await application.CreateUserAndClient("Super Admin", isSuperAdmin: true);
+        var (user, client, _) = await application.CreateUserAndClient("Super Admin", isSuperAdmin: true);
         var createTeamDto = new CreateTeamDto { Name = "My Super Team" };
 
         // Act
@@ -118,13 +120,13 @@ public class AuthorizationTests
     {
         // Arrange
         await using var application = new NikoNikoApiTestApplication();
-        var (teamAdmin1, _) = await application.CreateUserAndClient("Team Admin 1");
+        var (teamAdmin1, _, _) = await application.CreateUserAndClient("Team Admin 1");
         await application.CreateTeam("Team 1", teamAdmin1.Id);
 
-        var (teamAdmin2, _) = await application.CreateUserAndClient("Team Admin 2");
+        var (teamAdmin2, _, _) = await application.CreateUserAndClient("Team Admin 2");
         await application.CreateTeam("Team 2", teamAdmin2.Id);
 
-        var (_, client) = await application.CreateUserAndClient("Super Admin", isSuperAdmin: true);
+        var (_, client, _) = await application.CreateUserAndClient("Super Admin", isSuperAdmin: true);
 
         // Act
         var response = await client.GetAsync("/api/teams");
@@ -142,15 +144,15 @@ public class AuthorizationTests
         // Arrange
         await using var application = new NikoNikoApiTestApplication();
         // Create Team 1 with User 1 as admin
-        var (user1, client1) = await application.CreateUserAndClient("User 1");
+        var (user1, client1, _) = await application.CreateUserAndClient("User 1");
         var team1 = await application.CreateTeam("Team 1", user1.Id);
 
         // Create Team 2 with User 2 as admin
-        var (user2, client2) = await application.CreateUserAndClient("User 2");
+        var (user2, client2, _) = await application.CreateUserAndClient("User 2");
         var team2 = await application.CreateTeam("Team 2", user2.Id);
 
         // Create a regular user who will be a member of Team 1 but not Team 2
-        var (regularUser, regularUserClient) = await application.CreateUserAndClient("Regular User");
+        var (regularUser, regularUserClient, _) = await application.CreateUserAndClient("Regular User");
         using (var scope = application.Services.CreateScope())
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
@@ -174,7 +176,7 @@ public class AuthorizationTests
     {
         // Arrange
         await using var application = new NikoNikoApiTestApplication();
-        var (teamAdmin, client) = await application.CreateUserAndClient("Team Admin");
+        var (teamAdmin, client, _) = await application.CreateUserAndClient("Team Admin");
         var team = await application.CreateTeam("Test Team", teamAdmin.Id);
 
         // Act
@@ -195,9 +197,9 @@ public class AuthorizationTests
     {
         // Arrange
         await using var application = new NikoNikoApiTestApplication();
-        var (teamAdmin, _) = await application.CreateUserAndClient("Team Admin");
+        var (teamAdmin, _, _) = await application.CreateUserAndClient("Team Admin");
         var team = await application.CreateTeam("Test Team", teamAdmin.Id);
-        var (_, client) = await application.CreateUserAndClient("Other User");
+        var (_, client, _) = await application.CreateUserAndClient("Other User");
 
         // Act
         var response = await client.DeleteAsync($"/api/teams/{team.Id}");
@@ -211,9 +213,9 @@ public class AuthorizationTests
     {
         // Arrange
         await using var application = new NikoNikoApiTestApplication();
-        var (teamAdmin, _) = await application.CreateUserAndClient("Team Admin");
+        var (teamAdmin, _, _) = await application.CreateUserAndClient("Team Admin");
         var team = await application.CreateTeam("Test Team", teamAdmin.Id);
-        var (_, client) = await application.CreateUserAndClient("Super Admin", isSuperAdmin: true);
+        var (_, client, _) = await application.CreateUserAndClient("Super Admin", isSuperAdmin: true);
 
         // Act
         var response = await client.DeleteAsync($"/api/teams/{team.Id}");
@@ -232,7 +234,7 @@ public class AuthorizationTests
     {
         // Arrange
         await using var application = new NikoNikoApiTestApplication();
-        var (teamAdmin, client) = await application.CreateUserAndClient("Team Admin");
+        var (teamAdmin, client, _) = await application.CreateUserAndClient("Team Admin");
         var team = await application.CreateTeam("Test Team", teamAdmin.Id);
 
         var createSprintDto = new CreateSprintDto
@@ -258,9 +260,9 @@ public class AuthorizationTests
     {
         // Arrange
         await using var application = new NikoNikoApiTestApplication();
-        var (teamAdmin, _) = await application.CreateUserAndClient("Team Admin");
+        var (teamAdmin, _, _) = await application.CreateUserAndClient("Team Admin");
         var team = await application.CreateTeam("Test Team", teamAdmin.Id);
-        var (_, client) = await application.CreateUserAndClient("Other User");
+        var (_, client, _) = await application.CreateUserAndClient("Other User");
 
         var createSprintDto = new CreateSprintDto
         {
@@ -282,7 +284,7 @@ public class AuthorizationTests
     {
         // Arrange
         await using var application = new NikoNikoApiTestApplication();
-        var (teamAdmin, adminClient) = await application.CreateUserAndClient("Team Admin");
+        var (teamAdmin, adminClient, _) = await application.CreateUserAndClient("Team Admin");
         var team = await application.CreateTeam("Test Team", teamAdmin.Id);
         var createSprintDto = new CreateSprintDto
         {
@@ -291,7 +293,7 @@ public class AuthorizationTests
             StartDate = DateTime.UtcNow.AddDays(1),
             EndDate = DateTime.UtcNow.AddDays(15)
         };
-        var (teamMember, memberClient) = await application.CreateUserAndClient("Team Member");
+        var (teamMember, memberClient, _) = await application.CreateUserAndClient("Team Member");
 
         // Add team member to the team
         using (var scope = application.Services.CreateScope())
@@ -322,7 +324,7 @@ public class AuthorizationTests
     {
         // Arrange
         await using var application = new NikoNikoApiTestApplication();
-        var (teamAdmin, adminClient) = await application.CreateUserAndClient("Team Admin");
+        var (teamAdmin, adminClient, _) = await application.CreateUserAndClient("Team Admin");
         var team = await application.CreateTeam("Test Team", teamAdmin.Id);
         var createSprintDto = new CreateSprintDto
         {
@@ -331,7 +333,7 @@ public class AuthorizationTests
             StartDate = DateTime.UtcNow.AddDays(1),
             EndDate = DateTime.UtcNow.AddDays(15)
         };
-        var (_, nonMemberClient) = await application.CreateUserAndClient("Non Team Member");
+        var (_, nonMemberClient, _) = await application.CreateUserAndClient("Non Team Member");
 
         // Create the sprint
         var createSprintResponse = await adminClient.PostAsJsonAsync("/api/sprints", createSprintDto);
@@ -351,7 +353,7 @@ public class AuthorizationTests
     {
         // Arrange
         await using var application = new NikoNikoApiTestApplication();
-        var (teamAdmin, adminClient) = await application.CreateUserAndClient("Team Admin");
+        var (teamAdmin, adminClient, _) = await application.CreateUserAndClient("Team Admin");
         var team = await application.CreateTeam("Test Team", teamAdmin.Id);
         var createSprintDto = new CreateSprintDto
         {
@@ -386,7 +388,7 @@ public class AuthorizationTests
     {
         // Arrange
         await using var application = new NikoNikoApiTestApplication();
-        var (teamAdmin, adminClient) = await application.CreateUserAndClient("Team Admin");
+        var (teamAdmin, adminClient, _) = await application.CreateUserAndClient("Team Admin");
         var team = await application.CreateTeam("Test Team", teamAdmin.Id);
         var createSprintDto = new CreateSprintDto
         {
@@ -401,7 +403,7 @@ public class AuthorizationTests
         var sprint = await createSprintResponse.Content.ReadFromJsonAsync<SprintDto>();
         Assert.NotNull(sprint);
 
-        var (nonAdminUser, nonAdminClient) = await application.CreateUserAndClient("Non Admin User");
+        var (nonAdminUser, nonAdminClient, _) = await application.CreateUserAndClient("Non Admin User");
         // Ensure nonAdminUser is a member of the team to differentiate from Unauthorized
         using (var scope = application.Services.CreateScope())
         {
@@ -430,9 +432,9 @@ public class AuthorizationTests
     {
         // Arrange
         await using var application = new NikoNikoApiTestApplication();
-        var (teamAdmin, client) = await application.CreateUserAndClient("Team Admin");
+        var (teamAdmin, client, _) = await application.CreateUserAndClient("Team Admin");
         var team = await application.CreateTeam("Test Team", teamAdmin.Id);
-        var (userToRemove, _) = await application.CreateUserAndClient("User To Remove");
+        var (userToRemove, _, _) = await application.CreateUserAndClient("User To Remove");
 
         using (var scope = application.Services.CreateScope())
         {
@@ -460,7 +462,7 @@ public class AuthorizationTests
     {
         // Arrange
         await using var application = new NikoNikoApiTestApplication();
-        var (teamAdmin, adminClient) = await application.CreateUserAndClient("Team Admin");
+        var (teamAdmin, adminClient, _) = await application.CreateUserAndClient("Team Admin");
         var team = await application.CreateTeam("Test Team", teamAdmin.Id);
         var createSprintDto = new CreateSprintDto
         {
@@ -474,7 +476,7 @@ public class AuthorizationTests
         var sprint = await createSprintResponse.Content.ReadFromJsonAsync<SprintDto>();
         Assert.NotNull(sprint);
 
-        var (teamMember, memberClient) = await application.CreateUserAndClient("Team Member");
+        var (teamMember, memberClient, _) = await application.CreateUserAndClient("Team Member");
         using (var scope = application.Services.CreateScope())
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
@@ -507,7 +509,7 @@ public class AuthorizationTests
     {
         // Arrange
         await using var application = new NikoNikoApiTestApplication();
-        var (teamAdmin, adminClient) = await application.CreateUserAndClient("Team Admin");
+        var (teamAdmin, adminClient, _) = await application.CreateUserAndClient("Team Admin");
         var team = await application.CreateTeam("Test Team", teamAdmin.Id);
         var createSprintDto = new CreateSprintDto
         {
@@ -521,7 +523,7 @@ public class AuthorizationTests
         var sprint = await createSprintResponse.Content.ReadFromJsonAsync<SprintDto>();
         Assert.NotNull(sprint);
 
-        var (teamMember, memberClient) = await application.CreateUserAndClient("Team Member");
+        var (teamMember, memberClient, _) = await application.CreateUserAndClient("Team Member");
         using (var scope = application.Services.CreateScope())
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
@@ -539,12 +541,29 @@ public class AuthorizationTests
         var createMoodResponse = await memberClient.PostAsJsonAsync("/api/moodentries", createMoodEntryDto);
         createMoodResponse.EnsureSuccessStatusCode();
 
-        var (_, nonMemberClient) = await application.CreateUserAndClient("Non Team Member");
+        var (_, nonMemberClient, _) = await application.CreateUserAndClient("Non Team Member");
 
         // Act
         var getMoodEntriesResponse = await nonMemberClient.GetAsync("/api/moodentries");
 
         // Assert
         Assert.Equal(HttpStatusCode.Forbidden, getMoodEntriesResponse.StatusCode);
+    }
+    
+    [Fact]
+    public async Task SuperAdminJwt_ContainsIsSuperAdminClaim()
+    {
+        // Arrange
+        await using var application = new NikoNikoApiTestApplication();
+
+        // Act
+        var (_, _, jwtToken) = await application.CreateUserAndClient("Super Admin", isSuperAdmin: true);
+        var handler = new JwtSecurityTokenHandler();
+        var token = handler.ReadJwtToken(jwtToken);
+
+        // Assert
+        var isSuperAdminClaim = token.Claims.FirstOrDefault(c => c.Type == "is_super_admin");
+        Assert.NotNull(isSuperAdminClaim);
+        Assert.Equal("true", isSuperAdminClaim.Value, ignoreCase: true);
     }
 }

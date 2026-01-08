@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import CreateSprintForm from '../components/CreateSprintForm';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useSprints } from '../hooks/useSprints';
-import { useTeams } from '../hooks/useTeams';
+import useSprints from '../hooks/useSprints';
+import useTeams from '../hooks/useTeams';
+import type { TeamWithMembersAndSprints } from '../models/Team/TeamWithMembersAndSprints';
 
 // Material UI Imports
 import Container from '@mui/material/Container';
@@ -23,19 +24,21 @@ const CreateSprintPage: React.FC = () => {
 
   // Effect to set selectedTeam if urlTeamId changes or teams load
   useEffect(() => {
-    if (urlTeamId && teams && teams.some(team => team.id === urlTeamId)) {
+    // Only update if urlTeamId is present and matches a team, AND selectedTeam is not already correctly set
+    if (urlTeamId && teams && teams.some((team: TeamWithMembersAndSprints) => team.id === urlTeamId) && selectedTeam !== urlTeamId) {
       setSelectedTeam(urlTeamId);
-    } else if (teams && teams.length > 0 && !selectedTeam && !urlTeamId) {
-      // Optionally select the first team if no URL param and no existing selection
-      // setSelectedTeam(teams[0].id);
     }
-  }, [urlTeamId, teams]);
+    // If no urlTeamId and no team is selected, but teams are loaded, select the first team
+    else if (!urlTeamId && teams && teams.length > 0 && !selectedTeam) {
+      setSelectedTeam(teams[0].id);
+    }
+  }, [urlTeamId, teams, selectedTeam, setSelectedTeam]);
 
-  const { mutateSprints } = useSprints(selectedTeam || null);
+  const { mutate } = useSprints(selectedTeam || undefined);
 
   const handleSprintCreated = () => {
-    mutateSprints();
-    navigate(`/dashboard`); // Navigate back to dashboard after sprint creation
+    mutate();
+    navigate(`/my-teams`); // Navigate back to my-teams after sprint creation
   };
 
   const handleTeamSelectChange = (event: SelectChangeEvent<string>) => {
@@ -78,7 +81,7 @@ const CreateSprintPage: React.FC = () => {
                 <MenuItem value="">
                   <em>-- Select a Team --</em>
                 </MenuItem>
-                {teams.map(team => (
+                {teams.map((team: TeamWithMembersAndSprints) => (
                   <MenuItem key={team.id} value={team.id}>{team.name}</MenuItem>
                 ))}
               </Select>

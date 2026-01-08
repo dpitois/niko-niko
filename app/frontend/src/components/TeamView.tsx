@@ -1,17 +1,16 @@
 import React from 'react';
 import type { TeamWithMembersAndSprints } from '../models/Team/TeamWithMembersAndSprints';
-import { useSprints } from '../hooks/useSprints';
+import useSprints from '../hooks/useSprints';
 import MoodEntryForm from './MoodEntryForm';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import CreateTeamInvitationForm from './CreateTeamInvitationForm';
-import { teamInvitationService } from '../services/teamInvitationService';
 import { deleteTeam } from '../services/teamService'; // Import deleteTeam
-import { Box, Typography, Button, List, ListItem, Grid, Card, CardContent, Divider, Alert, IconButton } from '@mui/material';
+import { Box, Typography, Button, List, ListItem, Grid, Card, CardContent, CircularProgress } from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useSnackbar } from 'notistack';
-import useSWR from 'swr';
+import axios from 'axios';
+import type { Sprint } from '../models/Sprint';
 
 interface TeamViewProps {
   team: TeamWithMembersAndSprints;
@@ -19,47 +18,32 @@ interface TeamViewProps {
 
 const TeamView: React.FC<TeamViewProps> = ({ team }) => {
   const { user, isSuperAdmin } = useAuth();
-  const { sprints, isLoading, isError, mutateSprints } = useSprints(team.id);
+  const { sprints, isLoading, isError, mutate } = useSprints(team.id);
   const { enqueueSnackbar } = useSnackbar();
   const navigate = useNavigate();
 
   const canManageTeam = (user && team.adminId === user.sub) || isSuperAdmin;
-
-  const { data: invitations, isLoading: loadingInvitations, error: invitationsError, mutate: mutateTeamInvitations } = useSWR(
-    canManageTeam ? `/teams/${team.id}/invitations` : null,
-    () => teamInvitationService.getTeamInvitations(team.id)
-  );
-
-  const handleInvitationCreated = () => {
-    mutateTeamInvitations();
-  };
-
-  const handleDeleteInvitation = async (invitationId: string) => {
-    try {
-      await teamInvitationService.deleteTeamInvitation(invitationId);
-      enqueueSnackbar('Invitation deleted successfully!', { variant: 'success' });
-      mutateTeamInvitations();
-    } catch (error: any) {
-      enqueueSnackbar(error.response?.data?.message || 'Failed to delete invitation.', { variant: 'error' });
-    }
-  };
   
   const handleDeleteTeam = async () => {
     if (window.confirm(`Are you sure you want to delete the team "${team.name}"? This action cannot be undone.`)) {
       try {
         await deleteTeam(team.id);
         enqueueSnackbar('Team deleted successfully!', { variant: 'success' });
-        // After deletion, you might want to redirect or refresh the list of teams
-        navigate('/dashboard'); // Redirect to dashboard
-        window.location.reload(); // Force a reload to refresh team list on dashboard
-      } catch (error: any) {
-        enqueueSnackbar(error.response?.data?.message || 'Failed to delete the team.', { variant: 'error' });
+        navigate('/admin/teams'); // Redirect to admin teams page
+      } catch (error: unknown) {
+        let errorMessage = 'Failed to delete the team.';
+        if (axios.isAxiosError(error) && error.response?.data?.message) {
+          errorMessage = error.response.data.message;
+        } else if (error instanceof Error) {
+          errorMessage = error.message;
+        }
+        enqueueSnackbar(errorMessage, { variant: 'error' });
       }
     }
   };
 
   const handleDataMutation = () => {
-    mutateSprints();
+    mutate();
   };
 
   return (
@@ -81,44 +65,6 @@ const TeamView: React.FC<TeamViewProps> = ({ team }) => {
             </Button>
           )}
         </Box>
-
-        {canManageTeam && (
-          <Box sx={{ mb: 3 }}>
-            <CreateTeamInvitationForm teamId={team.id} onInvitationCreated={handleInvitationCreated} />
-            <Divider sx={{ my: 3 }} />
-            <Typography variant="h6" gutterBottom>Team Invitations</Typography>
-            {loadingInvitations && <Typography>Loading invitations...</Typography>}
-            {invitationsError && <Alert severity="error">{invitationsError?.message || 'Failed to load invitations.'}</Alert>}
-            {!loadingInvitations && invitations && invitations.length > 0 ? (
-              <List>
-                {invitations.map((invitation) => (
-                  <ListItem key={invitation.id} secondaryAction={
-                    <IconButton edge="end" aria-label="delete" onClick={() => handleDeleteInvitation(invitation.id)}>
-                      <DeleteIcon />
-                    </IconButton>
-                  }>
-                    <Grid container spacing={2} alignItems="center">
-                      <Grid size={{ xs: 12, sm: 6 }}>
-                        <Typography variant="body1">Token: {invitation.token.substring(0, 10)}...</Typography>
-                        <Typography variant="body2" color="text.secondary">Expires: {new Date(invitation.expirationDate).toLocaleDateString()}</Typography>
-                      </Grid>
-                      <Grid size={{ xs: 12, sm: 6 }}>
-                        <Typography variant="body2" color={invitation.status === 'Accepted' ? 'success.main' : invitation.status === 'Expired' ? 'error.main' : 'info.main'}>
-                          Status: {invitation.status}
-                        </Typography>
-                        <Button variant="outlined" size="small" onClick={() => navigator.clipboard.writeText(`${window.location.origin}/accept-invitation/${invitation.token}`)} sx={{ mt: 1 }}>
-                          Copy Link
-                        </Button>
-                      </Grid>
-                    </Grid>
-                  </ListItem>
-                ))}
-              </List>
-            ) : (!loadingInvitations && !invitationsError && (
-              <Typography>No invitations found for this team.</Typography>
-            ))}
-          </Box>
-        )}
 
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
           <Typography variant="h6" component="h4" sx={{ mr: 1 }}>Sprints</Typography>
@@ -142,12 +88,12 @@ const TeamView: React.FC<TeamViewProps> = ({ team }) => {
           </Box>
         )}
 
-        {isLoading && <Typography>Loading sprints...</Typography>}
+        {isLoading && <CircularProgress />}
         {isError && <Typography color="error">Error loading sprints.</Typography>}
 
         {sprints && sprints.length > 0 ? (
           <List>
-            {sprints.map(sprint => (
+            {sprints.map((sprint: Sprint) => (
               <ListItem key={sprint.id} divider sx={{ flexDirection: 'column', alignItems: 'flex-start', py: 2 }}>
                 <Grid container spacing={2} sx={{ width: '100%' }}>
                   <Grid size={{ xs: 12, sm: 6 }}>

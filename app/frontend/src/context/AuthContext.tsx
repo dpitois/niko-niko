@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useState, useEffect, useCallback, useContext } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';

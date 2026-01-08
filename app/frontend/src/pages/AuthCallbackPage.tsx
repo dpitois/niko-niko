@@ -1,6 +1,7 @@
 import { useEffect } from 'react'; // Removed unused useCallback import
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useSnackbar } from 'notistack';
 
 // Material UI Imports
 import { Container, Box, Typography, CircularProgress } from '@mui/material';
@@ -9,18 +10,19 @@ const AuthCallbackPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { login } = useAuth();
+  const { enqueueSnackbar } = useSnackbar();
 
   useEffect(() => {
     const token = searchParams.get('token');
 
     if (token) {
       login(token);
-      navigate('/dashboard');
+      navigate('/my-teams');
     } else {
-      console.error("Authentication callback error: No token received.");
+      enqueueSnackbar("Authentication callback error: No token received.", { variant: 'error' });
       navigate('/login');
     }
-  }, [navigate, searchParams, login]);
+  }, [navigate, searchParams, login, enqueueSnackbar]);
 
   return (
     <Container maxWidth="xs">

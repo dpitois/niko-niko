@@ -3,6 +3,7 @@ import { Button, TextField, Box, Typography, Alert } from '@mui/material';
 import { useAuth } from '../context/AuthContext';
 import { teamInvitationService } from '../services/teamInvitationService';
 import type { TeamInvitation } from '../models/Team/Invitation/TeamInvitation';
+import axios from 'axios';
 
 interface CreateTeamInvitationFormProps {
   teamId: string;
@@ -35,8 +36,14 @@ const CreateTeamInvitationForm: React.FC<CreateTeamInvitationFormProps> = ({ tea
       if (onInvitationCreated) {
         onInvitationCreated(newInvitation);
       }
-    } catch (err: any) {
-      setError(err.response?.data?.message || err.message || 'Failed to create invitation.');
+    } catch (err: unknown) {
+      let errorMessage = 'Failed to create invitation.';
+      if (axios.isAxiosError(err) && err.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+      setError(errorMessage);
     }
   };
 

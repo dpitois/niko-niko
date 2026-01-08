@@ -1,14 +1,15 @@
 import useSWR from 'swr';
 import { getSprints } from '../services/sprintService';
 
-export const useSprints = (teamId: string | null) => {
-  // The key is an array, so SWR re-fetches when teamId changes.
-  const { data, error, isLoading, mutate } = useSWR(teamId ? ['/sprints', teamId] : null, () => getSprints(teamId!));
+const useSprints = (teamId?: string) => {
+  const { data, error, mutate } = useSWR(teamId ? `sprints-${teamId}` : 'sprints', () => getSprints(teamId));
 
   return {
     sprints: data,
-    isLoading,
+    isLoading: !error && !data,
     isError: error,
-    mutateSprints: mutate,
+    mutate,
   };
 };
+
+export default useSprints;

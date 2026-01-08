@@ -7,6 +7,12 @@ export const createMoodEntry = async (moodEntry: CreateMood): Promise<Mood> => {
   return data;
 };
 
+export const updateMoodEntry = async (moodEntry: CreateMood): Promise<Mood> => {
+  // The backend uses a POST for both create and update (upsert)
+  const { data } = await api.post('/moodentries', moodEntry);
+  return data;
+};
+
 export const getMoodEntriesBySprint = async (sprintId: string, userId?: string, date?: string): Promise<Mood[]> => {
   let url = `/moodentries/bysprint/${sprintId}`;
   const params = new URLSearchParams();

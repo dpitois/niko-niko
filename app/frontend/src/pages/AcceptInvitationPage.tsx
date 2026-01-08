@@ -4,6 +4,7 @@ import { Box, Typography, CircularProgress, Alert, Button } from '@mui/material'
 import { teamInvitationService } from '../services/teamInvitationService';
 import { useAuth } from '../context/AuthContext';
 import { useTeams } from '../hooks/useTeams';
+import axios from 'axios';
 
 const AcceptInvitationPage: React.FC = () => {
   const { token } = useParams<{ token: string }>();
@@ -51,9 +52,15 @@ const AcceptInvitationPage: React.FC = () => {
         localStorage.removeItem('invitationToken');
         mutateTeams();
         setTimeout(() => navigate(`/my-teams`), 3000);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Error accepting invitation:', err); // Log l'erreur complète
-        setMessage(err.response?.data?.message || err.message || 'Failed to accept invitation.');
+        let errorMessage = 'Failed to accept invitation.';
+        if (axios.isAxiosError(err) && err.response?.data?.message) {
+          errorMessage = err.response.data.message;
+        } else if (err instanceof Error) {
+          errorMessage = err.message;
+        }
+        setMessage(errorMessage);
         setSeverity('error');
       } finally {
         setLoading(false);

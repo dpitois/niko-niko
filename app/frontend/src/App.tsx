@@ -1,20 +1,25 @@
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
-import AdminDashboardPage from './pages/AdminDashboardPage';
 import CreateSprintPage from './pages/CreateSprintPage';
 import MoodEntryStandalonePage from './pages/MoodEntryStandalonePage';
-import AcceptInvitationPage from './pages/AcceptInvitationPage'; // Import AcceptInvitationPage
+import AcceptInvitationPage from './pages/AcceptInvitationPage';
 import AuthCallbackPage from './pages/AuthCallbackPage';
-import Header from './components/Header';
 import ProtectedRoute from './components/ProtectedRoute';
-import NotificationListener from './components/NotificationListener'; // Import NotificationListener
+import AppLayout from './components/layout/AppLayout';
+
+// New placeholder pages
+import PastSprintsPage from './pages/PastSprintsPage';
+import TeamInvitationsPage from './pages/TeamInvitationsPage';
+import AdminTeamsPage from './pages/AdminTeamsPage';
+import AdminUsersPage from './pages/AdminUsersPage';
+import AdminSprintsPage from './pages/AdminSprintsPage';
+
 import './App.css';
 
 // Material UI Imports
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import { Box } from '@mui/material';
 
 // notistack imports
 import { SnackbarProvider } from 'notistack'; // Import SnackbarProvider
@@ -83,67 +88,95 @@ const theme = createTheme({
 });
 
 function App() {
-  const location = useLocation();
-  const noHeaderPaths = ['/login']; // Paths where the header should not be displayed
-  const shouldShowHeader = !noHeaderPaths.includes(location.pathname);
-
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <SnackbarProvider maxSnack={3}> {/* Wrap with SnackbarProvider */}
-        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-          <NotificationListener /> {/* Render NotificationListener */}
-          {shouldShowHeader && <Header />}
-          <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-            <Routes>
-              <Route path="/" element={<Navigate to="/my-teams" />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/auth/callback" element={<AuthCallbackPage />} />
-              <Route path="/accept-invitation/:token" element={<AcceptInvitationPage />} />
+      <SnackbarProvider maxSnack={3}>
+        <AppLayout>
+          <Routes>
+            <Route path="/" element={<Navigate to="/my-teams" />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/auth/callback" element={<AuthCallbackPage />} />
+            <Route path="/accept-invitation/:token" element={<AcceptInvitationPage />} />
 
-              <Route
-                path="/my-teams" // Nouvelle route pour les équipes de l'utilisateur
-                element={
-                  <ProtectedRoute>
-                    <DashboardPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/dashboard" // Conserver l'ancienne route /dashboard pour compatibilité ou supprimer si inutile.
-                element={
-                  <ProtectedRoute>
-                    <DashboardPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/admin"
-                element={
-                  <ProtectedRoute requiredSuperAdmin={true}>
-                    <AdminDashboardPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/sprint/create/:teamId?"
-                element={
-                  <ProtectedRoute>
-                    <CreateSprintPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/moodentry/:sprintId"
-                element={
-                  <ProtectedRoute>
-                    <MoodEntryStandalonePage />
-                  </ProtectedRoute>
-                }
-              />
-            </Routes>
-          </Box>
-        </Box>
+            {/* User Dashboard */}
+            <Route
+              path="/my-teams"
+              element={
+                <ProtectedRoute>
+                  <DashboardPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/past-sprints"
+              element={
+                <ProtectedRoute>
+                  <PastSprintsPage /> {/* To be created */}
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/team-invitations"
+              element={
+                <ProtectedRoute>
+                  <TeamInvitationsPage /> {/* To be created */}
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Admin Dashboard */}
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute requiredSuperAdmin={true}>
+                  <Navigate to="/admin/teams" />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/teams"
+              element={
+                <ProtectedRoute requiredSuperAdmin={true}>
+                  <AdminTeamsPage /> {/* To be created */}
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/users"
+              element={
+                <ProtectedRoute requiredSuperAdmin={true}>
+                  <AdminUsersPage /> {/* To be created */}
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/sprints"
+              element={
+                <ProtectedRoute requiredSuperAdmin={true}>
+                  <AdminSprintsPage /> {/* To be created */}
+                </ProtectedRoute>
+              }
+            />
+            
+            <Route
+              path="/sprint/create/:teamId?"
+              element={
+                <ProtectedRoute>
+                  <CreateSprintPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/moodentry/:sprintId"
+              element={
+                <ProtectedRoute>
+                  <MoodEntryStandalonePage />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </AppLayout>
       </SnackbarProvider>
     </ThemeProvider>
   );

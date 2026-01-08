@@ -23,13 +23,15 @@ const CreateSprintPage: React.FC = () => {
 
   // Effect to set selectedTeam if urlTeamId changes or teams load
   useEffect(() => {
-    if (urlTeamId && teams && teams.some(team => team.id === urlTeamId)) {
+    // Only update if urlTeamId is present and matches a team, AND selectedTeam is not already correctly set
+    if (urlTeamId && teams && teams.some(team => team.id === urlTeamId) && selectedTeam !== urlTeamId) {
       setSelectedTeam(urlTeamId);
-    } else if (teams && teams.length > 0 && !selectedTeam && !urlTeamId) {
-      // Optionally select the first team if no URL param and no existing selection
-      // setSelectedTeam(teams[0].id);
     }
-  }, [urlTeamId, teams]);
+    // If no urlTeamId and no team is selected, but teams are loaded, select the first team
+    else if (!urlTeamId && teams && teams.length > 0 && !selectedTeam) {
+      setSelectedTeam(teams[0].id);
+    }
+  }, [urlTeamId, teams, selectedTeam, setSelectedTeam]);
 
   const { mutateSprints } = useSprints(selectedTeam || null);
 

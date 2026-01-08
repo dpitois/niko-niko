@@ -105,12 +105,22 @@ const SprintMoodGrid: React.FC<SprintMoodGridProps> = ({
     }
   };
 
-  return (
-    <Box sx={{ width: '100%', overflowX: 'auto', p: 1 }}>
+    return (
       <Box sx={{ minWidth: 'max-content', display: 'flex', flexDirection: 'column' }}>
         {/* Header Row: Dates */}
         <Box sx={{ display: 'flex' }}>
-          <Box sx={{ width: 150, flexShrink: 0, p: 1 }} /> {/* Spacer for member names */}
+          <Box
+            sx={{
+              width: 150,
+              flexShrink: 0,
+              p: 1,
+              position: 'sticky',
+              left: 0,
+              zIndex: 2,
+              backgroundColor: theme.palette.grey[200], // Match the general header background
+              borderBottom: '1px solid #eee' // Add a subtle border to match mood cells
+            }}
+          /> {/* Spacer for member names */}
           {sprintDates.map((date, index) => (
             <Paper
               key={index}
@@ -131,7 +141,7 @@ const SprintMoodGrid: React.FC<SprintMoodGridProps> = ({
             </Paper>
           ))}
         </Box>
-
+  
         {/* Mood Rows: Per Member */}
         {teamMembers.map((member) => (
           <Box key={member.id} sx={{ display: 'flex', mt: 0.5 }}>
@@ -145,6 +155,9 @@ const SprintMoodGrid: React.FC<SprintMoodGridProps> = ({
                 border: '1px solid #eee',
                 backgroundColor: theme.palette.grey[100],
                 borderRadius: '4px 0 0 4px',
+                position: 'sticky',
+                left: 0,
+                zIndex: 1,
               }}
             >
               <Avatar sx={{ width: 24, height: 24, mr: 1, bgcolor: theme.palette.primary.main, fontSize: '0.75rem' }}>
@@ -162,7 +175,7 @@ const SprintMoodGrid: React.FC<SprintMoodGridProps> = ({
               );
               const isTodayOrFuture = dayjs(date).isSameOrAfter(today);
               const canEdit = user && user.sub === member.id && !isTodayOrFuture;
-
+  
               return (
                 <Paper
                   key={dateIndex}
@@ -201,8 +214,6 @@ const SprintMoodGrid: React.FC<SprintMoodGridProps> = ({
           </Box>
         ))}
       </Box>
-    </Box>
-  );
-};
-
+    );
+  };
 export default SprintMoodGrid;

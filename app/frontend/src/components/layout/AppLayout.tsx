@@ -73,7 +73,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         />
       </Drawer>
 
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+      <Box component="main" sx={{ flexGrow: 1, p: 3, width: '100%', overflowX: 'hidden' }}>
         {children}
       </Box>
     </Box>

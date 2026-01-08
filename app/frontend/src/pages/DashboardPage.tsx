@@ -77,13 +77,15 @@ const TeamDashboardSection: React.FC<TeamDashboardSectionProps> = ({ team }) => 
             <Typography variant="subtitle1" color="text.secondary">
               ({new Date(currentSprint.startDate).toLocaleDateString()} - {new Date(currentSprint.endDate).toLocaleDateString()})
             </Typography>
-            <SprintMoodGrid
-              teamId={team.id}
-              sprintId={currentSprint.id}
-              sprintStartDate={new Date(currentSprint.startDate)}
-              sprintEndDate={new Date(currentSprint.endDate)}
-              teamMembers={team.members}
-            />
+            <Box sx={{ overflowX: 'auto', pb: 2 }}>
+              <SprintMoodGrid
+                teamId={team.id}
+                sprintId={currentSprint.id}
+                sprintStartDate={new Date(currentSprint.startDate)}
+                sprintEndDate={new Date(currentSprint.endDate)}
+                teamMembers={team.members}
+              />
+            </Box>
           </Box>
         ) : (
           <Typography variant="body2">No active sprint found for this team.</Typography>

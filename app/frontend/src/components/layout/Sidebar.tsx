@@ -18,7 +18,6 @@ import {
 import {
   Dashboard as DashboardIcon,
   History as HistoryIcon,
-  MailOutline as MailOutlineIcon,
   People as PeopleIcon,
   GroupWork as GroupWorkIcon,
   Timeline as TimelineIcon,
@@ -101,29 +100,6 @@ const Sidebar: React.FC<SidebarProps> = ({ drawerWidth, open, handleDrawerClose 
               <HistoryIcon />
             </ListItemIcon>
             <ListItemText primary="Past Sprints" sx={{ opacity: open ? 1 : 0 }} />
-          </ListItemButton>
-        </ListItem>
-
-        <ListItem disablePadding sx={{ display: 'block' }}>
-          <ListItemButton
-            component={NavLink}
-            to="/team-invitations"
-            sx={{
-              minHeight: 48,
-              justifyContent: open ? 'initial' : 'center',
-              px: 2.5,
-            }}
-          >
-            <ListItemIcon
-              sx={{
-                minWidth: 0,
-                mr: open ? 3 : 'auto',
-                justifyContent: 'center',
-              }}
-            >
-              <MailOutlineIcon />
-            </ListItemIcon>
-            <ListItemText primary="Invitations" sx={{ opacity: open ? 1 : 0 }} />
           </ListItemButton>
         </ListItem>
       </List>

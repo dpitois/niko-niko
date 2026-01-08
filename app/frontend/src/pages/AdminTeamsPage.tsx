@@ -2,23 +2,31 @@ import React from 'react';
 import CreateTeamForm from '../components/CreateTeamForm';
 import { useTeams } from '../hooks/useTeams';
 import { useAuth } from '../context/AuthContext';
-import type { TeamWithMembersAndSprints } from '../models/Team/TeamWithMembersAndSprints';
-import TeamView from '../components/TeamView';
+import AdminTeamListItem from '../components/AdminTeamListItem'; // Use the new component
+import { deleteTeam } from '../services/teamService'; // Import deleteTeam service
 
 import { Typography, Box, Divider, CircularProgress } from '@mui/material';
 
 const AdminTeamsPage: React.FC = () => {
-  const { user, isSuperAdmin } = useAuth();
+  const { isSuperAdmin } = useAuth();
   const { teams, isLoading, isError, mutateTeams } = useTeams();
 
   const handleTeamCreated = () => {
     mutateTeams();
   };
 
-  const administeredTeams = teams?.filter(team => user && team.adminId === user.sub) || [];
+  const handleDeleteTeam = async (teamId: string) => {
+    try {
+      await deleteTeam(teamId);
+      mutateTeams(); // Refresh the list of teams
+    } catch (error) {
+      console.error('Failed to delete team:', error);
+      // TODO: Show an error message to the user
+    }
+  };
 
   return (
-    <Box sx={{ mt: 2 }}>
+    <Box>
       <Typography variant="h4" component="h1" gutterBottom>
         Admin Teams
       </Typography>
@@ -35,18 +43,18 @@ const AdminTeamsPage: React.FC = () => {
       <Divider sx={{ my: 4 }} />
 
       <Typography variant="h5" component="h2" gutterBottom>
-        Manage My Administered Teams
+        Manage All Teams
       </Typography>
 
       {isLoading && <CircularProgress />}
       {isError && <Typography color="error">Error loading teams.</Typography>}
 
-      {administeredTeams.length > 0 ? (
-        administeredTeams.map((team: TeamWithMembersAndSprints) => (
-          <TeamView key={team.id} team={team} />
+      {teams && teams.length > 0 ? (
+        teams.map((team) => (
+          <AdminTeamListItem key={team.id} team={team} onDelete={handleDeleteTeam} />
         ))
       ) : (
-        <Typography variant="body1">You are not an administrator of any team.</Typography>
+        <Typography variant="body1">No teams found.</Typography>
       )}
     </Box>
   );

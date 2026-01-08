@@ -25,15 +25,6 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
   }),
 }));
 
-const DrawerHeader = styled('div')(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  padding: theme.spacing(0, 1),
-  // necessary for content to be below app bar
-  ...theme.mixins.toolbar,
-  justifyContent: 'flex-end',
-}));
-
 interface AppLayoutProps {
   children: React.ReactNode;
 }
@@ -61,7 +52,6 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         handleDrawerOpen={handleDrawerOpen} // Pass handleDrawerOpen if we need an app bar to open it
       />
       <Main open={open}>
-        <DrawerHeader /> {/* This pushes content below the AppBar space if one existed, but serves to offset content when drawer is closed */}
         {children}
       </Main>
     </Box>

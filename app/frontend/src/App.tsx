@@ -10,7 +10,6 @@ import AppLayout from './components/layout/AppLayout';
 
 // New placeholder pages
 import PastSprintsPage from './pages/PastSprintsPage';
-import TeamInvitationsPage from './pages/TeamInvitationsPage';
 import AdminTeamsPage from './pages/AdminTeamsPage';
 import AdminUsersPage from './pages/AdminUsersPage';
 import AdminSprintsPage from './pages/AdminSprintsPage';
@@ -113,14 +112,6 @@ function App() {
               element={
                 <ProtectedRoute>
                   <PastSprintsPage /> {/* To be created */}
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/team-invitations"
-              element={
-                <ProtectedRoute>
-                  <TeamInvitationsPage /> {/* To be created */}
                 </ProtectedRoute>
               }
             />

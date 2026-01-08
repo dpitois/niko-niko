@@ -136,7 +136,7 @@ public class NikoNikoApiTestApplication : WebApplicationFactory<Program>
         return host;
     }
 
-    public async Task<(User user, HttpClient client)> CreateUserAndClient(string name, bool isSuperAdmin = false)
+    public async Task<(User user, HttpClient client, string jwtToken)> CreateUserAndClient(string name, bool isSuperAdmin = false)
     {
         using var scope = Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
@@ -162,7 +162,7 @@ public class NikoNikoApiTestApplication : WebApplicationFactory<Program>
         var jwtToken = tokenService.GenerateToken(claims.ToArray());
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
 
-        return (user, client);
+        return (user, client, jwtToken);
     }
 
     public async Task<Team> CreateTeam(string name, Guid adminId)

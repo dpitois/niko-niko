@@ -9,7 +9,7 @@ import TeamView from '../components/TeamView'; // Import TeamView
 import { Container, Typography, Box, Divider } from '@mui/material';
 
 const AdminDashboardPage: React.FC = () => {
-  const { user } = useAuth(); // Get current user
+  const { user, isSuperAdmin } = useAuth(); // Get current user and super admin status
   const { teams, isLoading, isError, mutateTeams } = useTeams();
 
   const handleTeamCreated = () => {
@@ -24,12 +24,14 @@ const AdminDashboardPage: React.FC = () => {
         Admin Dashboard
       </Typography>
 
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h5" component="h2" gutterBottom>
-          Create New Team
-        </Typography>
-        <CreateTeamForm onTeamCreated={handleTeamCreated} />
-      </Box>
+      {isSuperAdmin && (
+        <Box sx={{ mb: 4 }}>
+          <Typography variant="h5" component="h2" gutterBottom>
+            Create New Team
+          </Typography>
+          <CreateTeamForm onTeamCreated={handleTeamCreated} />
+        </Box>
+      )}
 
       <Divider sx={{ my: 4 }} />
 
@@ -53,4 +55,3 @@ const AdminDashboardPage: React.FC = () => {
 };
 
 export default AdminDashboardPage;
-

@@ -26,7 +26,7 @@ const DashboardPage: React.FC = () => {
   return (
     <Box sx={{ mt: 2 }}>
       <Typography variant="h4" component="h1" gutterBottom>
-        Current Dashboard
+        Home
       </Typography>
 
       {teams && teams.length > 0 ? (

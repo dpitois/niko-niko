@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography, Grid, Paper, Avatar, useTheme } from '@mui/material';
+import { Box, Typography, Paper, Avatar, useTheme } from '@mui/material';
 import { useSWRConfig } from 'swr';
 import type { MoodType } from '../../models/MoodType';
 import { MoodValues } from '../../models/MoodType';
@@ -7,6 +7,10 @@ import { useMoods } from '../../hooks/useMoods';
 import { useAuth } from '../../context/AuthContext'; // To get current user
 import { createMoodEntry, updateMoodEntry } from '../../services/moodService'; // API services
 import { MoodBad, SentimentDissatisfied, SentimentNeutral, SentimentSatisfiedAlt } from '@mui/icons-material';
+import dayjs from 'dayjs';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+
+dayjs.extend(isSameOrAfter);
 
 interface SprintMoodGridProps {
   teamId: string;
@@ -53,6 +57,7 @@ const SprintMoodGrid: React.FC<SprintMoodGridProps> = ({
   const { moods, mutateMoods } = useMoods(sprintId); // Fetch moods for this sprint
   const { mutate } = useSWRConfig();
   const theme = useTheme();
+  const today = dayjs().startOf('day');
 
   // Generate an array of dates for the sprint
   const sprintDates: Date[] = [];
@@ -72,12 +77,14 @@ const SprintMoodGrid: React.FC<SprintMoodGridProps> = ({
         new Date(m.date).toDateString() === date.toDateString()
     );
 
+    const utcDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+
     try {
       if (existingMood) {
         // Update existing mood
         await updateMoodEntry({
           mood: moodType,
-          date: date.toISOString(),
+          date: utcDate.toISOString(),
           sprintId: sprintId,
           userId: user.sub,
         });
@@ -85,7 +92,7 @@ const SprintMoodGrid: React.FC<SprintMoodGridProps> = ({
         // Create new mood
         await createMoodEntry({
           mood: moodType,
-          date: date.toISOString(),
+          date: utcDate.toISOString(),
           sprintId: sprintId,
           userId: user.sub,
         });
@@ -100,9 +107,9 @@ const SprintMoodGrid: React.FC<SprintMoodGridProps> = ({
 
   return (
     <Box sx={{ width: '100%', overflowX: 'auto', p: 1 }}>
-      <Box sx={{ minWidth: 'max-content' }}>
+      <Box sx={{ minWidth: 'max-content', display: 'flex', flexDirection: 'column' }}>
         {/* Header Row: Dates */}
-        <Box sx={{ width: 'auto', display: 'flex' }}>
+        <Box sx={{ display: 'flex' }}>
           <Box sx={{ width: 150, flexShrink: 0, p: 1 }} /> {/* Spacer for member names */}
           {sprintDates.map((date, index) => (
             <Paper
@@ -127,7 +134,7 @@ const SprintMoodGrid: React.FC<SprintMoodGridProps> = ({
 
         {/* Mood Rows: Per Member */}
         {teamMembers.map((member) => (
-          <Box key={member.id} sx={{ width: 'auto', display: 'flex', mt: 0.5 }}>
+          <Box key={member.id} sx={{ display: 'flex', mt: 0.5 }}>
             <Box
               sx={{
                 width: 150,
@@ -153,7 +160,7 @@ const SprintMoodGrid: React.FC<SprintMoodGridProps> = ({
                   m.userId === member.id &&
                   new Date(m.date).toDateString() === date.toDateString()
               );
-              const isTodayOrFuture = date.toDateString() >= new Date().toDateString();
+              const isTodayOrFuture = dayjs(date).isSameOrAfter(today);
               const canEdit = user && user.sub === member.id && !isTodayOrFuture;
 
               return (

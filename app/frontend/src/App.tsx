@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import CreateSprintPage from './pages/CreateSprintPage';
@@ -86,17 +86,27 @@ const theme = createTheme({
   },
 });
 
+const ProtectedLayout = () => (
+  <AppLayout>
+    <Outlet />
+  </AppLayout>
+);
+
+
 function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <SnackbarProvider maxSnack={3}>
-        <AppLayout>
-          <Routes>
+        <Routes>
+          {/* Public routes */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/auth/callback" element={<AuthCallbackPage />} />
+          <Route path="/accept-invitation/:token" element={<AcceptInvitationPage />} />
+
+          {/* Protected routes within the layout */}
+          <Route element={<ProtectedLayout />}>
             <Route path="/" element={<Navigate to="/my-teams" />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/auth/callback" element={<AuthCallbackPage />} />
-            <Route path="/accept-invitation/:token" element={<AcceptInvitationPage />} />
 
             {/* User Dashboard */}
             <Route
@@ -166,8 +176,8 @@ function App() {
                 </ProtectedRoute>
               }
             />
-          </Routes>
-        </AppLayout>
+          </Route>
+        </Routes>
       </SnackbarProvider>
     </ThemeProvider>
   );

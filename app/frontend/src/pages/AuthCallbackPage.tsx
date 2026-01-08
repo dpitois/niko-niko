@@ -15,7 +15,7 @@ const AuthCallbackPage = () => {
 
     if (token) {
       login(token);
-      navigate('/dashboard');
+      navigate('/my-teams');
     } else {
       console.error("Authentication callback error: No token received.");
       navigate('/login');

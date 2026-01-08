@@ -2,7 +2,6 @@ import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import {
-  Drawer,
   Box,
   List,
   ListItem,
@@ -26,7 +25,7 @@ import {
   ChevronRight as ChevronRightIcon,
   Login as LoginIcon
 } from '@mui/icons-material';
-import { styled, useTheme } from '@mui/material/styles';
+import { styled } from '@mui/material/styles';
 
 const DrawerHeader = styled('div')(({ theme }) => ({
   display: 'flex',
@@ -37,16 +36,15 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 }));
 
 interface SidebarProps {
-  drawerWidth: number;
   open: boolean;
   handleDrawerClose: () => void;
   handleDrawerOpen: () => void; // Added for completeness, though not used to open from within sidebar
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ drawerWidth, open, handleDrawerClose }) => {
+const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose, handleDrawerOpen }) => {
   const { user, logout, isSuperAdmin } = useAuth();
   const navigate = useNavigate();
-  const theme = useTheme();
+
 
   const handleLogout = () => {
     logout();
@@ -208,22 +206,10 @@ const Sidebar: React.FC<SidebarProps> = ({ drawerWidth, open, handleDrawerClose 
   );
 
   return (
-    <Drawer
-      sx={{
-        width: drawerWidth,
-        flexShrink: 0,
-        '& .MuiDrawer-paper': {
-          width: drawerWidth,
-          boxSizing: 'border-box',
-        },
-      }}
-      variant="persistent"
-      anchor="left"
-      open={open}
-    >
+    <>
       <DrawerHeader>
-        <IconButton onClick={handleDrawerClose}>
-          {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+        <IconButton onClick={open ? handleDrawerClose : handleDrawerOpen}>
+          {open ? <ChevronLeftIcon /> : <ChevronRightIcon />}
         </IconButton>
       </DrawerHeader>
       <Divider />
@@ -264,7 +250,7 @@ const Sidebar: React.FC<SidebarProps> = ({ drawerWidth, open, handleDrawerClose 
           </ListItem>
         </List>
       )}
-    </Drawer>
+    </>
   );
 };
 

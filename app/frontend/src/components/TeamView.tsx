@@ -1,6 +1,6 @@
 import React from 'react';
 import type { TeamWithMembersAndSprints } from '../models/Team/TeamWithMembersAndSprints';
-import { useSprints } from '../hooks/useSprints';
+import useSprints from '../hooks/useSprints';
 import MoodEntryForm from './MoodEntryForm';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -10,6 +10,7 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useSnackbar } from 'notistack';
 import axios from 'axios';
+import type { Sprint } from '../models/Sprint';
 
 interface TeamViewProps {
   team: TeamWithMembersAndSprints;
@@ -17,7 +18,7 @@ interface TeamViewProps {
 
 const TeamView: React.FC<TeamViewProps> = ({ team }) => {
   const { user, isSuperAdmin } = useAuth();
-  const { sprints, isLoading, isError, mutateSprints } = useSprints(team.id);
+  const { sprints, isLoading, isError, mutate } = useSprints(team.id);
   const { enqueueSnackbar } = useSnackbar();
   const navigate = useNavigate();
 
@@ -42,7 +43,7 @@ const TeamView: React.FC<TeamViewProps> = ({ team }) => {
   };
 
   const handleDataMutation = () => {
-    mutateSprints();
+    mutate();
   };
 
   return (
@@ -92,7 +93,7 @@ const TeamView: React.FC<TeamViewProps> = ({ team }) => {
 
         {sprints && sprints.length > 0 ? (
           <List>
-            {sprints.map(sprint => (
+            {sprints.map((sprint: Sprint) => (
               <ListItem key={sprint.id} divider sx={{ flexDirection: 'column', alignItems: 'flex-start', py: 2 }}>
                 <Grid container spacing={2} sx={{ width: '100%' }}>
                   <Grid size={{ xs: 12, sm: 6 }}>

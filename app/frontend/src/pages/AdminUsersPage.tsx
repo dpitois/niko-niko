@@ -4,11 +4,12 @@ import { Delete as DeleteIcon } from '@mui/icons-material';
 import { useUsers } from '../hooks/useUsers';
 import { useSnackbar } from 'notistack';
 import { deleteUser } from '../services/userService';
-import { useTeams } from '../hooks/useTeams'; // For team selection in invitations
+import useTeams from '../hooks/useTeams'; // For team selection in invitations
 import CreateTeamInvitationForm from '../components/CreateTeamInvitationForm'; // For creating invitations
 import { teamInvitationService } from '../services/teamInvitationService'; // For fetching/deleting invitations
 import useSWR from 'swr'; // For invitations
 import type { TeamInvitation } from '../models/Team/Invitation/TeamInvitation';
+import type { TeamWithMembersAndSprints } from '../models/Team/TeamWithMembersAndSprints';
 import axios from 'axios'; // For error handling
 
 interface TabPanelProps {
@@ -46,7 +47,7 @@ function a11yProps(index: number) {
 
 const AdminUsersPage: React.FC = () => {
   const [value, setValue] = useState(0);
-  const { users, isLoading: isLoadingUsers, isError: isErrorUsers, mutateUsers } = useUsers();
+  const { users, isLoading: isLoadingUsers, isError: isErrorUsers, mutate } = useUsers();
   const { enqueueSnackbar } = useSnackbar();
 
   // User Deletion State
@@ -90,7 +91,7 @@ const AdminUsersPage: React.FC = () => {
       try {
         await deleteUser(userToDeleteId);
         enqueueSnackbar(`User ${userToDeleteName} deleted successfully!`, { variant: 'success' });
-        mutateUsers();
+        mutate();
       } catch (error) {
         console.error('Failed to delete user:', error);
         enqueueSnackbar(`Failed to delete user ${userToDeleteName}.`, { variant: 'error' });
@@ -216,7 +217,7 @@ const AdminUsersPage: React.FC = () => {
                 style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc', marginBottom: '16px' }}
               >
                 <option value="">Select a team</option>
-                {teams.map((team) => (
+                {teams.map((team: TeamWithMembersAndSprints) => (
                   <option key={team.id} value={team.id}>{team.name}</option>
                 ))}
               </select>

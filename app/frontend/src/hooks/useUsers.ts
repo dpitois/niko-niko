@@ -10,6 +10,6 @@ export const useUsers = () => {
         users: data,
         isLoading,
         isError: error,
-        mutateUsers: mutate
+        mutate,
     };
 };

@@ -1,7 +1,9 @@
 import React from 'react';
-import { useTeams } from '../hooks/useTeams';
-import { useSprints } from '../hooks/useSprints'; // Import useSprints
+import useTeams from '../hooks/useTeams';
+import useSprints from '../hooks/useSprints'; // Import useSprints
 import SprintMoodGrid from '../components/sprints/SprintMoodGrid'; // Import SprintMoodGrid
+import type { TeamWithMembersAndSprints } from '../models/Team/TeamWithMembersAndSprints';
+import type { Sprint } from '../models/Sprint';
 
 // Material UI Imports
 import { Typography, Box, Card, CardContent, CircularProgress } from '@mui/material';
@@ -28,7 +30,7 @@ const DashboardPage: React.FC = () => {
       </Typography>
 
       {teams && teams.length > 0 ? (
-        teams.map((team) => (
+        teams.map((team: TeamWithMembersAndSprints) => (
           <TeamDashboardSection key={team.id} team={team} />
         ))
       ) : (
@@ -39,7 +41,7 @@ const DashboardPage: React.FC = () => {
 };
 
 interface TeamDashboardSectionProps {
-  team: { id: string; name: string; adminId: string; members: { id: string; name: string; email: string }[] };
+  team: TeamWithMembersAndSprints;
 }
 
 const TeamDashboardSection: React.FC<TeamDashboardSectionProps> = ({ team }) => {
@@ -57,7 +59,7 @@ const TeamDashboardSection: React.FC<TeamDashboardSectionProps> = ({ team }) => 
     return <Typography color="error">Failed to load sprints for {team.name}.</Typography>;
   }
 
-  const currentSprint = sprints?.find(sprint => {
+  const currentSprint = sprints?.find((sprint: Sprint) => {
     const today = new Date();
     const startDate = new Date(sprint.startDate);
     const endDate = new Date(sprint.endDate);
@@ -92,4 +94,3 @@ const TeamDashboardSection: React.FC<TeamDashboardSectionProps> = ({ team }) => 
 };
 
 export default DashboardPage;
-

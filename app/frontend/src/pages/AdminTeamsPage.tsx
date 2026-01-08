@@ -1,24 +1,25 @@
 import React from 'react';
 import CreateTeamForm from '../components/CreateTeamForm';
-import { useTeams } from '../hooks/useTeams';
+import useTeams from '../hooks/useTeams';
 import { useAuth } from '../context/AuthContext';
 import AdminTeamListItem from '../components/AdminTeamListItem'; // Use the new component
 import { deleteTeam } from '../services/teamService'; // Import deleteTeam service
+import type { TeamWithMembersAndSprints } from '../models/Team/TeamWithMembersAndSprints';
 
 import { Typography, Box, Divider, CircularProgress } from '@mui/material';
 
 const AdminTeamsPage: React.FC = () => {
   const { isSuperAdmin } = useAuth();
-  const { teams, isLoading, isError, mutateTeams } = useTeams();
+  const { teams, isLoading, isError, mutate } = useTeams();
 
   const handleTeamCreated = () => {
-    mutateTeams();
+    mutate();
   };
 
   const handleDeleteTeam = async (teamId: string) => {
     try {
       await deleteTeam(teamId);
-      mutateTeams(); // Refresh the list of teams
+      mutate(); // Refresh the list of teams
     } catch (error) {
       console.error('Failed to delete team:', error);
       // TODO: Show an error message to the user
@@ -50,7 +51,7 @@ const AdminTeamsPage: React.FC = () => {
       {isError && <Typography color="error">Error loading teams.</Typography>}
 
       {teams && teams.length > 0 ? (
-        teams.map((team) => (
+        teams.map((team: TeamWithMembersAndSprints) => (
           <AdminTeamListItem key={team.id} team={team} onDelete={handleDeleteTeam} />
         ))
       ) : (

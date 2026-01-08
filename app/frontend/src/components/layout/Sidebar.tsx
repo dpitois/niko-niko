@@ -12,7 +12,8 @@ import {
   Divider,
   Avatar,
   IconButton,
-  Tooltip
+  Tooltip,
+  Collapse
 } from '@mui/material';
 import {
   Dashboard as DashboardIcon,
@@ -24,40 +25,10 @@ import {
   ChevronLeft as ChevronLeftIcon,
   ChevronRight as ChevronRightIcon,
   Login as LoginIcon,
+  ExpandLess,
   ExpandMore
 } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
-import MuiAccordion from '@mui/material/Accordion';
-import MuiAccordionSummary from '@mui/material/AccordionSummary';
-import MuiAccordionDetails from '@mui/material/AccordionDetails';
-
-const Accordion = styled(MuiAccordion)(() => ({
-  '&:not(:last-child)': {
-    borderBottom: 0,
-  },
-  '&::before': {
-    display: 'none',
-  },
-}));
-
-const AccordionSummary = styled(MuiAccordionSummary)(({ theme }) => ({
-  backgroundColor:
-    theme.palette.mode === 'dark'
-      ? 'rgba(255, 255, 255, .05)'
-      : 'rgba(0, 0, 0, .03)',
-  flexDirection: 'row-reverse',
-  '& .MuiAccordionSummary-expandIconWrapper.Mui-expanded': {
-    transform: 'rotate(90deg)',
-  },
-  '& .MuiAccordionSummary-content': {
-    marginLeft: theme.spacing(1),
-  },
-}));
-
-const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
-  padding: theme.spacing(2),
-  borderTop: '1px solid rgba(0, 0, 0, .125)',
-}));
 
 
 const DrawerHeader = styled('div')(({ theme }) => ({
@@ -78,13 +49,11 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose, handleDrawer
   const { user, logout, isSuperAdmin } = useAuth();
   const navigate = useNavigate();
 
-  const [expanded, setExpanded] = React.useState<string | false>(false);
+  const [openAdminMenu, setOpenAdminMenu] = React.useState(false);
 
-  const handleChange =
-    (panel: string) => (_event: React.SyntheticEvent, isExpanded: boolean) => {
-      setExpanded(isExpanded ? panel : false);
-    };
-
+  const handleAdminMenuClick = () => {
+    setOpenAdminMenu(!openAdminMenu);
+  };
 
   const handleLogout = () => {
     logout();
@@ -140,111 +109,107 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose, handleDrawer
             <ListItemText primary="Past Sprints" sx={{ opacity: open ? 1 : 0 }} />
           </ListItemButton>
         </ListItem>
-      </List>
 
-      {isSuperAdmin && (
-        <>
-          <Divider />
-          <Accordion expanded={expanded === 'panel1'} onChange={handleChange('panel1')} sx={{ width: '100%' }}>
-            <AccordionSummary
-              expandIcon={<ExpandMore sx={{ fontSize: '1.2rem' }} />}
-              aria-controls="panel1d-content"
-              id="panel1d-header"
-              sx={{
-                minHeight: 48,
-                justifyContent: open ? 'initial' : 'center',
-                px: 2.5,
-                '& .MuiAccordionSummary-content': {
-                  justifyContent: open ? 'initial' : 'center',
-                }
-              }}
-            >
-              <ListItemIcon
+        {isSuperAdmin && (
+          <>
+            <Divider />
+            <ListItem disablePadding sx={{ display: 'block' }}>
+              <ListItemButton onClick={handleAdminMenuClick}
                 sx={{
-                  minWidth: 0,
-                  mr: open ? 3 : 'auto',
-                  justifyContent: 'center',
+                  justifyContent: open ? 'initial' : 'center',
+                  px: 2.5,
+                  py: 0.5, // Réduire le padding vertical
+                  flexGrow: 0, // Annuler le flex-grow: 1
                 }}
               >
-                <PeopleIcon /> {/* Using PeopleIcon for Admin group */}
-              </ListItemIcon>
-              <ListItemText primary="Admin" sx={{ opacity: open ? 1 : 0 }} />
-            </AccordionSummary>
-            <AccordionDetails sx={{ padding: 0 }}>
-              <List component="div" disablePadding>
-                <ListItem disablePadding sx={{ display: 'block' }}>
-                  <ListItemButton
-                    component={NavLink}
-                    to="/admin/teams"
-                    sx={{
-                      minHeight: 48,
-                      justifyContent: open ? 'initial' : 'center',
-                      px: open ? 4.5 : 2.5, // Indent for sub-items
-                    }}
-                  >
-                    <ListItemIcon
+                <ListItemIcon
+                  sx={{
+                    minWidth: 0,
+                    mr: open ? 3 : 'auto',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <PeopleIcon />
+                </ListItemIcon>
+                <ListItemText primary="Admin" sx={{ opacity: open ? 1 : 0 }} />
+                {openAdminMenu ? <ExpandLess /> : <ExpandMore />}
+              </ListItemButton>
+              <Collapse in={openAdminMenu} timeout="auto" unmountOnExit>
+                <List component="div" disablePadding>
+                  <ListItem disablePadding sx={{ display: 'block' }}>
+                    <ListItemButton
+                      component={NavLink}
+                      to="/admin/teams"
                       sx={{
-                        minWidth: 0,
-                        mr: open ? 3 : 'auto',
-                        justifyContent: 'center',
+                        minHeight: 48,
+                        justifyContent: open ? 'initial' : 'center',
+                        px: open ? 4.5 : 2.5, // Indent for sub-items
                       }}
                     >
-                      <GroupWorkIcon />
-                    </ListItemIcon>
-                    <ListItemText primary="Teams" sx={{ opacity: open ? 1 : 0 }} />
-                  </ListItemButton>
-                </ListItem>
+                      <ListItemIcon
+                        sx={{
+                          minWidth: 0,
+                          mr: open ? 3 : 'auto',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <GroupWorkIcon />
+                      </ListItemIcon>
+                      <ListItemText primary="Teams" sx={{ opacity: open ? 1 : 0 }} />
+                    </ListItemButton>
+                  </ListItem>
 
-                <ListItem disablePadding sx={{ display: 'block' }}>
-                  <ListItemButton
-                    component={NavLink}
-                    to="/admin/users"
-                    sx={{
-                      minHeight: 48,
-                      justifyContent: open ? 'initial' : 'center',
-                      px: open ? 4.5 : 2.5, // Indent for sub-items
-                    }}
-                  >
-                    <ListItemIcon
+                  <ListItem disablePadding sx={{ display: 'block' }}>
+                    <ListItemButton
+                      component={NavLink}
+                      to="/admin/users"
                       sx={{
-                        minWidth: 0,
-                        mr: open ? 3 : 'auto',
-                        justifyContent: 'center',
+                        minHeight: 48,
+                        justifyContent: open ? 'initial' : 'center',
+                        px: open ? 4.5 : 2.5, // Indent for sub-items
                       }}
                     >
-                      <PeopleIcon />
-                    </ListItemIcon>
-                    <ListItemText primary="Users" sx={{ opacity: open ? 1 : 0 }} />
-                  </ListItemButton>
-                </ListItem>
+                      <ListItemIcon
+                        sx={{
+                          minWidth: 0,
+                          mr: open ? 3 : 'auto',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <PeopleIcon />
+                      </ListItemIcon>
+                      <ListItemText primary="Users" sx={{ opacity: open ? 1 : 0 }} />
+                    </ListItemButton>
+                  </ListItem>
 
-                <ListItem disablePadding sx={{ display: 'block' }}>
-                  <ListItemButton
-                    component={NavLink}
-                    to="/admin/sprints"
-                    sx={{
-                      minHeight: 48,
-                      justifyContent: open ? 'initial' : 'center',
-                      px: open ? 4.5 : 2.5, // Indent for sub-items
-                    }}
-                  >
-                    <ListItemIcon
+                  <ListItem disablePadding sx={{ display: 'block' }}>
+                    <ListItemButton
+                      component={NavLink}
+                      to="/admin/sprints"
                       sx={{
-                        minWidth: 0,
-                        mr: open ? 3 : 'auto',
-                        justifyContent: 'center',
+                        minHeight: 48,
+                        justifyContent: open ? 'initial' : 'center',
+                        px: open ? 4.5 : 2.5, // Indent for sub-items
                       }}
                     >
-                      <TimelineIcon />
-                    </ListItemIcon>
-                    <ListItemText primary="Sprints" sx={{ opacity: open ? 1 : 0 }} />
-                  </ListItemButton>
-                </ListItem>
-              </List>
-            </AccordionDetails>
-          </Accordion>
-        </>
-      )}
+                      <ListItemIcon
+                        sx={{
+                          minWidth: 0,
+                          mr: open ? 3 : 'auto',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <TimelineIcon />
+                      </ListItemIcon>
+                      <ListItemText primary="Sprints" sx={{ opacity: open ? 1 : 0 }} />
+                    </ListItemButton>
+                  </ListItem>
+                </List>
+              </Collapse>
+            </ListItem>
+          </>
+        )}
+      </List>
     </>
   ) : (
     <List>

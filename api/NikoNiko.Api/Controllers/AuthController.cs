@@ -166,6 +166,8 @@ public class AuthController : ControllerBase
 
         var user = await _context.Users.FirstOrDefaultAsync(u => u.OAuthId == oauthId && u.Email == email);
 
+        var superAdminEmails = GetSuperAdminEmails();
+
         if (user == null)
         {
             user = new User
@@ -175,11 +177,38 @@ public class AuthController : ControllerBase
                 Name = name,
                 AvatarUrl = avatar
             };
+
+            if (superAdminEmails.Contains(user.Email, StringComparer.OrdinalIgnoreCase))
+            {
+                user.IsSuperAdmin = true;
+                _logger.LogInformation("Promoted new user {Email} to super admin.", user.Email);
+            }
+
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
+        }
+        else
+        {
+            // Sync IsSuperAdmin status for existing users
+            var shouldBeSuperAdmin = superAdminEmails.Contains(user.Email, StringComparer.OrdinalIgnoreCase);
+
+            if (user.IsSuperAdmin != shouldBeSuperAdmin)
+            {
+                user.IsSuperAdmin = shouldBeSuperAdmin;
+                await _context.SaveChangesAsync();
+                _logger.LogInformation("Updated super admin status for existing user {Email} to {IsSuperAdmin}.", user.Email, user.IsSuperAdmin);
+            }
         }
 
         var token = _tokenService.CreateToken(user);
         return (user, token);
+    }
+
+    private List<string> GetSuperAdminEmails()
+    {
+        var superAdminEmailsConfig = _config["SUPER_ADMINS"];
+        return !string.IsNullOrWhiteSpace(superAdminEmailsConfig)
+            ? superAdminEmailsConfig.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList()
+            : new List<string>();
     }
 }

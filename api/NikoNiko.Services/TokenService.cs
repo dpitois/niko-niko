@@ -27,6 +27,11 @@ public class TokenService : ITokenService
             new Claim(JwtRegisteredClaimNames.Name, user.Name)
         };
 
+        if (!string.IsNullOrEmpty(user.AvatarUrl))
+        {
+            claims.Add(new Claim("avatar_url", user.AvatarUrl));
+        }
+
         if (user.IsSuperAdmin)
         {
             claims.Add(new Claim("is_super_admin", "true"));

@@ -8,6 +8,7 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
+import Avatar from '@mui/material/Avatar';
 
 const Header: React.FC = () => {
   const { user, logout, isSuperAdmin } = useAuth();
@@ -42,9 +43,18 @@ const Header: React.FC = () => {
             <Button color="inherit" component={NavLink} to="/sprint/create">
               Create Sprint
             </Button>
-            <Typography variant="body2" sx={{ ml: 2, mr: 1 }}>
-              Welcome, {user.email}
-            </Typography>
+            
+            <Box sx={{ display: 'flex', alignItems: 'center', ml: 2, mr: 1 }}>
+              <Avatar 
+                alt={user.name || user.email} 
+                src={user.avatar_url} 
+                sx={{ width: 32, height: 32, mr: 1 }} 
+              />
+              <Typography variant="body2">
+                {user.name || user.email}
+              </Typography>
+            </Box>
+
             <Button color="inherit" onClick={handleLogout}>
               Logout
             </Button>

@@ -279,14 +279,35 @@ public class AuthController : ControllerBase
         }
         else
         {
+            // Sync user profile data (Avatar and Name) from provider
+            bool isUpdated = false;
+            
+            if (user.AvatarUrl != avatar)
+            {
+                user.AvatarUrl = avatar;
+                isUpdated = true;
+            }
+
+            if (!string.IsNullOrEmpty(name) && user.Name != name)
+            {
+                user.Name = name;
+                isUpdated = true;
+            }
+
             // Sync IsSuperAdmin status for existing users
             var shouldBeSuperAdmin = superAdminEmails.Contains(user.Email, StringComparer.OrdinalIgnoreCase);
 
             if (user.IsSuperAdmin != shouldBeSuperAdmin)
             {
                 user.IsSuperAdmin = shouldBeSuperAdmin;
-                await _context.SaveChangesAsync();
+                isUpdated = true;
                 _logger.LogInformation("Updated super admin status for existing user {Email} to {IsSuperAdmin}.", user.Email, user.IsSuperAdmin);
+            }
+
+            if (isUpdated)
+            {
+                await _context.SaveChangesAsync();
+                _logger.LogInformation("Updated profile for user {Email}.", user.Email);
             }
         }
 

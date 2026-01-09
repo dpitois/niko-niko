@@ -18,7 +18,7 @@ interface SprintMoodGridProps {
   sprintId: string;
   sprintStartDate: Date;
   sprintEndDate: Date;
-  teamMembers: { id: string; name: string; email: string }[];
+  teamMembers: { id: string; name: string; email: string; avatarUrl?: string }[];
 }
 
 const getMoodColor = (moodType: MoodType) => {
@@ -161,7 +161,11 @@ const SprintMoodGrid: React.FC<SprintMoodGridProps> = ({
                 zIndex: 1,
               }}
             >
-              <Avatar sx={{ width: 24, height: 24, mr: 1, bgcolor: theme.palette.primary.main, fontSize: '0.75rem' }}>
+              <Avatar 
+                src={member.avatarUrl}
+                alt={member.name}
+                sx={{ width: 24, height: 24, mr: 1, bgcolor: theme.palette.primary.main, fontSize: '0.75rem' }}
+              >
                 {member.name ? member.name[0].toUpperCase() : '?'}
               </Avatar>
               <Typography variant="body2" noWrap>

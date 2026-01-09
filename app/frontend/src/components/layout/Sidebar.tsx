@@ -251,7 +251,13 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose, handleDrawer
       <Divider />
       {user && (
         <Box sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: open ? 'flex-start' : 'center' }}>
-          <Avatar sx={{ mr: open ? 2 : 0 }}>{user.name ? user.name[0].toUpperCase() : '?'}</Avatar>
+          <Avatar 
+            src={user.avatar_url} 
+            alt={user.name}
+            sx={{ mr: open ? 2 : 0 }}
+          >
+            {user.name ? user.name[0].toUpperCase() : '?'}
+          </Avatar>
           {open && (
             <Tooltip title={user.email} arrow>
               <Typography variant="body1" noWrap>{user.name}</Typography>

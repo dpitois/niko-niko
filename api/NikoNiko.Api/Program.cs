@@ -1,6 +1,7 @@
 using System.Net;
 using System.Reflection;
 using System.Text;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -101,6 +102,7 @@ builder.Services.AddAuthentication(options =>
         options.ClientSecret = config["Authentication:GitHub:ClientSecret"]!;
         options.CallbackPath = "/signin-github";
         options.Scope.Add("user:email");
+        options.ClaimActions.MapJsonKey("urn:github:avatar_url", "avatar_url");
     });
 
     var googleClientId = config["Authentication:Google:ClientId"];

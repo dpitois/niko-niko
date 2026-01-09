@@ -1,6 +1,7 @@
 using System.Net;
 using System.Reflection;
 using System.Text;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -101,7 +102,22 @@ builder.Services.AddAuthentication(options =>
         options.ClientSecret = config["Authentication:GitHub:ClientSecret"]!;
         options.CallbackPath = "/signin-github";
         options.Scope.Add("user:email");
+        options.ClaimActions.MapJsonKey("urn:github:avatar_url", "avatar_url");
     });
+
+    var googleClientId = config["Authentication:Google:ClientId"];
+    var googleClientSecret = config["Authentication:Google:ClientSecret"];
+    
+    if (!string.IsNullOrEmpty(googleClientId) && !string.IsNullOrEmpty(googleClientSecret))
+    {
+        builder.Services.AddAuthentication().AddGoogle(options =>
+        {
+            options.SignInScheme = "ExternalCookie";
+            options.ClientId = googleClientId;
+            options.ClientSecret = googleClientSecret;
+            options.CallbackPath = "/signin-google";
+        });
+    }
 
 // Configure Authorization
 builder.Services.AddAuthorization(options =>

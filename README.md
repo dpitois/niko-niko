@@ -20,7 +20,7 @@ Créer une application **distribuée** et **auto-hébergée** (via Docker) pour 
 
 ## 3. Fonctionnalités Clés
 
-- **Authentification** : OAuth2 (GitHub). Google et Microsoft sont temporairement désactivés.
+- **Authentification** : OAuth2 (GitHub, Google). Microsoft est temporairement désactivé.
 - **Gestion d'Équipes** : Création d'équipes (via le tableau de bord admin), gestion des membres et des invitations (création, acceptation, suppression).
 - **Sprints** : Définition de périodes de travail par les admins et suivi des sprints sur le tableau de bord, y compris la création de sprints et une page dédiée pour la creation de sprint.
 - **Suivi d'Humeur** : Enregistrement quotidien (😊/😐/🙁) par sprint, désormais fonctionnel sur le frontend et mis à jour de manière effective, avec une page dédiée pour la saisie de l'humeur.
@@ -66,13 +66,15 @@ Créer une application **distribuée** et **auto-hébergée** (via Docker) pour 
 
 ## 5. Configuration de l'Authentification
 
-Pour que l'authentification OAuth 2.0 fonctionne, vous devez configurer les fournisseurs externes. Actuellement, seul GitHub est activé.
+Pour que l'authentification OAuth 2.0 fonctionne, vous devez configurer les fournisseurs externes.
 
 1.  **Créez une application OAuth 2.0** pour chaque fournisseur :
     *   [GitHub Developer Settings](https://github.com/settings/developers)
+    *   [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
 
-2.  **Configurez les URI de redirection** : Lors de la création de vos applications, utilisez les callbacks suivants pour l'environnement de développement. Il est important que cette URL corresponde exactement à celle configurée dans votre application GitHub.
+2.  **Configurez les URI de redirection** : Lors de la création de vos applications, utilisez les callbacks suivants pour l'environnement de développement.
     *   GitHub : `http://localhost:5000/signin-github`
+    *   Google : `http://localhost:5000/signin-google`
 
 3.  **Mettez à jour `appsettings.json` et votre fichier `.env`** : Remplacez les valeurs de `ClientId` et `ClientSecret` avec les vôtres. Assurez-vous également que la variable `JWT_KEY` est définie dans `.env`.
 
@@ -82,7 +84,11 @@ Pour que l'authentification OAuth 2.0 fonctionne, vous devez configurer les four
         "ClientId": "VOTRE_CLIENT_ID_GITHUB",
         "ClientSecret": "VOTRE_CLIENT_SECRET_GITHUB"
       },
-      // Google et Microsoft sont temporairement désactivés.
+      "Google": {
+        "ClientId": "VOTRE_CLIENT_ID_GOOGLE",
+        "ClientSecret": "VOTRE_CLIENT_SECRET_GOOGLE"
+      }
+      // Microsoft est temporairement désactivé.
     }
     ```
 
@@ -134,7 +140,7 @@ Nous allons construire cette application étape par étape, en commençant par l
   - [x] Créer les modèles de données et la configuration Entity Framework Core.
   - [x] Mettre en place les migrations de base de données.
   - [x] Développer les contrôleurs API de base (CRUD).
-  - [x] Implémenter l'authentification OAuth 2.0 (GitHub fonctionnel, Google/Microsoft temporairement désactivés).
+  - [x] Implémenter l'authentification OAuth 2.0 (GitHub et Google fonctionnels, Microsoft temporairement désactivé).
   - [x] Résoudre le problème d'enregistrement des dates UTC dans PostgreSQL.
   - [x] Mettre à jour l'API MoodEntry pour permettre la mise à jour des entrées existantes et la récupération par sprint/utilisateur/date.
   - [x] Mise à jour de l'API Team pour inclure les sprints dans les informations d'équipe.

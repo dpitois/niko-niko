@@ -33,7 +33,11 @@ const AdminTeamListItem: React.FC<AdminTeamListItemProps> = ({ team, onDelete })
           {team.members.map((member) => (
             <ListItem key={member.id} disablePadding>
               <ListItemAvatar>
-                <Avatar sx={{ width: 24, height: 24, fontSize: '0.75rem' }}>
+                <Avatar 
+                  src={member.avatarUrl}
+                  alt={member.name || member.email}
+                  sx={{ width: 24, height: 24, fontSize: '0.75rem' }}
+                >
                   {member.name ? member.name[0].toUpperCase() : member.email[0].toUpperCase()}
                 </Avatar>
               </ListItemAvatar>

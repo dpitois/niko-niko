@@ -40,8 +40,8 @@ services:
       - Authentication__Jwt__Issuer=NikoNiko
       - Authentication__Jwt__Audience=NikoNikoClient
       - Authentication__Jwt__Key=${JWT_KEY}
-      - Authentication__Google__ClientId=
-      - Authentication__Google__ClientSecret=
+      - Authentication__Google__ClientId=${GOOGLE_CLIENT_ID}
+      - Authentication__Google__ClientSecret=${GOOGLE_CLIENT_SECRET}
       - Authentication__Microsoft__ClientId=
       - Authentication__Microsoft__ClientSecret=
       - Authentication__GitHub__ClientId=${GITHUB_CLIENT_ID}

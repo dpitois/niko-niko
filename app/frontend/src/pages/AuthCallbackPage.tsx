@@ -17,6 +17,7 @@ const AuthCallbackPage = () => {
 
     if (token) {
       login(token);
+      localStorage.removeItem('invitationToken'); // Clean up invitation token after successful login
       navigate('/my-teams');
     } else {
       enqueueSnackbar("Authentication callback error: No token received.", { variant: 'error' });

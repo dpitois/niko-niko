@@ -6,32 +6,84 @@ The Niko Niko Calendar is a distributed and self-hosted (via Docker) application
 
 **Target Audience**: Agile Teams, Managers, Scrum Masters, and Project Members.
 
+## General Architecture
+
+The application is architected around decoupled services and communicates via RESTful APIs and SignalR for real-time notifications. It is designed to be deployed via Docker Compose, orchestrating the frontend, backend services, and the database.
+
+*   **Frontend**: A React TypeScript application powered by Vite.
+*   **Backend Services**: Multiple .NET projects (WebAPI) managing the main API and real-time notifications.
+*   **Database**: PostgreSQL or SQLite (configurable) for data persistence.
+*   **Containerization**: Docker and Docker Compose for managing the development and production environment.
+
 ## Technologies Used
 
 *   **Backend**: API RESTful built with **.NET 10** (WebAPI).
-*   **Frontend**: **React 19+** application with TypeScript, Material UI, Axios, and SWR.
+*   **Frontend**: **React 19+** application with TypeScript, Vite, Material UI (MUI v7), Axios, SWR, and React Router DOM.
 *   **Database**: **PostgreSQL / SQLite (configurable)**.
 *   **Deployment**: **Docker** (orchestrating backend, frontend, and database services).
+*   **Real-time Communication**: SignalR.
+
+## Directory Structure
+
+The project is divided into two main directories: `api/` for the .NET backend services and `app/frontend/` for the React frontend application.
+
+### `api/` (Backend .NET)
+
+This directory contains all the .NET projects that make up the application's backend.
+
+*   **`NikoNiko.Api/`**: The main Web API project. It exposes RESTful endpoints, handles OAuth2 authentication, and integrates OpenAPI/Swagger documentation. This is the main entry point for the frontend.
+    *   `Controllers/`: Contains API controllers (Auth, Badges, MoodEntries, Sprints, TeamInvitations, Teams, Users).
+    *   `Authorization/`: Manages authorization requirements and handlers based on roles (Team Admin, Team Member).
+    *   `appsettings.json`: Application configuration files.
+    *   `Program.cs`: API application entry point, service and middleware configuration.
+*   **`NikoNiko.Core/`**: Shared library project. Contains DTOs (Data Transfer Objects) for inter-layer communication, as well as data models (Entity Framework Core entities) that represent the database structure.
+    *   `DTOs/`: Data Transfer Object definitions.
+    *   `Models/`: Domain entity definitions.
+*   **`NikoNiko.Data/`**: Data access layer. It includes the `ApplicationDbContext` (Entity Framework Core context), entity configurations, and database migrations.
+    *   `Migrations/`: History of database schema changes.
+*   **`NikoNiko.Data.PostgreSql/` & `NikoNiko.Data.Sqlite/`**: Library projects containing PostgreSQL and SQLite specific extensions for DbContext configuration, allowing the project to switch between databases.
+*   **`NikoNiko.Notifications/`**: A dedicated backend service for real-time notifications via SignalR. It listens for internal events and broadcasts messages to connected clients.
+    *   `Hubs/`: The `NotificationHub` which manages SignalR connections and message broadcasting.
+    *   `Controllers/`: A controller for sending notifications (can be used by other backend services).
+*   **`NikoNiko.Services/`**: Business logic layer. Contains interfaces and implementations of services that encapsulate complex business logic (e.g., team invitation management, notification services, token management).
+*   **`NikoNiko.Api.IntegrationTests/` & `NikoNiko.Notifications.IntegrationTests/`**: Integration test projects for API and notification services.
+
+### `app/frontend/` (Frontend React)
+
+This directory contains the React web application developed with TypeScript.
+
+*   **`src/`**: The React application source code.
+    *   `App.tsx`, `main.tsx`: Root components and application entry point.
+    *   `components/`: Reusable React components, including generic UI elements and specific components (e.g., `Header`, `MoodEntryForm`, `CreateTeamForm`, `layout/Sidebar`).
+    *   `context/`: React contexts (e.g., `AuthContext`) for global state management.
+    *   `hooks/`: Custom React hooks (e.g., `useAuth`) for encapsulating reusable logic.
+    *   `models/`: TypeScript interface definitions for data consumed by the frontend, often reflecting backend DTOs.
+    *   `pages/`: Page components representing different application views (e.g., Login, Dashboard, Admin/Teams, Admin/Users, Admin/Sprints, MyTeams, PastSprints).
+    *   `services/`: Functions and modules for interacting with backend APIs (using Axios and SWR for data management).
+*   **`public/`**: Static assets.
+*   **`vite.config.ts`**: Vite configuration.
+*   **`package.json`**: NPM dependencies and scripts.
 
 ## Key Features
 
-*   **Authentication**: OAuth2 (currently GitHub functional; Google and Microsoft temporarily disabled).
+*   **Authentication**: OAuth2 (currently GitHub functional).
 *   **API Documentation**: Backend includes OpenAPI/Swagger documentation.
-*   **Team Management**: Creation of teams (via admin dashboard), member management (admin role), team invitation (creation, acceptance, soft deletion).
-*   **Sprints**: Admins define work periods, and sprints are tracked on the dashboard, including dedicated pages for creation.
-*   **Mood Tracking**: Daily mood entry (😊/😐/🙁) per sprint. The date of the mood can be specified, defaulting to the current day if not provided. The date must be within the sprint's date range and not in the future.
-*   **Real-time Notifications**: Implemented integration of SignalR for important actions.
-*   **Gamification**: Planned badge attribution to encourage participation.
-*   **Dashboard**: Centralized view of teams, sprints, and calendars, featuring basic navigation, an administration dashboard, and a "My Teams" page for the user.
-*   **User Logout**: Frontend logout functionality is fully implemented.
+*   **Team Management**: Team creation (via admin dashboard), member management (admin role), team invitation system (creation, acceptance, soft deletion).
+*   **Sprints**: Admin-defined work periods, sprint tracking on the dashboard, dedicated pages for creation and management.
+*   **Mood Tracking**: Daily mood entry (😊/😐/🙁) per sprint, with the option to specify a date (within sprint range, not in the future).
+*   **Real-time Notifications**: SignalR integration for real-time notifications on important actions.
+*   **Gamification**: Planned badge attribution.
+*   **Dashboard**: Centralized view of teams, sprints, and calendars. Includes navigation, administration dashboard, and "My Teams" page.
+*   **User Logout**: Fully implemented frontend logout functionality.
 
 ## Main Data Models
 
-*   `User`: Stores user information including OAuth details, associated teams, and badges.
-*   `Team`: Represents an agile team, linking an admin, members, and sprints.
+*   `User`: Stores user information (OAuth details, associated teams, badges, Super Admin status).
+*   `Team`: Represents an Agile team, linking an admin, members, and sprints.
 *   `Sprint`: Defines a time-boxed work period with start and end dates.
 *   `MoodEntry`: Records a user's mood for a specific date within a sprint.
 *   `Badge`: Represents gamification rewards.
+*   `TeamInvitation`: Manages invitations to join a team.
 
 ## Building and Running the Project
 
@@ -66,14 +118,14 @@ For OAuth 2.0 authentication (currently GitHub), you must configure external pro
 
 The project can be configured to use **PostgreSQL** or **SQLite**.
 
-- **To use SQLite (default in the `feature/back_sqlite` branch)**:
-  1.  In `api/backend/appsettings.json`, ensure that `DatabaseProvider` is set to `"SQLite"`.
-  2.  In `docker-compose.yml`, the `db` service (PostgreSQL) should be commented out.
+-   **To use SQLite (default in the `feature/back_sqlite` branch)**:
+    1.  In `api/backend/appsettings.json`, ensure that `DatabaseProvider` is set to `"SQLite"`.
+    2.  In `docker-compose.yml`, the `db` service (PostgreSQL) should be commented out.
 
-- **To switch back to PostgreSQL**:
-  1.  In `api/backend/appsettings.json`, change `DatabaseProvider` to `"PostgreSQL"` (or any value other than "SQLite").
-  2.  In `docker-compose.yml`, uncomment the `db` service.
-  3.  **Note**: EF Core migrations are provider-specific. To change the database, you may need to delete the `Migrations` folder and create new ones.
+-   **To switch back to PostgreSQL**:
+    1.  In `api/backend/appsettings.json`, change `DatabaseProvider` to `"PostgreSQL"` (or any value other than "SQLite").
+    2.  In `docker-compose.yml`, uncomment the `db` service.
+    3.  **Note**: EF Core migrations are provider-specific. To change the database, you may need to delete the `Migrations` folder and create new ones.
 
 ### 1.2. Managing Entity Framework Core Migrations
 
@@ -92,8 +144,8 @@ EF Core migrations must be run inside the `backend` Docker container to ensure a
     ```bash
     dotnet ef migrations add YourMigrationName --project ../NikoNiko.Data --startup-project .
     ```
-5.  **Les migrations sont appliquées automatiquement** au démarrage du service `backend` via `dbContext.Database.Migrate()` dans `Program.cs`. Vous n'avez pas besoin d'exécuter `dotnet ef database update` manuellement.
-6.  **Quittez le shell du conteneur** :
+5.  **Migrations are applied automatically** when the `backend` service starts via `dbContext.Database.Migrate()` in `Program.cs`. You do not need to run `dotnet ef database update` manually.
+6.  **Exit the container shell**:
     ```bash
     exit
     ```
@@ -152,65 +204,18 @@ If you wish to run frontend and/or backend locally without Docker Compose, follo
     ```
     The frontend application will typically be accessible at `http://localhost:5173` (or as configured by Vite).
 
-4. Control every changes using ES Lint:
-   ```bash
-   npm run lint
-   ```
-   Fix any lint or Typescript error.
+4.  Control every changes using ES Lint:
+    ```bash
+    npm run lint
+    ```
+    Fix any lint or Typescript error.
 
 ## Development Conventions
 
 *   **Project Structure**: The project is organized into an `api` directory for all .NET backend projects and an `app` directory for the frontend application.
 *   **Frontend Styling**: Material UI (MUI v7) is used for all UI components and styling. Direct CSS modules are deprecated.
-*   **Authentication**: Managed via `AuthContext` and `useAuth` hook for centralized state.
+*   **Authentication**: Managed via `AuthContext` and `useAuth` hook for centralized state, using `react-router-dom` for routing and `axios`/`swr` for data fetching.
 *   **API Calls**: Frontend uses `axios` and `swr` for data fetching.
-
-## Next Steps (from README.md - Plan de Développement)
-
-- **Étape 1 : Initialisation du Projet**
-  - [x] Mettre en place la structure des dossiers (backend, frontend).
-  - [x] Configurer `docker-compose.yml` pour les services.
-- **Étape 2 : Développement Backend (.NET)**
-  - [x] Créer les modèles de données et la configuration Entity Framework Core.
-  - [x] Mettre en place les migrations de base de données.
-  - [x] Développer les contrôleurs API de base (CRUD).
-  - [x] Implémenter l'authentification OAuth 2.0 (GitHub fonctionnel, Google/Microsoft temporairement désactivés).
-  - [x] Résoudre le problème d'enregistrement des dates UTC dans PostgreSQL.
-  - [x] Mettre à jour l'API MoodEntry pour permettre la mise à jour des entrées existantes et la récupération par sprint/utilisateur/date.
-  - [x] Mise à jour de l'API Team pour inclure les sprints dans les informations d'équipe.
-  - [x] Mettre à jour l'API de création de Mood pour permettre de spécifier une date, avec validation (dans la plage du sprint, pas de date future).
-  - [x] **Intégrer SignalR pour les notifications** :
-    *   Créer un second projet backend (`SignalR.Service`) dédié à la gestion des connexions SignalR.
-    *   Le backend actuel (`backend`) enverra des messages (ex: RabbitMQ ou autre queue légère) suite à des événements.
-    *   Le `SignalR.Service` écoutera ces messages et les dispatchera aux clients connectés via SignalR.
-  - [x] **Gestion des Membres et Invitations d'Équipe (pour les Admins)**:
-    *   [x] Permettre aux admins de lister les membres de leurs équipes.
-    *   [x] Implémenter la création d'invitations d'équipe (liens web).
-    *   [x] Gérer l'acceptation de ces invitations par les utilisateurs pour rejoindre une équipe.
-    *   [x] Implémenter la suppression logique (`soft delete`) des invitations.
-  - [ ] Implémenter la logique de gamification (attribution de badges).
-- **Étape 3 : Développement Frontend (React)**
-  - [x] Initialiser l'application React avec Vite et TypeScript.
-  - [x] Mettre en place l'authentification OAuth (côté client).
-  - [x] Créer les pages et composants principaux (Login, Dashboard, Callback), incluant désormais la gestion des sprints et des humeurs.
-  - [x] Implémenter un tableau de bord d'administration et la création d'équipes.
-  - [x] Ajouter une navigation basique et des styles initiaux.
-  - [x] Intégrer SWR pour la récupération des données.
-  - [x] Rendre la sauvegarde de l'humeur effective avec affichage et mise à jour.
-  - [x] Créer une page dédiée "Mes Équipes" listant les équipes de l'utilisateur avec leurs sprints actifs et une redirection vers la saisie d'humeur.
-  - [x] Implémenter une page dédiée pour la création de sprints.
-  - [x] Implémenter la déconnexion utilisateur.
-  - [x] **Connecter le client SignalR** au `SignalR.Service` pour recevoir les notifications en temps réel.
-  - [x] Intégrer un sélecteur de date pour la saisie d'humeur, avec validation et liaison à l'API.
-  - [x] **Interface de Gestion des Membres et Invitations (pour les Admins)**:
-    *   Développer l'UI pour lister les membres de l'équipe.
-    *   Implémenter le formulaire pour créer des liens d'invitation.
-    *   Gérer la logique côté client pour accepter une invitation via un lien.
-    *   Ajouter le bouton de suppression d'invitation dans l'UI.
-- **Étape 4 : Finalisation et Tests**
-  - [ ] Écrire des tests unitaires et d'intégration.
-  - [ ] Rédiger la documentation finale.
-  - [ ] Valider le workflow de déploiement Docker.
 
 ---
 ## Gemini Added Memories

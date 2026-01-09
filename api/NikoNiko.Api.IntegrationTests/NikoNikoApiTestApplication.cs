@@ -27,6 +27,7 @@ namespace NikoNiko.Api.IntegrationTests;
 public class NikoNikoApiTestApplication : WebApplicationFactory<Program>
 {
     private SqliteConnection? _connection; // Made nullable to resolve CS8618
+    public static bool EnableEfCoreLogging { get; set; } = false;
 
     protected override IHost CreateHost(IHostBuilder builder)
     {
@@ -113,8 +114,17 @@ public class NikoNikoApiTestApplication : WebApplicationFactory<Program>
             services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseSqlite(_connection); // Use the open in-memory connection
-                options.EnableSensitiveDataLogging(); // For better debugging
-                options.EnableDetailedErrors(); // For better debugging
+                
+                if (EnableEfCoreLogging)
+                {
+                    options.EnableSensitiveDataLogging(); // For better debugging
+                    options.EnableDetailedErrors(); // For better debugging
+                }
+                else
+                {
+                    // Suppress command execution logs to reduce verbosity
+                    options.ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.CommandExecuted));
+                }
             });
 
             // Add any other test-specific services here.

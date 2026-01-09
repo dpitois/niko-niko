@@ -40,7 +40,7 @@ services:
       - SignalRService__BaseUrl=http://nikoniko_notifications:8080 # SignalR Service URL for backend
       - SUPER_ADMINS=${SUPER_ADMINS}
     healthcheck:
-      test: ["CMD-SHELL", "curl -fL http://localhost:8080/healthz || exit 1"]
+      test: ["CMD-SHELL", "curl -f -H 'X-Forwarded-Proto: https' http://localhost:8080/healthz || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5

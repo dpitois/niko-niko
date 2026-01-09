@@ -3,11 +3,13 @@ import { Container, Box, Typography, Button } from '@mui/material';
 
 const LoginPage = () => {
   const [githubLoginHref, setGithubLoginHref] = useState('/api/auth/login-github');
+  const [googleLoginHref, setGoogleLoginHref] = useState('/api/auth/login-google');
 
   useEffect(() => {
     const invitationToken = localStorage.getItem('invitationToken');
     if (invitationToken) {
       setGithubLoginHref(`/api/auth/login-github?invitationToken=${invitationToken}`);
+      setGoogleLoginHref(`/api/auth/login-google?invitationToken=${invitationToken}`);
     }
   }, []);
 
@@ -36,16 +38,15 @@ const LoginPage = () => {
         >
           Sign in with GitHub
         </Button>
-        {/* Google and Microsoft are currently disabled, but we keep the placeholders */}
         <Button
           fullWidth
           variant="contained"
-          color="secondary"
-          disabled // Disable Google button
-          // href="/api/auth/login-google"
+          color="error"
+          href={googleLoginHref}
         >
           Sign in with Google
         </Button>
+        {/* Microsoft is currently disabled, but we keep the placeholders */}
         <Button
           fullWidth
           variant="contained"

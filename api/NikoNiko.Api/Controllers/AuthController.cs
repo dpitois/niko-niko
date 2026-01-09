@@ -38,29 +38,74 @@ public class AuthController : ControllerBase
         _frontendRedirectUrl = _config["Authentication:FrontendRedirectUrl"] ?? throw new ArgumentNullException("FrontendRedirectUrl is not configured.");
     }
 
-    // /// <summary>
-    // /// Initiates the Google login flow.
-    // /// </summary>
-    // [HttpGet("login-google")]
-    // [ApiExplorerSettings(IgnoreApi = true)] // Hide from Swagger as it's a redirect
-    // public IActionResult LoginGoogle()
-    // {
-    //     var headers = string.Join(", ", Request.Headers.Select(h => $"'{h.Key}': '{h.Value}'"));
-    //     _logger.LogInformation("Login-Google Request Headers: [{Headers}]", headers);
-    //     return Challenge(new AuthenticationProperties { RedirectUri = "/api/auth/signin-google" }, GoogleDefaults.AuthenticationScheme);
-    // }
+    /// <summary>
+    /// Initiates the Google login flow.
+    /// </summary>
+    [HttpGet("login-google")]
+    [ApiExplorerSettings(IgnoreApi = true)] // Hide from Swagger as it's a redirect
+    public IActionResult LoginGoogle(string? invitationToken = null)
+    {
+        var properties = new AuthenticationProperties { RedirectUri = "/api/auth/signin-google" };
 
-    // /// <summary>
-    // /// Google sign-in callback.
-    // /// </summary>
-    // [HttpGet("signin-google")]
-    // [ApiExplorerSettings(IgnoreApi = true)]
-    // public async Task<IActionResult> SigninGoogle()
-    // {
-    //     var (user, token) = await HandleSignIn(GoogleDefaults.AuthenticationScheme);
-    //     var redirectUrl = $"{_frontendRedirectUrl}/auth/callback?token={token}";
-    //     return Redirect(redirectUrl);
-    // }
+        if (!string.IsNullOrEmpty(invitationToken))
+        {
+            properties.Items.Add("invitationToken", invitationToken);
+        }
+
+        // Force HTTPS for RedirectUri if in Production and X-Forwarded-Proto is HTTPS
+        if (_config.GetValue<string>("ASPNETCORE_ENVIRONMENT") == "Production")
+        {
+            if (HttpContext.Request.Headers.TryGetValue("X-Forwarded-Proto", out var forwardedProto) && forwardedProto == "https")
+            {
+                properties.RedirectUri = UriHelper.BuildAbsolute(
+                    "https",
+                    new HostString(HttpContext.Request.Host.Value),
+                    PathString.FromUriComponent(properties.RedirectUri)
+                ).ToString();
+            }
+            // If the application is directly exposed via HTTPS (no proxy or proxy not setting X-Forwarded-Proto)
+            else if (HttpContext.Request.IsHttps)
+            {
+                properties.RedirectUri = UriHelper.BuildAbsolute(
+                    "https",
+                    new HostString(HttpContext.Request.Host.Value),
+                    PathString.FromUriComponent(properties.RedirectUri)
+                ).ToString();
+            }
+        }
+
+        var headers = string.Join(", ", Request.Headers.Select(h => $"'{h.Key}': '{h.Value}'"));
+        _logger.LogInformation("Login-Google Request Headers: [{Headers}]", headers);
+        return Challenge(properties, GoogleDefaults.AuthenticationScheme);
+    }
+
+    /// <summary>
+    /// Google sign-in callback.
+    /// </summary>
+    [HttpGet("signin-google")]
+    [ApiExplorerSettings(IgnoreApi = true)]
+    public async Task<IActionResult> SigninGoogle()
+    {
+        var authenticateResult = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
+        if (!authenticateResult.Succeeded)
+        {
+             _logger.LogError(authenticateResult.Failure, "Google authentication failed during callback.");
+             // Redirect to login with error? Or throw? Following GitHub pattern:
+             throw new Exception($"Error authenticating with Google: {authenticateResult.Failure?.Message}");
+        }
+
+        string? invitationToken = null;
+        if (authenticateResult.Properties != null && authenticateResult.Properties.Items.TryGetValue("invitationToken", out var tokenValue))
+        {
+            invitationToken = tokenValue;
+        }
+
+        _logger.LogInformation("Signin-Google: Received invitationToken: {InvitationToken}", invitationToken);
+
+        var (user, token) = await HandleSignIn(GoogleDefaults.AuthenticationScheme, invitationToken);
+        var redirectUrl = $"{_frontendRedirectUrl}/auth/callback?token={token}";
+        return Redirect(redirectUrl);
+    }
 
     // /// <summary>
     // /// Initiates the Microsoft login flow.
@@ -169,9 +214,15 @@ public class AuthController : ControllerBase
         var email = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
         var name = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
 
-        // GitHub-specific claims
-        var avatar = claims.FirstOrDefault(c => c.Type == "urn:github:avatar_url")?.Value;
-        var githubLogin = claims.FirstOrDefault(c => c.Type == "urn:github:login")?.Value;
+        // Try to get avatar
+        var avatar = claims.FirstOrDefault(c => c.Type == "urn:github:avatar_url")?.Value; // GitHub
+        if (string.IsNullOrEmpty(avatar))
+        {
+            // Google usually returns "picture" claim, but ASP.NET Core might not map it to a standard ClaimType unless configured.
+            // Often it's just "picture" or ClaimTypes.Uri if mapped manually?
+            // Checking raw claim type "picture" is safest for Google.
+            avatar = claims.FirstOrDefault(c => c.Type == "picture")?.Value;
+        }
 
 
         if (oauthId == null || name == null)
@@ -179,10 +230,31 @@ public class AuthController : ControllerBase
             throw new Exception("Could not retrieve required user information from provider.");
         }
 
-        // For GitHub, the public email might be null. We'll use a placeholder if needed.
-        email ??= $"{githubLogin}@users.noreply.github.com";
+                // For GitHub, the public email might be null. We'll use a placeholder if needed.
 
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.OAuthId == oauthId && u.Email == email);
+                if (string.IsNullOrEmpty(email) && provider == GitHubAuthenticationDefaults.AuthenticationScheme)
+
+                {
+
+                    var githubLogin = claims.FirstOrDefault(c => c.Type == "urn:github:login")?.Value;
+
+                     email = $"{githubLogin}@users.noreply.github.com";
+
+                }
+
+        
+
+                if (string.IsNullOrEmpty(email))
+
+                {
+
+                     throw new Exception("Email is required but was not provided by the authentication provider.");
+
+                }
+
+        
+
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.OAuthId == oauthId && u.Email == email);
 
         var superAdminEmails = GetSuperAdminEmails();
 

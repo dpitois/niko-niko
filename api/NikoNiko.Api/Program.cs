@@ -103,6 +103,20 @@ builder.Services.AddAuthentication(options =>
         options.Scope.Add("user:email");
     });
 
+    var googleClientId = config["Authentication:Google:ClientId"];
+    var googleClientSecret = config["Authentication:Google:ClientSecret"];
+    
+    if (!string.IsNullOrEmpty(googleClientId) && !string.IsNullOrEmpty(googleClientSecret))
+    {
+        builder.Services.AddAuthentication().AddGoogle(options =>
+        {
+            options.SignInScheme = "ExternalCookie";
+            options.ClientId = googleClientId;
+            options.ClientSecret = googleClientSecret;
+            options.CallbackPath = "/signin-google";
+        });
+    }
+
 // Configure Authorization
 builder.Services.AddAuthorization(options =>
 {

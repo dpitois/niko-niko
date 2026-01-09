@@ -177,12 +177,28 @@ Nous allons construire cette application étape par étape, en commençant par l
   - [ ] Rédiger la documentation finale.
   - [ ] Valider le workflow de déploiement Docker.
 
-### 2. Run with Docker Compose (Recommended)
+### 2. Run with Docker Compose
 
-To build and run all services in detached mode:
+The project uses a split Docker Compose configuration to separate common settings, development specifics, and production overrides.
+
+*   `docker-compose.yml`: Base configuration (services, images, env vars).
+*   `docker-compose.override.yml`: Development overrides (ports, test services). **Loaded automatically**.
+*   `docker-compose.prod.yml`: Production overrides (Traefik labels, networks).
+
+#### Development (Default)
+
+To build and run all services in detached mode for development (loads `base` + `override`):
 
 ```bash
 docker compose up -d --build
+```
+
+#### Production
+
+To run in production mode (loads `base` + `prod`, ignoring dev overrides):
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 ```
 
 **Note sur la persistance des données PostgreSQL**: Les données de la base de données PostgreSQL sont désormais stockées dans un répertoire local (`./postgres_data`) à côté du fichier `docker-compose.yml`. Cela facilite la sauvegarde et la gestion directe des données de la base de données pour les environnements de développement.

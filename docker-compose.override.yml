@@ -1,0 +1,30 @@
+services:
+  # db:
+  #   ports:
+  #     - "5432:5432"
+
+  tests-backend:
+    build:
+      context: .
+      dockerfile: api/Dockerfile.test
+    container_name: nikoniko_tests_backend
+    volumes:
+      - ./test-results:/src/TestResults # Mount test results directory
+
+  backend:
+    ports:
+      - "5000:8080"
+    depends_on:
+      tests-backend:
+        condition: service_completed_successfully
+
+  notifications:
+    ports:
+      - "5001:8080" # Map to an external port
+    depends_on:
+      tests-backend:
+        condition: service_completed_successfully
+
+  frontend:
+    ports:
+      - "3000:80"

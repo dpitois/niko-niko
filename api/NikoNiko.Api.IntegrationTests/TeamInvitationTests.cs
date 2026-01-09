@@ -82,5 +82,73 @@ public class TeamInvitationTests
             // This is the key assertion for the bug fix
             Assert.True(invitation.IsDeleted, "Invitation should be marked as soft-deleted (IsDeleted = true).");
         }
+    } 
+    [Fact]
+    public async Task AcceptInvitation_WhenUserIsAlreadyMember_ShouldNotAddDuplicateAndInvalidateInvitation()
+    {
+        // Arrange
+        await using var application = new NikoNikoApiTestApplication();
+
+        // 1. Setup initial data
+        var teamAdmin = new User { Id = Guid.NewGuid(), Name = "Admin User", OAuthId = "github|admin2", Email = "admin2@example.com" };
+        var existingMember = new User { Id = Guid.NewGuid(), Name = "Existing Member", OAuthId = "github|existingmember", Email = "existingmember@example.com" };
+        var team = new Team { Id = Guid.NewGuid(), Name = "Another Test Team", AdminId = teamAdmin.Id };
+
+        // Use a separate scope to seed data and ensure it's saved before the next step
+        using (var scope = application.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            dbContext.Users.AddRange(teamAdmin, existingMember);
+            dbContext.Teams.Add(team);
+            // Manually add the user as an existing member to the team
+            dbContext.TeamUsers.Add(new TeamUser { TeamId = team.Id, UserId = existingMember.Id });
+            await dbContext.SaveChangesAsync();
+        }
+
+        // 2. Create an invitation for the already existing member
+        string invitationToken;
+        Guid invitationId;
+        using (var scope = application.Services.CreateScope())
+        {
+            var invitationService = scope.ServiceProvider.GetRequiredService<ITeamInvitationService>();
+            var createDto = new CreateTeamInvitationDto { TeamId = team.Id, ExpirationInDays = 1 };
+            var invitationDto = await invitationService.CreateTeamInvitationAsync(team.Id, teamAdmin.Id, createDto);
+            invitationToken = invitationDto.Token;
+            invitationId = invitationDto.Id;
+        }
+
+        // 3. Create a client authenticated as the existing member
+        var client = application.CreateClient();
+        string jwtToken;
+        using (var scope = application.Services.CreateScope())
+        {
+            var tokenService = scope.ServiceProvider.GetRequiredService<ITokenService>();
+            var claims = new[] { new Claim(ClaimTypes.NameIdentifier, existingMember.Id.ToString()) };
+            jwtToken = tokenService.GenerateToken(claims);
+        }
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
+
+        // Act
+        var response = await client.PostAsync($"/api/teaminvitations/{invitationToken}/accept", null);
+
+        // Assert
+        response.EnsureSuccessStatusCode(); // Status 2xx
+
+        // Verify the database state
+        using (var scope = application.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+            // Assertion 1: Ensure only one TeamUser entry exists for this member
+            var teamUsersCount = await dbContext.TeamUsers
+                .CountAsync(tu => tu.TeamId == team.Id && tu.UserId == existingMember.Id);
+            Assert.Equal(1, teamUsersCount);
+
+            // Assertion 2: Invitation is invalidated
+            var invitation = await dbContext.TeamInvitations.IgnoreQueryFilters().FirstOrDefaultAsync(ti => ti.Id == invitationId);
+            Assert.NotNull(invitation);
+            Assert.Equal("Accepted", invitation.Status);
+            Assert.True(invitation.IsDeleted, "Invitation should be marked as soft-deleted (IsDeleted = true).");
+        }
     }
 }

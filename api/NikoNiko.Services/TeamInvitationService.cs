@@ -102,18 +102,21 @@ namespace NikoNiko.Services
             }
 
             // Check if the user is already part of the team
-            var isAlreadyMember = await _context.TeamUsers.AnyAsync(tu => tu.TeamId == invitation.TeamId && tu.UserId == acceptedByUserId);
-            if (isAlreadyMember)
-            {
-                invitation.Status = "Accepted"; // Even if already a member, mark as accepted for the token
-                invitation.AcceptedByUserId = acceptedByUserId;
-                invitation.AcceptedAt = DateTime.UtcNow;
-                await _context.SaveChangesAsync();
-                throw new InvalidOperationException("You are already a member of this team.");
-            }
+            var existingTeamUser = await _context.TeamUsers.FirstOrDefaultAsync(tu => tu.TeamId == invitation.TeamId && tu.UserId == acceptedByUserId);
 
-            // Add user to the team
-            _context.TeamUsers.Add(new TeamUser { TeamId = invitation.TeamId, UserId = acceptedByUserId });
+            if (existingTeamUser == null)
+            {
+                // If user is not already a member, add them
+                _context.TeamUsers.Add(new TeamUser { TeamId = invitation.TeamId, UserId = acceptedByUserId });
+            }
+            // If user is already a member, do nothing to TeamUsers, just proceed with invitation invalidation.
+            // This prevents throwing an error if they are already a member, which is fine for the invitation's purpose.
+            
+            // Invalidate the invitation after acceptance, regardless if they were already a member or just added.
+            invitation.Status = "Accepted";
+            invitation.AcceptedByUserId = acceptedByUserId;
+            invitation.AcceptedAt = DateTime.UtcNow;
+            invitation.IsDeleted = true; // Mark as soft-deleted after acceptance
 
             invitation.Status = "Accepted";
             invitation.AcceptedByUserId = acceptedByUserId;

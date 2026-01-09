@@ -91,9 +91,14 @@ public class AuthController : ControllerBase
     /// </summary>
     [HttpGet("login-github")]
     [ApiExplorerSettings(IgnoreApi = true)]
-    public IActionResult LoginGitHub()
+    public IActionResult LoginGitHub(string? invitationToken = null)
     {
         var properties = new AuthenticationProperties { RedirectUri = "/api/auth/signin-github" };
+
+        if (!string.IsNullOrEmpty(invitationToken))
+        {
+            properties.Items.Add("invitationToken", invitationToken);
+        }
 
         // Force HTTPS for RedirectUri if in Production and X-Forwarded-Proto is HTTPS
         if (_config.GetValue<string>("ASPNETCORE_ENVIRONMENT") == "Production")
@@ -132,12 +137,25 @@ public class AuthController : ControllerBase
         var headers = string.Join(", ", Request.Headers.Select(h => $"'{h.Key}': '{h.Value}'"));
         _logger.LogInformation("Signin-GitHub Request Headers: [{Headers}]", headers);
 
-        var (user, token) = await HandleSignIn(GitHubAuthenticationDefaults.AuthenticationScheme);
+        var authenticateResult = await HttpContext.AuthenticateAsync(GitHubAuthenticationDefaults.AuthenticationScheme);
+        if (!authenticateResult.Succeeded)
+        {
+            _logger.LogError(authenticateResult.Failure, "GitHub authentication failed during callback.");
+            throw new Exception($"Error authenticating with GitHub: {authenticateResult.Failure?.Message}");
+        }
+
+        string? invitationToken = null;
+        if (authenticateResult.Properties != null && authenticateResult.Properties.Items.TryGetValue("invitationToken", out var tokenValue))
+        {
+            invitationToken = tokenValue;
+        }
+
+        var (user, token) = await HandleSignIn(GitHubAuthenticationDefaults.AuthenticationScheme, invitationToken);
         var redirectUrl = $"{_frontendRedirectUrl}/auth/callback?token={token}";
         return Redirect(redirectUrl);
     }
 
-    private async Task<(User, string)> HandleSignIn(string provider)
+    private async Task<(User, string)> HandleSignIn(string provider, string? invitationToken = null)
     {
         var result = await HttpContext.AuthenticateAsync(provider);
         if (!result.Succeeded)
@@ -201,6 +219,22 @@ public class AuthController : ControllerBase
         }
 
         var token = _tokenService.CreateToken(user);
+
+        // If an invitation token was provided, attempt to accept the invitation
+        if (!string.IsNullOrEmpty(invitationToken))
+        {
+            try
+            {
+                var teamInvitationService = HttpContext.RequestServices.GetRequiredService<ITeamInvitationService>();
+                await teamInvitationService.AcceptTeamInvitationAsync(invitationToken, user.Id);
+                _logger.LogInformation("User {UserId} successfully accepted invitation {InvitationToken}.", user.Id, invitationToken);
+            }
+            catch (Exception ex)
+            {
+                // Log the error but don't prevent login, as the user is already authenticated.
+                _logger.LogError(ex, "Failed to accept invitation {InvitationToken} for user {UserId} during sign-in.", invitationToken, user.Id);
+            }
+        }
         return (user, token);
     }
 

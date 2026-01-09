@@ -6,8 +6,10 @@ using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -38,7 +40,8 @@ public class NikoNikoApiTestApplication : WebApplicationFactory<Program>
                 {"Authentication:Jwt:Key", "supersecretjwtkeythatisatleast32characterslong"}, // Dummy key for testing
                 {"Authentication:Jwt:Issuer", "NikoNikoTestIssuer"},
                 {"Authentication:Jwt:Audience", "NikoNikoTestAudience"},
-                {"SignalRService:BaseUrl", "http://localhost"} // Dummy URL for testing
+                {"SignalRService:BaseUrl", "http://localhost"}, // Dummy URL for testing
+                {"Authentication:FrontendRedirectUrl", "http://localhost:3000/auth/callback"} // Required for OAuth callback tests
             });
         });
 
@@ -102,7 +105,8 @@ public class NikoNikoApiTestApplication : WebApplicationFactory<Program>
                     ValidAudience = "NikoNikoTestAudience", // Must match the one set in ConfigureAppConfiguration
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("supersecretjwtkeythatisatleast32characterslong")) // Must match
                 };
-            });
+            })
+            .AddScheme<AuthenticationSchemeOptions, TestAuthenticationHandler>("GitHub", options => { });
             // End of authentication configuration
 
             // Add ApplicationDbContext using an in-memory SQLite database for testing.
@@ -118,9 +122,21 @@ public class NikoNikoApiTestApplication : WebApplicationFactory<Program>
             // services.AddScoped<ITeamInvitationService, TeamInvitationService>();
         });
 
-        builder.ConfigureWebHost(builder =>
+        builder.ConfigureWebHost(webHostBuilder =>
         {
-            builder.UseSetting("ConnectionStrings:DefaultConnection", _connection.ConnectionString);
+            webHostBuilder.UseSetting("ConnectionStrings:DefaultConnection", _connection.ConnectionString);
+            webHostBuilder.ConfigureTestServices(services =>
+            {
+                // Remove the original DataProtection configuration if it exists
+                var dataProtectionDescriptor = services.SingleOrDefault(
+                    d => d.ServiceType == typeof(IDataProtectionProvider));
+                if (dataProtectionDescriptor != null)
+                {
+                    services.Remove(dataProtectionDescriptor);
+                }
+                // Add the ephemeral DataProtection provider for testing
+                services.AddDataProtection().UseEphemeralDataProtectionProvider();
+            });
         });
 
         var host = base.CreateHost(builder);

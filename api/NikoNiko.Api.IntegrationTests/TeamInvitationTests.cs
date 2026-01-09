@@ -150,5 +150,87 @@ public class TeamInvitationTests
             Assert.Equal("Accepted", invitation.Status);
             Assert.True(invitation.IsDeleted, "Invitation should be marked as soft-deleted (IsDeleted = true).");
         }
+    } 
+    [Fact]
+    public async Task AcceptInvitation_WhenNewUserRegistersViaOAuthWithToken_ShouldCreateUserAndAddThemToTeam()
+    {
+        // Arrange
+        await using var application = new NikoNikoApiTestApplication();
+
+        // 1. Setup initial data
+        var teamAdmin = new User { Id = Guid.NewGuid(), Name = "Admin User New", OAuthId = "github|adminnew", Email = "adminnew@example.com" };
+        var team = new Team { Id = Guid.NewGuid(), Name = "New User Test Team", AdminId = teamAdmin.Id };
+
+        using (var scope = application.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            dbContext.Users.Add(teamAdmin);
+            dbContext.Teams.Add(team);
+            await dbContext.SaveChangesAsync();
+        }
+
+        // 2. Create an invitation
+        string invitationToken;
+        Guid invitationId;
+        using (var scope = application.Services.CreateScope())
+        {
+            var invitationService = scope.ServiceProvider.GetRequiredService<ITeamInvitationService>();
+            var createDto = new CreateTeamInvitationDto { TeamId = team.Id, ExpirationInDays = 1 };
+            var invitationDto = await invitationService.CreateTeamInvitationAsync(team.Id, teamAdmin.Id, createDto);
+            invitationToken = invitationDto.Token;
+            invitationId = invitationDto.Id;
+        }
+
+        // 3. Act: Simulate a new user logging in via GitHub with the invitation token
+        // This will go through AuthController.LoginGitHub, TestAuthenticationHandler, AuthController.SigninGitHub, and AuthController.HandleSignIn
+        var client = application.CreateClient(new Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactoryClientOptions 
+        { 
+            AllowAutoRedirect = false 
+        });
+
+        // Simulate the client hitting /api/auth/login-github with the invitation token
+        var loginResponse = await client.GetAsync($"/api/auth/login-github?invitationToken={invitationToken}");
+        
+        // Ensure the initial login request was redirected
+        Assert.Equal(System.Net.HttpStatusCode.Redirect, loginResponse.StatusCode);
+
+        // Extract the redirect location, which should be to /api/auth/signin-github
+        var redirectUri = loginResponse.Headers.Location;
+        Assert.NotNull(redirectUri);
+        Assert.Contains("/api/auth/signin-github", redirectUri.ToString());
+
+        // Follow the redirect to the sign-in callback
+        var signInResponse = await client.GetAsync(redirectUri);
+        Assert.Equal(System.Net.HttpStatusCode.Redirect, signInResponse.StatusCode);
+
+        // The final redirect from AuthController.SigninGitHub is to the frontend callback,
+        // which contains the JWT token.
+        var finalRedirectUri = signInResponse.Headers.Location;
+        Assert.NotNull(finalRedirectUri);
+        Assert.Contains("/auth/callback", finalRedirectUri.ToString());
+
+        // Extract the JWT token from the final redirect URI
+        var jwtToken = finalRedirectUri.ToString().Split("token=")[1];
+        Assert.False(string.IsNullOrEmpty(jwtToken), "JWT token should be present in the redirect URL.");
+
+        // 4. Assert: Verify the database state after the flow
+        using (var scope = application.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+            // The TestAuthenticationHandler creates a user with email "newtestuser@example.com"
+            var newUser = await dbContext.Users.FirstOrDefaultAsync(u => u.Email == "newtestuser@example.com");
+            Assert.NotNull(newUser);
+
+            // Assertion 1: New user is now a member of the team
+            var isMember = await dbContext.TeamUsers.AnyAsync(tu => tu.TeamId == team.Id && tu.UserId == newUser.Id);
+            Assert.True(isMember, "New user should have been added to the team.");
+
+            // Assertion 2: Invitation is invalidated
+            var invitation = await dbContext.TeamInvitations.IgnoreQueryFilters().FirstOrDefaultAsync(ti => ti.Id == invitationId);
+            Assert.NotNull(invitation);
+            Assert.Equal("Accepted", invitation.Status);
+            Assert.True(invitation.IsDeleted, "Invitation should be marked as soft-deleted (IsDeleted = true).");
+        }
     }
 }

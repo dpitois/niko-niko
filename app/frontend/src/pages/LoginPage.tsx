@@ -1,6 +1,16 @@
+import { useEffect, useState } from 'react';
 import { Container, Box, Typography, Button } from '@mui/material';
 
 const LoginPage = () => {
+  const [githubLoginHref, setGithubLoginHref] = useState('/api/auth/login-github');
+
+  useEffect(() => {
+    const invitationToken = localStorage.getItem('invitationToken');
+    if (invitationToken) {
+      setGithubLoginHref(`/api/auth/login-github?invitationToken=${invitationToken}`);
+    }
+  }, []);
+
   return (
     <Container maxWidth="xs">
       <Box
@@ -22,7 +32,7 @@ const LoginPage = () => {
           fullWidth
           variant="contained"
           color="primary"
-          href="/api/auth/login-github"
+          href={githubLoginHref}
         >
           Sign in with GitHub
         </Button>

@@ -79,3 +79,6 @@ jspm_packages/
 .vscode/
 docker-compose.prod.yml
 .gemini/**
+
+# Private planning folder
+plans/

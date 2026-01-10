@@ -1,17 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Container, Box, Typography, Button } from '@mui/material';
 
 const LoginPage = () => {
-  const [githubLoginHref, setGithubLoginHref] = useState('/api/auth/login-github');
-  const [googleLoginHref, setGoogleLoginHref] = useState('/api/auth/login-google');
-
-  useEffect(() => {
+  const [githubLoginHref] = useState(() => {
     const invitationToken = localStorage.getItem('invitationToken');
-    if (invitationToken) {
-      setGithubLoginHref(`/api/auth/login-github?invitationToken=${invitationToken}`);
-      setGoogleLoginHref(`/api/auth/login-google?invitationToken=${invitationToken}`);
-    }
-  }, []);
+    return invitationToken ? `/api/auth/login-github?invitationToken=${invitationToken}` : '/api/auth/login-github';
+  });
+  const [googleLoginHref] = useState(() => {
+    const invitationToken = localStorage.getItem('invitationToken');
+    return invitationToken ? `/api/auth/login-google?invitationToken=${invitationToken}` : '/api/auth/login-google';
+  });
 
   return (
     <Container maxWidth="xs">

@@ -22,7 +22,7 @@ const AdminTeamsPage: React.FC = () => {
     try {
       await deleteTeam(teamId);
       mutate(); // Refresh the list of teams
-    } catch (error) {
+    } catch {
       enqueueSnackbar('Failed to delete team.', { variant: 'error' });
     }
   };

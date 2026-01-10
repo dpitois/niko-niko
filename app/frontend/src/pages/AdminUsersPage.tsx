@@ -92,7 +92,7 @@ const AdminUsersPage: React.FC = () => {
         await deleteUser(userToDeleteId);
         enqueueSnackbar(`User ${userToDeleteName} deleted successfully!`, { variant: 'success' });
         mutate();
-      } catch (error) {
+      } catch {
         enqueueSnackbar(`Failed to delete user ${userToDeleteName}.`, { variant: 'error' });
       } finally {
         setOpenConfirmUserDialog(false);

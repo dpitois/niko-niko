@@ -101,7 +101,7 @@ const SprintMoodGrid: React.FC<SprintMoodGridProps> = ({
       }
       mutateMoods(); // Revalidate moods for this sprint
       mutate(`/teams/${teamId}/sprints`); // Revalidate sprints to potentially update averages
-    } catch (_error) {
+    } catch {
       enqueueSnackbar('Failed to save mood entry.', { variant: 'error' });
     }
   };

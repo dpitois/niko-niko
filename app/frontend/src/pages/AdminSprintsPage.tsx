@@ -51,7 +51,7 @@ const AdminSprintsPage: React.FC = () => {
       await deleteSprint(sprintToDelete.id);
       enqueueSnackbar('Sprint deleted successfully!', { variant: 'success' });
       mutateSprints();
-    } catch (error) {
+    } catch {
       enqueueSnackbar('Failed to delete sprint.', { variant: 'error' });
     } finally {
       handleCloseDeleteDialog();

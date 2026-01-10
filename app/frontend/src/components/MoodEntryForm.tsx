@@ -102,7 +102,7 @@ const MoodEntryForm: React.FC<MoodEntryFormProps> = ({ sprintId, onMoodEntered }
       await createMoodEntry(newMoodEntry);
       mutateMoods();
       onMoodEntered();
-    } catch (_err) {
+    } catch {
       setError('Failed to save mood. Please try again.');
     }
   };

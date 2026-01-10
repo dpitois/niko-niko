@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import CreateSprintForm from '../components/CreateSprintForm';
 import { useParams, useNavigate } from 'react-router-dom';
 import useSprints from '../hooks/useSprints';
@@ -20,19 +20,14 @@ const CreateSprintPage: React.FC = () => {
   const { teamId: urlTeamId } = useParams<{ teamId: string }>();
   const navigate = useNavigate();
   const { teams, isLoading: teamsLoading, isError: teamsError } = useTeams();
-  const [selectedTeam, setSelectedTeam] = useState<string | ''>(urlTeamId || '');
+  const selectedTeam = urlTeamId || '';
 
-  // Effect to set selectedTeam if urlTeamId changes or teams load
+  // Effect to redirect to first team if no team in URL
   useEffect(() => {
-    // Only update if urlTeamId is present and matches a team, AND selectedTeam is not already correctly set
-    if (urlTeamId && teams && teams.some((team: TeamWithMembersAndSprints) => team.id === urlTeamId) && selectedTeam !== urlTeamId) {
-      setSelectedTeam(urlTeamId);
+    if (!urlTeamId && teams && teams.length > 0) {
+      navigate(`/sprint/create/${teams[0].id}`, { replace: true });
     }
-    // If no urlTeamId and no team is selected, but teams are loaded, select the first team
-    else if (!urlTeamId && teams && teams.length > 0 && !selectedTeam) {
-      setSelectedTeam(teams[0].id);
-    }
-  }, [urlTeamId, teams, selectedTeam, setSelectedTeam]);
+  }, [urlTeamId, teams, navigate]);
 
   const { mutate } = useSprints(selectedTeam || undefined);
 
@@ -43,8 +38,7 @@ const CreateSprintPage: React.FC = () => {
 
   const handleTeamSelectChange = (event: SelectChangeEvent<string>) => {
     const newTeamId = event.target.value;
-    setSelectedTeam(newTeamId);
-    // Optionally update URL if team selection changes from dropdown
+    // Update URL if team selection changes from dropdown
     if (newTeamId) {
       navigate(`/sprint/create/${newTeamId}`);
     } else {

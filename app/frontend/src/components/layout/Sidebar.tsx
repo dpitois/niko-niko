@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useColorMode } from '../../context/ColorModeContext';
 import {
   Box,
   List,
@@ -26,7 +27,9 @@ import {
   ChevronRight as ChevronRightIcon,
   Login as LoginIcon,
   ExpandLess,
-  ExpandMore
+  ExpandMore,
+  Brightness4 as Brightness4Icon,
+  Brightness7 as Brightness7Icon,
 } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
 
@@ -47,6 +50,7 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose, handleDrawerOpen }) => {
   const { user, logout, isSuperAdmin } = useAuth();
+  const { toggleColorMode, mode } = useColorMode();
   const navigate = useNavigate();
 
   const [openAdminMenu, setOpenAdminMenu] = React.useState(false);
@@ -267,6 +271,27 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose, handleDrawer
       )}
       {user && (
         <List>
+          <ListItem disablePadding sx={{ display: 'block' }}>
+            <ListItemButton
+              onClick={toggleColorMode}
+              sx={{
+                minHeight: 48,
+                justifyContent: open ? 'initial' : 'center',
+                px: 2.5,
+              }}
+            >
+              <ListItemIcon
+                sx={{
+                  minWidth: 0,
+                  mr: open ? 3 : 'auto',
+                  justifyContent: 'center',
+                }}
+              >
+                {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
+              </ListItemIcon>
+              <ListItemText primary={mode === 'dark' ? "Light Mode" : "Dark Mode"} sx={{ opacity: open ? 1 : 0 }} />
+            </ListItemButton>
+          </ListItem>
           <ListItem disablePadding sx={{ display: 'block' }}>
             <ListItemButton onClick={handleLogout}
               sx={{

@@ -118,8 +118,8 @@ const SprintMoodGrid: React.FC<SprintMoodGridProps> = ({
               position: 'sticky',
               left: 0,
               zIndex: 2,
-              backgroundColor: theme.palette.grey[200], // Match the general header background
-              borderBottom: '1px solid #eee' // Add a subtle border to match mood cells
+              backgroundColor: theme.palette.mode === 'dark' ? theme.palette.background.paper : theme.palette.grey[200], // Match the general header background
+              borderBottom: `1px solid ${theme.palette.divider}` // Add a subtle border to match mood cells
             }}
           /> {/* Spacer for member names */}
           {sprintDates.map((date, index) => (
@@ -131,7 +131,7 @@ const SprintMoodGrid: React.FC<SprintMoodGridProps> = ({
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                backgroundColor: theme.palette.grey[200],
+                backgroundColor: theme.palette.mode === 'dark' ? theme.palette.grey[800] : theme.palette.grey[200],
                 fontWeight: 'bold',
                 fontSize: '0.75rem',
                 flexShrink: 0,
@@ -153,8 +153,8 @@ const SprintMoodGrid: React.FC<SprintMoodGridProps> = ({
                 p: 1,
                 display: 'flex',
                 alignItems: 'center',
-                border: '1px solid #eee',
-                backgroundColor: theme.palette.grey[100],
+                border: `1px solid ${theme.palette.divider}`,
+                backgroundColor: theme.palette.mode === 'dark' ? theme.palette.background.paper : theme.palette.grey[100],
                 borderRadius: '4px 0 0 4px',
                 position: 'sticky',
                 left: 0,
@@ -191,7 +191,7 @@ const SprintMoodGrid: React.FC<SprintMoodGridProps> = ({
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    backgroundColor: moodEntry ? getMoodColor(moodEntry.mood) : theme.palette.grey[300],
+                    backgroundColor: moodEntry ? getMoodColor(moodEntry.mood) : (theme.palette.mode === 'dark' ? theme.palette.grey[700] : theme.palette.grey[300]),
                     color: 'white',
                     cursor: canEdit ? 'pointer' : 'default',
                     opacity: canEdit ? 1 : 0.7,
@@ -202,7 +202,7 @@ const SprintMoodGrid: React.FC<SprintMoodGridProps> = ({
                       ? {
                           backgroundColor: moodEntry
                             ? getMoodColor(moodEntry.mood)
-                            : theme.palette.grey[400],
+                            : (theme.palette.mode === 'dark' ? theme.palette.grey[600] : theme.palette.grey[400]),
                         }
                       : {},
                   }}

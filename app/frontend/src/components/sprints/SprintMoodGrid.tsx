@@ -107,9 +107,10 @@ const SprintMoodGrid: React.FC<SprintMoodGridProps> = ({
   };
 
     return (
-      <Box sx={{ minWidth: 'max-content', display: 'flex', flexDirection: 'column' }}>
-        {/* Header Row: Dates */}
-        <Box sx={{ display: 'flex' }}>
+      <Box sx={{ overflowX: 'auto', maxWidth: '100%', pb: 1 }}>
+        <Box sx={{ minWidth: 'max-content', display: 'flex', flexDirection: 'column' }}>
+          {/* Header Row: Dates */}
+          <Box sx={{ display: 'flex' }}>
           <Box
             sx={{
               width: 150,
@@ -219,6 +220,7 @@ const SprintMoodGrid: React.FC<SprintMoodGridProps> = ({
             })}
           </Box>
         ))}
+        </Box>
       </Box>
     );
   };

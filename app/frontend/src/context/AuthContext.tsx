@@ -4,19 +4,7 @@ import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
 import type { TeamWithSprintsDto } from '../models/Team/TeamWithSprintsDto';
 import type { User } from '../models/User';
-
-interface DecodedToken {
-  sub: string; // Subject (user id)
-  name: string;
-  email: string;
-  avatar_url?: string;
-  is_super_admin?: string; // This claim might be optional
-}
-
-interface TeamRole {
-  isAdmin: boolean;
-  isMember: boolean;
-}
+import type { DecodedToken, TeamRole } from '../models/Auth';
 
 interface AuthContextType {
   user: DecodedToken | null;

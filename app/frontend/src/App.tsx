@@ -1,3 +1,5 @@
+// React Imports
+import { useRef } from 'react';
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
@@ -18,6 +20,8 @@ import './App.css';
 
 // Material UI Imports
 import CssBaseline from '@mui/material/CssBaseline';
+import { IconButton } from '@mui/material';
+import { Close as CloseIcon } from '@mui/icons-material';
 
 // Context Imports
 import { ColorModeProvider } from './context/ColorModeContext';
@@ -33,10 +37,26 @@ const ProtectedLayout = () => (
 
 
 function App() {
+  const notistackRef = useRef<SnackbarProvider>(null);
+
+  const onClickDismiss = (key: string | number) => () => {
+    notistackRef.current?.closeSnackbar(key);
+  };
+
   return (
     <ColorModeProvider>
       <CssBaseline />
-      <SnackbarProvider maxSnack={3}>
+      <SnackbarProvider 
+        ref={notistackRef}
+        maxSnack={5} 
+        preventDuplicate
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+        action={(key) => (
+          <IconButton onClick={onClickDismiss(key)} color="inherit" size="small">
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        )}
+      >
         <Routes>
           {/* Public routes */}
           <Route path="/login" element={<LoginPage />} />

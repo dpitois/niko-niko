@@ -101,7 +101,7 @@ const SprintMoodGrid: React.FC<SprintMoodGridProps> = ({
       }
       mutateMoods(); // Revalidate moods for this sprint
       mutate(`/teams/${teamId}/sprints`); // Revalidate sprints to potentially update averages
-    } catch (error) {
+    } catch (_error) {
       enqueueSnackbar('Failed to save mood entry.', { variant: 'error' });
     }
   };
@@ -178,8 +178,9 @@ const SprintMoodGrid: React.FC<SprintMoodGridProps> = ({
                   m.userId === member.id &&
                   new Date(m.date).toDateString() === date.toDateString()
               );
-              const isTodayOrFuture = dayjs(date).isSameOrAfter(today);
-              const canEdit = user && user.sub === member.id && !isTodayOrFuture;
+              const isFuture = dayjs(date).isAfter(today);
+              const isToday = dayjs(date).isSame(today);
+              const canEdit = user && user.sub === member.id && !isFuture;
   
               return (
                 <Paper
@@ -208,8 +209,8 @@ const SprintMoodGrid: React.FC<SprintMoodGridProps> = ({
                   onClick={() => canEdit && handleMoodClick(date, (moodEntry ? (moodEntry.mood + 1) % Object.keys(MoodValues).length : MoodValues.Happy) as MoodType)} // Cycle through mood types, starting with Happy if no mood exists
                 >
                   {moodEntry ? getMoodIcon(moodEntry.mood) : null}
-                  {isTodayOrFuture && (
-                    <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.7)' }}>
+                  {(isFuture || isToday) && (
+                    <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.7)', position: moodEntry ? 'absolute' : 'static', fontSize: moodEntry ? '0.6rem' : '0.75rem' }}>
                       {date.getDate()}
                     </Typography>
                   )}

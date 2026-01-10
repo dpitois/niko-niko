@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { createSprint } from '../services/sprintService';
 import type { CreateSprint } from '../models/CreateSprint';
 import type { TeamDto } from '../models/Team';
-import { Box, TextField, Button, Typography, Stack, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+import { Box, TextField, Button, Typography, Select, MenuItem, FormControl, InputLabel, Grid } from '@mui/material';
 
 interface AdminCreateSprintFormProps {
   teams: TeamDto[];
@@ -45,7 +45,7 @@ const AdminCreateSprintForm: React.FC<AdminCreateSprintFormProps> = ({ teams, on
       setStartDate('');
       setEndDate('');
       setSelectedTeamId('');
-    } catch (err) {
+    } catch {
       setError('Failed to create sprint. Please try again.');
     }
   };
@@ -57,60 +57,70 @@ const AdminCreateSprintForm: React.FC<AdminCreateSprintFormProps> = ({ teams, on
           {error}
         </Typography>
       )}
-      <Stack spacing={2}>
-        <FormControl fullWidth required>
-          <InputLabel id="team-select-label">Team</InputLabel>
-          <Select
-            labelId="team-select-label"
-            id="team-select"
-            value={selectedTeamId}
-            label="Team"
-            onChange={(e) => setSelectedTeamId(e.target.value)}
-          >
-            {teams.map((team) => (
-              <MenuItem key={team.id} value={team.id}>
-                {team.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <TextField
-          id="sprint-name"
-          label="Sprint Name"
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          fullWidth
-          required
-        />
-        <TextField
-          id="start-date"
-          label="Start Date"
-          type="date"
-          value={startDate}
-          onChange={(e) => setStartDate(e.target.value)}
-          InputLabelProps={{
-            shrink: true,
-          }}
-          fullWidth
-          required
-        />
-        <TextField
-          id="end-date"
-          label="End Date"
-          type="date"
-          value={endDate}
-          onChange={(e) => setEndDate(e.target.value)}
-          InputLabelProps={{
-            shrink: true,
-          }}
-          fullWidth
-          required
-        />
-        <Button type="submit" variant="contained" color="primary" fullWidth>
-          Create Sprint
-        </Button>
-      </Stack>
+      <Grid container spacing={2} alignItems="center">
+        <Grid size={{ xs: 12, md: 3 }}>
+          <FormControl fullWidth required>
+            <InputLabel id="team-select-label">Team</InputLabel>
+            <Select
+              labelId="team-select-label"
+              id="team-select"
+              value={selectedTeamId}
+              label="Team"
+              onChange={(e) => setSelectedTeamId(e.target.value)}
+            >
+              {teams.map((team) => (
+                <MenuItem key={team.id} value={team.id}>
+                  {team.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
+        <Grid size={{ xs: 12, md: 3 }}>
+          <TextField
+            id="sprint-name"
+            label="Sprint Name"
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            fullWidth
+            required
+          />
+        </Grid>
+        <Grid size={{ xs: 6, md: 2 }}>
+          <TextField
+            id="start-date"
+            label="Start Date"
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            fullWidth
+            required
+          />
+        </Grid>
+        <Grid size={{ xs: 6, md: 2 }}>
+          <TextField
+            id="end-date"
+            label="End Date"
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            fullWidth
+            required
+          />
+        </Grid>
+        <Grid size={{ xs: 12, md: 2 }}>
+          <Button type="submit" variant="contained" color="primary" fullWidth sx={{ height: '56px' }}>
+            Create
+          </Button>
+        </Grid>
+      </Grid>
     </Box>
   );
 };

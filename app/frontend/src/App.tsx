@@ -1,3 +1,5 @@
+// React Imports
+import { useRef } from 'react';
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
@@ -17,74 +19,15 @@ import AdminSprintsPage from './pages/AdminSprintsPage';
 import './App.css';
 
 // Material UI Imports
-import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import { IconButton } from '@mui/material';
+import { Close as CloseIcon } from '@mui/icons-material';
+
+// Context Imports
+import { ColorModeProvider } from './context/ColorModeContext';
 
 // notistack imports
-import { SnackbarProvider } from 'notistack'; // Import SnackbarProvider
-
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#007bff',
-    },
-    secondary: {
-      main: '#6c757d',
-    },
-  },
-  typography: {
-    fontFamily: 'Arial, Helvetica, sans-serif',
-    fontSize: 14,
-    h1: {
-      fontSize: '2rem',
-      fontWeight: 500,
-      color: '#007bff',
-      marginBottom: '1rem',
-    },
-    h2: {
-      fontSize: '1.5rem',
-      fontWeight: 500,
-      color: '#0056b3',
-      marginBottom: '1rem',
-    },
-    h3: {
-      fontSize: '1.2rem',
-      fontWeight: 500,
-      color: '#004085',
-      marginBottom: '0.8rem',
-    },
-  },
-  components: {
-    MuiButton: {
-      styleOverrides: {
-        root: {
-          textTransform: 'none',
-          borderRadius: 4,
-          padding: '0.8em 1.2em',
-        },
-      },
-    },
-    MuiTextField: {
-      defaultProps: {
-        variant: 'outlined',
-        size: 'small',
-      },
-    },
-    MuiSelect: {
-      defaultProps: {
-        variant: 'outlined',
-        size: 'small',
-      },
-    },
-    MuiInputLabel: {
-      styleOverrides: {
-        root: {
-          fontWeight: 'bold',
-        },
-      },
-    },
-  },
-});
+import { SnackbarProvider } from 'notistack';
 
 const ProtectedLayout = () => (
   <AppLayout>
@@ -94,10 +37,26 @@ const ProtectedLayout = () => (
 
 
 function App() {
+  const notistackRef = useRef<SnackbarProvider>(null);
+
+  const onClickDismiss = (key: string | number) => () => {
+    notistackRef.current?.closeSnackbar(key);
+  };
+
   return (
-    <ThemeProvider theme={theme}>
+    <ColorModeProvider>
       <CssBaseline />
-      <SnackbarProvider maxSnack={3}>
+      <SnackbarProvider 
+        ref={notistackRef}
+        maxSnack={5} 
+        preventDuplicate
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+        action={(key) => (
+          <IconButton onClick={onClickDismiss(key)} color="inherit" size="small">
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        )}
+      >
         <Routes>
           {/* Public routes */}
           <Route path="/login" element={<LoginPage />} />
@@ -179,7 +138,7 @@ function App() {
           </Route>
         </Routes>
       </SnackbarProvider>
-    </ThemeProvider>
+    </ColorModeProvider>
   );
 }
 

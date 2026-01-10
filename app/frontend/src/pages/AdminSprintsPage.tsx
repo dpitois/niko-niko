@@ -1,12 +1,9 @@
 import React, { useState } from 'react';
 import {
-  Container,
-  Grid,
-  Paper,
+  Box,
   Typography,
   List,
   ListItem,
-  ListItemText,
   IconButton,
   CircularProgress,
   Dialog,
@@ -14,7 +11,9 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  Button
+  Button,
+  Divider,
+  Chip
 } from '@mui/material';
 import { Delete as DeleteIcon } from '@mui/icons-material';
 import { useSnackbar } from 'notistack';
@@ -63,59 +62,61 @@ const AdminSprintsPage: React.FC = () => {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4 }}>
-      <Typography variant="h4" gutterBottom>
+    <Box>
+      <Typography variant="h4" component="h1" gutterBottom>
         Admin Sprints Management
       </Typography>
-      <Grid container spacing={3}>
-        {/* Create Sprint Form */}
-        <Grid size={{ xs: 12, md: 4 }}>
-          <Paper sx={{ p: 2 }}>
-            <Typography variant="h6" gutterBottom>
-              Create New Sprint
-            </Typography>
-            {isLoadingTeams || !teams ? (
-              <CircularProgress />
-            ) : (
-              <AdminCreateSprintForm teams={teams} onSprintCreated={handleSprintCreated} />
-            )}
-          </Paper>
-        </Grid>
 
-        {/* Sprints List */}
-        <Grid size={{ xs: 12, md: 8 }}>
-          <Paper sx={{ p: 2 }}>
-            <Typography variant="h6" gutterBottom>
-              Existing Sprints
-            </Typography>
-            {isLoadingSprints ? (
-              <CircularProgress />
-            ) : (
-              <List>
-                {sprints && sprints.length > 0 ? (
-                  sprints.map((sprint) => (
-                    <ListItem
-                      key={sprint.id}
-                      secondaryAction={
-                        <IconButton edge="end" aria-label="delete" onClick={() => handleDeleteClick(sprint)}>
-                          <DeleteIcon />
-                        </IconButton>
-                      }
-                    >
-                      <ListItemText
-                        primary={sprint.name}
-                        secondary={`${new Date(sprint.startDate).toLocaleDateString()} - ${new Date(sprint.endDate).toLocaleDateString()} | Team: ${getTeamName(sprint.teamId)}`}
-                      />
-                    </ListItem>
-                  ))
-                ) : (
-                  <Typography>No sprints found.</Typography>
-                )}
-              </List>
-            )}
-          </Paper>
-        </Grid>
-      </Grid>
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h5" component="h2" gutterBottom>
+          Create New Sprint
+        </Typography>
+        {isLoadingTeams || !teams ? (
+          <CircularProgress />
+        ) : (
+          <AdminCreateSprintForm teams={teams} onSprintCreated={handleSprintCreated} />
+        )}
+      </Box>
+
+      <Divider sx={{ my: 4 }} />
+
+      <Typography variant="h5" component="h2" gutterBottom>
+        Manage All Sprints
+      </Typography>
+
+      {isLoadingSprints ? (
+        <CircularProgress />
+      ) : (
+        <List>
+          {sprints && sprints.length > 0 ? (
+            sprints.map((sprint) => (
+              <ListItem key={sprint.id} divider sx={{ pr: 12 }}> {/* Add padding-right for absolute positioned button if needed, but here we use flex */}
+                <Box sx={{ display: 'flex', width: '100%', alignItems: 'center', gap: 2 }}>
+                  {/* Sprint Name */}
+                  <Typography variant="subtitle1" component="span" sx={{ fontWeight: 'bold', width: '25%', minWidth: '150px' }} noWrap>
+                    {sprint.name}
+                  </Typography>
+
+                  {/* Team Name */}
+                  <Chip label={getTeamName(sprint.teamId)} size="small" variant="outlined" />
+
+                  {/* Dates (Flexible space) */}
+                  <Typography variant="body2" color="text.secondary" sx={{ flexGrow: 1, textAlign: 'center', display: { xs: 'none', sm: 'block' } }}>
+                    {new Date(sprint.startDate).toLocaleDateString()} — {new Date(sprint.endDate).toLocaleDateString()}
+                  </Typography>
+
+                  {/* Delete Button */}
+                  <IconButton onClick={() => handleDeleteClick(sprint)} color="error" size="small" aria-label="delete">
+                    <DeleteIcon />
+                  </IconButton>
+                </Box>
+              </ListItem>
+            ))
+          ) : (
+            <Typography variant="body1">No sprints found.</Typography>
+          )}
+        </List>
+      )}
       
       {/* Delete Confirmation Dialog */}
       <Dialog
@@ -135,7 +136,7 @@ const AdminSprintsPage: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
-    </Container>
+    </Box>
   );
 };
 

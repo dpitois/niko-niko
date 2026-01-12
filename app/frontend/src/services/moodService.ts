@@ -6,7 +6,7 @@ import dayjs from 'dayjs';
 export const createMoodEntry = async (moodEntry: CreateMood): Promise<Mood> => {
   const payload = {
     ...moodEntry,
-    timezoneOffset: dayjs().utcOffset()
+    timezoneOffset: dayjs().utcOffset(),
   };
   const { data } = await api.post('/moodentries', payload);
   return data;
@@ -18,7 +18,11 @@ export const updateMoodEntry = async (moodEntry: CreateMood): Promise<Mood> => {
   return data;
 };
 
-export const getMoodEntriesBySprint = async (sprintId: string, userId?: string, date?: string): Promise<Mood[]> => {
+export const getMoodEntriesBySprint = async (
+  sprintId: string,
+  userId?: string,
+  date?: string,
+): Promise<Mood[]> => {
   let url = `/moodentries/bysprint/${sprintId}`;
   const params = new URLSearchParams();
   if (userId) {

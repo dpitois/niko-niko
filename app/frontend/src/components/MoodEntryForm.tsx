@@ -28,14 +28,21 @@ const MoodEntryForm: React.FC<MoodEntryFormProps> = ({ sprintId, onMoodEntered }
 
   const { sprint, isLoading: sprintLoading, isError: sprintError } = useSprint(sprintId);
 
-  const { moods, isLoading: moodsLoading, isError: moodsError, mutateMoods } = useMoods(
+  const {
+    moods,
+    isLoading: moodsLoading,
+    isError: moodsError,
+    mutateMoods,
+  } = useMoods(
     user ? sprintId : null,
     user ? user.sub : null,
-    selectedDate ? selectedDate.toISOString().slice(0, 10) : '' // Use selectedDate for fetching moods
+    selectedDate ? selectedDate.toISOString().slice(0, 10) : '', // Use selectedDate for fetching moods
   );
 
   const currentMoodEntry = moods && moods.length > 0 ? moods[0] : null;
-  const [selectedMoodValue, setSelectedMoodValue] = useState<MoodType | null>(currentMoodEntry ? currentMoodEntry.mood : null);
+  const [selectedMoodValue, setSelectedMoodValue] = useState<MoodType | null>(
+    currentMoodEntry ? currentMoodEntry.mood : null,
+  );
 
   React.useEffect(() => {
     if (currentMoodEntry) {
@@ -43,8 +50,10 @@ const MoodEntryForm: React.FC<MoodEntryFormProps> = ({ sprintId, onMoodEntered }
     }
   }, [currentMoodEntry]);
 
-
-  const handleMoodSelect = async (_event: React.MouseEvent<HTMLElement>, newMood: MoodType | null) => {
+  const handleMoodSelect = async (
+    _event: React.MouseEvent<HTMLElement>,
+    newMood: MoodType | null,
+  ) => {
     setError(null);
 
     if (!user) {
@@ -109,32 +118,52 @@ const MoodEntryForm: React.FC<MoodEntryFormProps> = ({ sprintId, onMoodEntered }
 
   const getMoodEmoji = (moodValue: MoodType | null) => {
     switch (moodValue) {
-      case MoodValues.Happy: return '😊';
-      case MoodValues.Neutral: return '😐';
-      case MoodValues.Sad: return '😞';
-      default: return '❓';
+      case MoodValues.Happy:
+        return '😊';
+      case MoodValues.Neutral:
+        return '😐';
+      case MoodValues.Sad:
+        return '😞';
+      default:
+        return '❓';
     }
   };
 
   return (
-    <Box sx={{
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      gap: 1,
-      p: 1.5,
-      borderLeft: 3,
-      borderColor: 'primary.main',
-      borderRadius: 1,
-      mt: 2,
-    }}>
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 1,
+        p: 1.5,
+        borderLeft: 3,
+        borderColor: 'primary.main',
+        borderRadius: 1,
+        mt: 2,
+      }}
+    >
       <Stack spacing={1} alignItems="center">
-        <Typography variant="h6" component="h4">How are you feeling?</Typography>
-        {error && <Typography color="error" variant="body2">{error}</Typography>}
+        <Typography variant="h6" component="h4">
+          How are you feeling?
+        </Typography>
+        {error && (
+          <Typography color="error" variant="body2">
+            {error}
+          </Typography>
+        )}
         {moodsLoading && <Typography variant="body2">Loading mood...</Typography>}
-        {moodsError && <Typography color="error" variant="body2">Error loading mood.</Typography>}
+        {moodsError && (
+          <Typography color="error" variant="body2">
+            Error loading mood.
+          </Typography>
+        )}
         {sprintLoading && <Typography variant="body2">Loading sprint details...</Typography>}
-        {sprintError && <Typography color="error" variant="body2">Error loading sprint details.</Typography>}
+        {sprintError && (
+          <Typography color="error" variant="body2">
+            Error loading sprint details.
+          </Typography>
+        )}
 
         <DatePicker
           label="Select Date"

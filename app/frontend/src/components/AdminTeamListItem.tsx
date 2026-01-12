@@ -1,5 +1,15 @@
 import React from 'react';
-import { Box, Typography, Button, Paper, Avatar, List, ListItem, ListItemAvatar, ListItemText } from '@mui/material';
+import {
+  Box,
+  Typography,
+  Button,
+  Paper,
+  Avatar,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
+} from '@mui/material';
 import { Delete as DeleteIcon, Group as GroupIcon } from '@mui/icons-material';
 import type { TeamWithMembersAndSprints } from '../models/Team/TeamWithMembersAndSprints';
 
@@ -33,7 +43,7 @@ const AdminTeamListItem: React.FC<AdminTeamListItemProps> = ({ team, onDelete })
           {team.members.map((member) => (
             <ListItem key={member.id} disablePadding>
               <ListItemAvatar>
-                <Avatar 
+                <Avatar
                   src={member.avatarUrl}
                   alt={member.name || member.email}
                   sx={{ width: 24, height: 24, fontSize: '0.75rem' }}

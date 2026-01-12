@@ -2,14 +2,27 @@ import React, { useState } from 'react';
 import { createSprint } from '../services/sprintService';
 import type { CreateSprint } from '../models/CreateSprint';
 import type { TeamDto } from '../models/Team';
-import { Box, TextField, Button, Typography, Select, MenuItem, FormControl, InputLabel, Grid } from '@mui/material';
+import {
+  Box,
+  TextField,
+  Button,
+  Typography,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Grid,
+} from '@mui/material';
 
 interface AdminCreateSprintFormProps {
   teams: TeamDto[];
   onSprintCreated: () => void;
 }
 
-const AdminCreateSprintForm: React.FC<AdminCreateSprintFormProps> = ({ teams, onSprintCreated }) => {
+const AdminCreateSprintForm: React.FC<AdminCreateSprintFormProps> = ({
+  teams,
+  onSprintCreated,
+}) => {
   const [name, setName] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -116,7 +129,13 @@ const AdminCreateSprintForm: React.FC<AdminCreateSprintFormProps> = ({ teams, on
           />
         </Grid>
         <Grid size={{ xs: 12, md: 2 }}>
-          <Button type="submit" variant="contained" color="primary" fullWidth sx={{ height: '56px' }}>
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            fullWidth
+            sx={{ height: '56px' }}
+          >
             Create
           </Button>
         </Grid>

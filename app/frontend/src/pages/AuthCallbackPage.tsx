@@ -20,7 +20,7 @@ const AuthCallbackPage = () => {
       localStorage.removeItem('invitationToken'); // Clean up invitation token after successful login
       navigate('/my-teams');
     } else {
-      enqueueSnackbar("Authentication callback error: No token received.", { variant: 'error' });
+      enqueueSnackbar('Authentication callback error: No token received.', { variant: 'error' });
       navigate('/login');
     }
   }, [navigate, searchParams, login, enqueueSnackbar]);
@@ -37,9 +37,7 @@ const AuthCallbackPage = () => {
         }}
       >
         <CircularProgress />
-        <Typography variant="body1">
-          Please wait, authenticating...
-        </Typography>
+        <Typography variant="body1">Please wait, authenticating...</Typography>
       </Box>
     </Container>
   );

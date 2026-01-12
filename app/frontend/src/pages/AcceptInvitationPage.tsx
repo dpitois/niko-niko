@@ -20,8 +20,6 @@ const AcceptInvitationPage: React.FC = () => {
     if (isLoadingAuth) {
       return;
     }
-    
-
 
     const handleAcceptInvitation = async () => {
       if (!token) {
@@ -31,7 +29,8 @@ const AcceptInvitationPage: React.FC = () => {
         return;
       }
 
-      if (!user) { // Cette vérification ne sera faite que si isLoadingAuth est faux
+      if (!user) {
+        // Cette vérification ne sera faite que si isLoadingAuth est faux
         setMessage('You need to be logged in to accept this invitation. Redirecting to login...');
         setSeverity('info');
         localStorage.setItem('invitationToken', token);
@@ -39,8 +38,6 @@ const AcceptInvitationPage: React.FC = () => {
         setLoading(false);
         return;
       }
-
-
 
       try {
         const acceptedInvitation = await teamInvitationService.acceptTeamInvitation(token);
@@ -70,19 +67,39 @@ const AcceptInvitationPage: React.FC = () => {
   // Rendu : Afficher un indicateur de chargement si isLoadingAuth est vrai
   if (isLoadingAuth) {
     return (
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '80vh' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '80vh',
+        }}
+      >
         <CircularProgress />
-        <Typography variant="h6" sx={{ mt: 2 }}>Checking authentication status...</Typography>
+        <Typography variant="h6" sx={{ mt: 2 }}>
+          Checking authentication status...
+        </Typography>
       </Box>
     );
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '80vh' }}>
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '80vh',
+      }}
+    >
       {loading ? (
         <>
           <CircularProgress />
-          <Typography variant="h6" sx={{ mt: 2 }}>Accepting Invitation...</Typography>
+          <Typography variant="h6" sx={{ mt: 2 }}>
+            Accepting Invitation...
+          </Typography>
         </>
       ) : (
         <Alert severity={severity} sx={{ mb: 2, width: '100%', maxWidth: 400 }}>

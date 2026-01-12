@@ -7,7 +7,7 @@ const NotificationListener: React.FC = () => {
 
   useEffect(() => {
     const connection = new HubConnectionBuilder()
-      .withUrl("/notificationHub", {
+      .withUrl('/notificationHub', {
         accessTokenFactory: () => {
           const token = localStorage.getItem('jwt_token');
           return token ? token : '';
@@ -17,18 +17,20 @@ const NotificationListener: React.FC = () => {
       .withAutomaticReconnect()
       .build();
 
-    connection.on("ReceiveNotification", (user: string, message: string) => {
+    connection.on('ReceiveNotification', (user: string, message: string) => {
       enqueueSnackbar(`${user} - ${message}`, { variant: 'info' });
     });
 
-    connection.start()
+    connection
+      .start()
       .then(() => console.log('SignalR Connected!'))
-      .catch(err => console.error('SignalR Connection Error: ', err));
+      .catch((err) => console.error('SignalR Connection Error: ', err));
 
     return () => {
-      connection.stop()
+      connection
+        .stop()
         .then(() => console.log('SignalR Disconnected.'))
-        .catch(err => console.error('SignalR Disconnection Error: ', err));
+        .catch((err) => console.error('SignalR Disconnection Error: ', err));
     };
   }, [enqueueSnackbar]);
 

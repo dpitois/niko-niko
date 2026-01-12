@@ -14,7 +14,7 @@ import {
   Avatar,
   IconButton,
   Tooltip,
-  Collapse
+  Collapse,
 } from '@mui/material';
 import {
   Dashboard as DashboardIcon,
@@ -32,7 +32,6 @@ import {
   Brightness7 as Brightness7Icon,
 } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
-
 
 const DrawerHeader = styled('div')(({ theme }) => ({
   display: 'flex',
@@ -118,7 +117,8 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose, handleDrawer
           <>
             <Divider />
             <ListItem disablePadding sx={{ display: 'block' }}>
-              <ListItemButton onClick={handleAdminMenuClick}
+              <ListItemButton
+                onClick={handleAdminMenuClick}
                 sx={{
                   justifyContent: open ? 'initial' : 'center',
                   px: 2.5,
@@ -254,17 +254,22 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose, handleDrawer
       <Box sx={{ flexGrow: 1 }} /> {/* Pushes user info to the bottom */}
       <Divider />
       {user && (
-        <Box sx={{ p: 2, display: 'flex', alignItems: 'center', justifyContent: open ? 'flex-start' : 'center' }}>
-          <Avatar 
-            src={user.avatar_url} 
-            alt={user.name}
-            sx={{ mr: open ? 2 : 0 }}
-          >
+        <Box
+          sx={{
+            p: 2,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: open ? 'flex-start' : 'center',
+          }}
+        >
+          <Avatar src={user.avatar_url} alt={user.name} sx={{ mr: open ? 2 : 0 }}>
             {user.name ? user.name[0].toUpperCase() : '?'}
           </Avatar>
           {open && (
             <Tooltip title={user.email} arrow>
-              <Typography variant="body1" noWrap>{user.name}</Typography>
+              <Typography variant="body1" noWrap>
+                {user.name}
+              </Typography>
             </Tooltip>
           )}
         </Box>
@@ -289,11 +294,15 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose, handleDrawer
               >
                 {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
               </ListItemIcon>
-              <ListItemText primary={mode === 'dark' ? "Light Mode" : "Dark Mode"} sx={{ opacity: open ? 1 : 0 }} />
+              <ListItemText
+                primary={mode === 'dark' ? 'Light Mode' : 'Dark Mode'}
+                sx={{ opacity: open ? 1 : 0 }}
+              />
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding sx={{ display: 'block' }}>
-            <ListItemButton onClick={handleLogout}
+            <ListItemButton
+              onClick={handleLogout}
               sx={{
                 minHeight: 48,
                 justifyContent: open ? 'initial' : 'center',

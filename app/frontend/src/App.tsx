@@ -35,7 +35,6 @@ const ProtectedLayout = () => (
   </AppLayout>
 );
 
-
 function App() {
   const notistackRef = useRef<SnackbarProvider>(null);
 
@@ -46,9 +45,9 @@ function App() {
   return (
     <ColorModeProvider>
       <CssBaseline />
-      <SnackbarProvider 
+      <SnackbarProvider
         ref={notistackRef}
-        maxSnack={5} 
+        maxSnack={5}
         preventDuplicate
         anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
         action={(key) => (
@@ -118,7 +117,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            
+
             <Route
               path="/sprint/create/:teamId?"
               element={

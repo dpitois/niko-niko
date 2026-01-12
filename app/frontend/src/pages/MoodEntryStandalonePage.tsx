@@ -13,7 +13,9 @@ const MoodEntryStandalonePage: React.FC = () => {
   if (!sprintId) {
     return (
       <Container maxWidth="sm" sx={{ mt: 4 }}>
-        <Typography color="error" variant="h6">Error: Sprint ID is missing.</Typography>
+        <Typography color="error" variant="h6">
+          Error: Sprint ID is missing.
+        </Typography>
       </Container>
     );
   }

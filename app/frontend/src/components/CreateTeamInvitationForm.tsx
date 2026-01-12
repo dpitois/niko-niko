@@ -10,7 +10,10 @@ interface CreateTeamInvitationFormProps {
   onInvitationCreated?: (invitation: TeamInvitation) => void;
 }
 
-const CreateTeamInvitationForm: React.FC<CreateTeamInvitationFormProps> = ({ teamId, onInvitationCreated }) => {
+const CreateTeamInvitationForm: React.FC<CreateTeamInvitationFormProps> = ({
+  teamId,
+  onInvitationCreated,
+}) => {
   const { user } = useAuth();
   const [expirationInDays, setExpirationInDays] = useState<number>(7);
   const [invitationLink, setInvitationLink] = useState<string | null>(null);
@@ -29,7 +32,10 @@ const CreateTeamInvitationForm: React.FC<CreateTeamInvitationFormProps> = ({ tea
     }
 
     try {
-      const newInvitation = await teamInvitationService.createTeamInvitation({ teamId, expirationInDays });
+      const newInvitation = await teamInvitationService.createTeamInvitation({
+        teamId,
+        expirationInDays,
+      });
       const link = `${window.location.origin}/accept-invitation/${newInvitation.token}`;
       setInvitationLink(link);
       setSuccess('Invitation created successfully!');
@@ -48,12 +54,24 @@ const CreateTeamInvitationForm: React.FC<CreateTeamInvitationFormProps> = ({ tea
   };
 
   return (
-    <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3, p: 2, border: '1px solid #ccc', borderRadius: '8px' }}>
+    <Box
+      component="form"
+      onSubmit={handleSubmit}
+      sx={{ mt: 3, p: 2, border: '1px solid #ccc', borderRadius: '8px' }}
+    >
       <Typography variant="h6" gutterBottom>
         Create Team Invitation
       </Typography>
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-      {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
+      {success && (
+        <Alert severity="success" sx={{ mb: 2 }}>
+          {success}
+        </Alert>
+      )}
 
       <TextField
         label="Expiration in Days"

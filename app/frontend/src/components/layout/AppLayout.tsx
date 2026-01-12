@@ -1,5 +1,15 @@
 import React from 'react';
-import { Box, CssBaseline, Drawer as MuiDrawer, AppBar, Toolbar, IconButton, Typography, useTheme, useMediaQuery } from '@mui/material';
+import {
+  Box,
+  CssBaseline,
+  Drawer as MuiDrawer,
+  AppBar,
+  Toolbar,
+  IconButton,
+  Typography,
+  useTheme,
+  useMediaQuery,
+} from '@mui/material';
 import { Menu as MenuIcon } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
 import type { Theme, CSSObject } from '@mui/material/styles';
@@ -53,7 +63,7 @@ interface AppLayoutProps {
 const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  
+
   const [open, setOpen] = React.useState(true); // Desktop Sidebar open by default
   const [mobileOpen, setMobileOpen] = React.useState(false); // Mobile Sidebar closed by default
 
@@ -79,7 +89,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         position="fixed"
         sx={{
           display: { sm: 'none' },
-          zIndex: (theme) => theme.zIndex.drawer + 1
+          zIndex: (theme) => theme.zIndex.drawer + 1,
         }}
       >
         <Toolbar>
@@ -135,14 +145,14 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         )}
       </Box>
 
-      <Box 
-        component="main" 
-        sx={{ 
-          flexGrow: 1, 
-          p: 3, 
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          p: 3,
           width: { sm: `calc(100% - ${drawerWidth}px)` }, // Adjust width calculation
           mt: { xs: 7, sm: 0 }, // Add margin top on mobile for AppBar
-          overflowX: 'hidden' 
+          overflowX: 'hidden',
         }}
       >
         {children}

@@ -5,4 +5,5 @@ export interface CreateMood {
   sprintId: string;
   mood: MoodType;
   date?: string; // Optional date for the mood entry
+  timezoneOffset?: number; // Added to match backend DTO
 }

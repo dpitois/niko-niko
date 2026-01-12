@@ -1,9 +1,14 @@
 import api from './api';
 import type { Mood } from '../models/Mood';
 import type { CreateMood } from '../models/CreateMood';
+import dayjs from 'dayjs';
 
 export const createMoodEntry = async (moodEntry: CreateMood): Promise<Mood> => {
-  const { data } = await api.post('/moodentries', moodEntry);
+  const payload = {
+    ...moodEntry,
+    timezoneOffset: dayjs().utcOffset()
+  };
+  const { data } = await api.post('/moodentries', payload);
   return data;
 };
 

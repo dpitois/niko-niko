@@ -148,9 +148,14 @@ public class MoodEntriesController : ControllerBase
 
         var entryDate = createMoodEntryDto.Date?.ToUniversalTime().Date ?? DateTime.UtcNow.Date;
 
-        if (entryDate > DateTime.UtcNow.Date)
+        // Calculate the user's local date based on the provided timezone offset.
+        // We add the offset (in minutes) to UtcNow to get the user's local time.
+        // For example, Tokyo (UTC+9) has an offset of +540. UtcNow + 540 minutes = Local Time.
+        var userLocalNow = DateTime.UtcNow.AddMinutes(createMoodEntryDto.TimezoneOffset);
+
+        if (entryDate > userLocalNow.Date)
         {
-            return BadRequest("Mood entry date cannot be in the future.");
+            return BadRequest("Mood entry date cannot be in the future (relative to your local time).");
         }
 
         if (entryDate < sprint.StartDate.Date)

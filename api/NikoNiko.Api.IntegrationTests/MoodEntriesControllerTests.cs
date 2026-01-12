@@ -112,4 +112,89 @@ public class MoodEntriesControllerTests
         // Assert
         Assert.Equal(HttpStatusCode.Forbidden, getMoodEntriesResponse.StatusCode);
     }
+
+    [Fact]
+    public async Task CreateMoodEntry_AheadOfUtc_ReturnsCreated()
+    {
+        // Arrange
+        await using var application = new NikoNikoApiTestApplication();
+        var (user, client, _) = await application.CreateUserAndClient("Tokyo User");
+        var team = await application.CreateTeam("Global Team", user.Id);
+
+        // Create sprint covering "tomorrow"
+        var createSprintDto = new CreateSprintDto
+        {
+            Name = "Sprint 1",
+            TeamId = team.Id,
+            StartDate = DateTime.UtcNow.Date.AddDays(-1),
+            EndDate = DateTime.UtcNow.Date.AddDays(5)
+        };
+        var sprintResp = await client.PostAsJsonAsync("/api/sprints", createSprintDto);
+        sprintResp.EnsureSuccessStatusCode();
+        var sprint = await sprintResp.Content.ReadFromJsonAsync<SprintDto>();
+
+        // Scenario: User is in a timezone ahead of UTC (e.g. UTC+24 for test simplicity)
+        // They try to post a mood for "Tomorrow" (relative to UTC), which is "Today" for them.
+        // Condition: entryDate <= UtcNow + Offset
+        
+        var entryDate = DateTime.UtcNow.Date.AddDays(1); // "Tomorrow" UTC
+        var offsetMinutes = 24 * 60; // +24 hours offset
+        
+        var createMoodEntryDto = new CreateMoodEntryDto
+        {
+            SprintId = sprint.Id,
+            UserId = user.Id,
+            Mood = MoodType.Happy,
+            Date = entryDate,
+            TimezoneOffset = offsetMinutes
+        };
+
+        // Act
+        var response = await client.PostAsJsonAsync("/api/moodentries", createMoodEntryDto);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task CreateMoodEntry_BehindUtc_ReturnsBadRequest()
+    {
+        // Arrange
+        await using var application = new NikoNikoApiTestApplication();
+        var (user, client, _) = await application.CreateUserAndClient("NY User");
+        var team = await application.CreateTeam("Global Team", user.Id);
+
+        var createSprintDto = new CreateSprintDto
+        {
+            Name = "Sprint 1",
+            TeamId = team.Id,
+            StartDate = DateTime.UtcNow.Date.AddDays(-1),
+            EndDate = DateTime.UtcNow.Date.AddDays(5)
+        };
+        var sprintResp = await client.PostAsJsonAsync("/api/sprints", createSprintDto);
+        sprintResp.EnsureSuccessStatusCode();
+        var sprint = await sprintResp.Content.ReadFromJsonAsync<SprintDto>();
+
+        // Scenario: User is in a timezone behind UTC (e.g. UTC-5)
+        // They try to post a mood for "Tomorrow" (relative to UTC).
+        // Condition: entryDate > UtcNow + Offset
+        
+        var entryDate = DateTime.UtcNow.Date.AddDays(1); // "Tomorrow" UTC
+        var offsetMinutes = -300; // -5 hours offset (NY)
+        
+        var createMoodEntryDto = new CreateMoodEntryDto
+        {
+            SprintId = sprint.Id,
+            UserId = user.Id,
+            Mood = MoodType.Happy,
+            Date = entryDate,
+            TimezoneOffset = offsetMinutes
+        };
+
+        // Act
+        var response = await client.PostAsJsonAsync("/api/moodentries", createMoodEntryDto);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
 }

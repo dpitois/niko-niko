@@ -31,4 +31,10 @@ public class CreateMoodEntryDto
     /// The date of the mood entry. Defaults to the current date if not provided.
     /// </summary>
     public DateTime? Date { get; set; }
+
+    /// <summary>
+    /// The client's timezone offset in minutes from UTC.
+    /// Positive values are East of UTC, negative values are West of UTC (e.g., +60 for UTC+1).
+    /// </summary>
+    public int TimezoneOffset { get; set; }
 }

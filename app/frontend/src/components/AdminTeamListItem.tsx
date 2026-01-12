@@ -9,8 +9,9 @@ import {
   ListItem,
   ListItemAvatar,
   ListItemText,
+  Chip,
 } from '@mui/material';
-import { Delete as DeleteIcon, Group as GroupIcon } from '@mui/icons-material';
+import { Delete as DeleteIcon, Group as GroupIcon, Face as FaceIcon } from '@mui/icons-material';
 import type { TeamWithMembersAndSprints } from '../models/Team/TeamWithMembersAndSprints';
 
 interface AdminTeamListItemProps {
@@ -22,9 +23,18 @@ const AdminTeamListItem: React.FC<AdminTeamListItemProps> = ({ team, onDelete })
   return (
     <Paper elevation={2} sx={{ p: 2, mb: 3, display: 'flex', flexDirection: 'column' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h6" component="div">
-          {team.name}
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Typography variant="h6" component="div">
+            {team.name}
+          </Typography>
+          <Chip
+            icon={<FaceIcon />}
+            label={`Owner: ${team.adminName}`}
+            variant="outlined"
+            size="small"
+            color="primary"
+          />
+        </Box>
         <Button
           variant="outlined"
           color="error"

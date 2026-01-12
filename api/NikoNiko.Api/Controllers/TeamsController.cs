@@ -45,6 +45,7 @@ public class TeamsController : ControllerBase
         var isSuperAdmin = User.HasClaim("is_super_admin", "true");
 
         IQueryable<Team> baseQuery = _context.Teams
+            .Include(t => t.Admin)
             .Include(t => t.Sprints)
             .Include(t => t.TeamUsers)
             .ThenInclude(tu => tu.User);
@@ -60,6 +61,7 @@ public class TeamsController : ControllerBase
                 Id = t.Id,
                 Name = t.Name,
                 AdminId = t.AdminId,
+                AdminName = t.Admin.Name ?? t.Admin.Email,
                 CreatedAt = t.CreatedAt,
                 Sprints = t.Sprints.Select(s => new SprintDto
                 {
@@ -97,6 +99,7 @@ public class TeamsController : ControllerBase
     public async Task<ActionResult<TeamWithSprintsDto>> GetTeam(Guid teamId)
     {
         var team = await _context.Teams
+            .Include(t => t.Admin)
             .Include(t => t.Sprints)
             .Include(t => t.TeamUsers)
             .ThenInclude(tu => tu.User)
@@ -105,6 +108,7 @@ public class TeamsController : ControllerBase
                 Id = t.Id,
                 Name = t.Name,
                 AdminId = t.AdminId,
+                AdminName = t.Admin.Name ?? t.Admin.Email,
                 CreatedAt = t.CreatedAt,
                 Sprints = t.Sprints.Select(s => new SprintDto
                 {
@@ -194,11 +198,15 @@ public class TeamsController : ControllerBase
         _context.TeamUsers.Add(teamUser);
         await _context.SaveChangesAsync();
 
+        // Load admin to get the name
+        await _context.Entry(team).Reference(t => t.Admin).LoadAsync();
+
         var teamDto = new TeamDto
         {
             Id = team.Id,
             Name = team.Name,
             AdminId = team.AdminId,
+            AdminName = team.Admin.Name ?? team.Admin.Email,
             CreatedAt = team.CreatedAt
         };
 

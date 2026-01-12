@@ -48,9 +48,12 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose, handleDrawerOpen }) => {
-  const { user, logout, isSuperAdmin } = useAuth();
+  const { user, logout, isSuperAdmin, userTeamRoles } = useAuth();
   const { toggleColorMode, mode } = useColorMode();
   const navigate = useNavigate();
+
+  const isAnyTeamAdmin = Object.values(userTeamRoles).some((role) => role.isAdmin);
+  const showAdminMenu = isSuperAdmin || isAnyTeamAdmin;
 
   const [openAdminMenu, setOpenAdminMenu] = React.useState(false);
 
@@ -113,7 +116,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose, handleDrawer
           </ListItemButton>
         </ListItem>
 
-        {isSuperAdmin && (
+        {showAdminMenu && (
           <>
             <Divider />
             <ListItem disablePadding sx={{ display: 'block' }}>
@@ -140,28 +143,30 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose, handleDrawer
               </ListItemButton>
               <Collapse in={openAdminMenu} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
-                  <ListItem disablePadding sx={{ display: 'block' }}>
-                    <ListItemButton
-                      component={NavLink}
-                      to="/admin/teams"
-                      sx={{
-                        minHeight: 48,
-                        justifyContent: open ? 'initial' : 'center',
-                        px: open ? 4.5 : 2.5, // Indent for sub-items
-                      }}
-                    >
-                      <ListItemIcon
+                  {isSuperAdmin && (
+                    <ListItem disablePadding sx={{ display: 'block' }}>
+                      <ListItemButton
+                        component={NavLink}
+                        to="/admin/teams"
                         sx={{
-                          minWidth: 0,
-                          mr: open ? 3 : 'auto',
-                          justifyContent: 'center',
+                          minHeight: 48,
+                          justifyContent: open ? 'initial' : 'center',
+                          px: open ? 4.5 : 2.5, // Indent for sub-items
                         }}
                       >
-                        <GroupWorkIcon />
-                      </ListItemIcon>
-                      <ListItemText primary="Teams" sx={{ opacity: open ? 1 : 0 }} />
-                    </ListItemButton>
-                  </ListItem>
+                        <ListItemIcon
+                          sx={{
+                            minWidth: 0,
+                            mr: open ? 3 : 'auto',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          <GroupWorkIcon />
+                        </ListItemIcon>
+                        <ListItemText primary="Teams" sx={{ opacity: open ? 1 : 0 }} />
+                      </ListItemButton>
+                    </ListItem>
+                  )}
 
                   <ListItem disablePadding sx={{ display: 'block' }}>
                     <ListItemButton

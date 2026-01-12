@@ -25,9 +25,14 @@ import {
   List,
   ListItem,
   Grid,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
 } from '@mui/material';
 import { Delete as DeleteIcon } from '@mui/icons-material';
 import { useUsers } from '../hooks/useUsers';
+import { useAuth } from '../context/AuthContext';
 import { useSnackbar } from 'notistack';
 import { deleteUser } from '../services/userService';
 import useTeams from '../hooks/useTeams'; // For team selection in invitations
@@ -69,6 +74,7 @@ function a11yProps(index: number) {
 
 const AdminUsersPage: React.FC = () => {
   const [value, setValue] = useState(0);
+  const { user: currentUser } = useAuth();
   const { users, isLoading: isLoadingUsers, isError: isErrorUsers, mutate } = useUsers();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -214,6 +220,7 @@ const AdminUsersPage: React.FC = () => {
                         aria-label="delete user"
                         onClick={() => handleDeleteUserClick(user.id, user.name || user.email)}
                         color="error"
+                        disabled={currentUser?.sub === user.id}
                       >
                         <DeleteIcon />
                       </IconButton>
@@ -237,23 +244,22 @@ const AdminUsersPage: React.FC = () => {
               <Typography variant="h6" component="h2" gutterBottom>
                 Select a Team to Manage Invitations
               </Typography>
-              <select
-                value={selectedTeamId || ''}
-                onChange={(e) => setSelectedTeamId(e.target.value)}
-                style={{
-                  padding: '8px',
-                  borderRadius: '4px',
-                  border: '1px solid #ccc',
-                  marginBottom: '16px',
-                }}
-              >
-                <option value="">Select a team</option>
-                {teams.map((team: TeamWithMembersAndSprints) => (
-                  <option key={team.id} value={team.id}>
-                    {team.name}
-                  </option>
-                ))}
-              </select>
+              <FormControl fullWidth sx={{ mb: 2 }}>
+                <InputLabel id="team-select-label">Select a team</InputLabel>
+                <Select
+                  labelId="team-select-label"
+                  id="team-select"
+                  value={selectedTeamId || ''}
+                  label="Select a team"
+                  onChange={(e) => setSelectedTeamId(e.target.value)}
+                >
+                  {teams.map((team: TeamWithMembersAndSprints) => (
+                    <MenuItem key={team.id} value={team.id}>
+                      {team.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </Box>
 
             {selectedTeamId && (

@@ -18,6 +18,10 @@ public class TeamDto
     /// </summary>
     public Guid AdminId { get; set; }
     /// <summary>
+    /// Le nom de l'administrateur de l'équipe.
+    /// </summary>
+    public string AdminName { get; set; } = null!;
+    /// <summary>
     /// La date de création de l'équipe.
     /// </summary>
     public DateTime CreatedAt { get; set; }

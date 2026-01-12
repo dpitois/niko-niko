@@ -104,6 +104,12 @@ public class UsersController : ControllerBase
     [Authorize(Policy = "SuperAdmin")]
     public async Task<IActionResult> DeleteUser(Guid id)
     {
+        var currentUserIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (Guid.TryParse(currentUserIdString, out var currentUserId) && id == currentUserId)
+        {
+            return BadRequest("You cannot delete your own account.");
+        }
+
         var user = await _context.Users.FindAsync(id);
         if (user == null)
         {

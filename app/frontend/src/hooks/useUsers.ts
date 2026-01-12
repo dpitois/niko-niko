@@ -1,5 +1,6 @@
 import useSWR from 'swr';
-import { getUsers } from '../services/userService';
+
+import { getUsers } from '@/services/userService';
 
 export const useUsers = () => {
   // The key '/users' is used to cache the data.

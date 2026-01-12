@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Box, Typography, CircularProgress, Alert, Button } from '@mui/material';
-import { teamInvitationService } from '../services/teamInvitationService';
-import { useAuth } from '../context/AuthContext';
-import useTeams from '../hooks/useTeams';
+import { useNavigate,useParams } from 'react-router-dom';
+import { Alert, Box, Button,CircularProgress, Typography } from '@mui/material';
 import axios from 'axios';
+
+import { useAuth } from '@/context/AuthContext';
+import useTeams from '@/hooks/useTeams';
+import { teamInvitationService } from '@/services/teamInvitationService';
 
 const AcceptInvitationPage: React.FC = () => {
   const { token } = useParams<{ token: string }>();

@@ -1,7 +1,8 @@
+import type { CreateTeam } from '@/models/CreateTeam';
+import type { TeamDto } from '@/models/Team';
+import type { TeamWithMembersAndSprints } from '@/models/Team/TeamWithMembersAndSprints';
+
 import api from './api';
-import type { TeamDto } from '../models/Team';
-import type { CreateTeam } from '../models/CreateTeam';
-import type { TeamWithMembersAndSprints } from '../models/Team/TeamWithMembersAndSprints'; // Import new DTO
 
 export const getTeams = async (): Promise<TeamWithMembersAndSprints[]> => {
   // Changed return type

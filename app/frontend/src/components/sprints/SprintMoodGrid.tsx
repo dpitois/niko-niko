@@ -1,20 +1,21 @@
 import React from 'react';
-import { Box, Typography, Paper, Avatar, useTheme } from '@mui/material';
-import { useSnackbar } from 'notistack';
-import { useSWRConfig } from 'swr';
-import type { MoodType } from '../../models/MoodType';
-import { MoodValues } from '../../models/MoodType';
-import { useMoods } from '../../hooks/useMoods';
-import { useAuth } from '../../context/AuthContext'; // To get current user
-import { createMoodEntry, updateMoodEntry } from '../../services/moodService'; // API services
 import {
   MoodBad,
   SentimentDissatisfied,
   SentimentNeutral,
   SentimentSatisfiedAlt,
 } from '@mui/icons-material';
+import { Avatar, Box, Paper, Typography, useTheme } from '@mui/material';
 import dayjs from 'dayjs';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+import { useSnackbar } from 'notistack';
+import { useSWRConfig } from 'swr';
+
+import { useAuth } from '../../context/AuthContext';
+import { useMoods } from '../../hooks/useMoods';
+import type { MoodType } from '../../models/MoodType';
+import { MoodValues } from '../../models/MoodType';
+import { createMoodEntry, updateMoodEntry } from '../../services/moodService';
 
 dayjs.extend(isSameOrAfter);
 

@@ -1,11 +1,11 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import MoodEntryForm from '../components/MoodEntryForm';
-
+import Box from '@mui/material/Box';
 // Material UI Imports
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
-import Box from '@mui/material/Box'; // For spacing
+
+import MoodEntryForm from '@/components/MoodEntryForm';
 
 const MoodEntryStandalonePage: React.FC = () => {
   const { sprintId } = useParams<{ sprintId: string }>();

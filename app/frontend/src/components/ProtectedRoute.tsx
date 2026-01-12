@@ -1,8 +1,9 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { usePermissions } from '../hooks/usePermissions'; // Import the new hook
-import { CircularProgress, Box } from '@mui/material';
+import { Box,CircularProgress } from '@mui/material';
+
+import { useAuth } from '@/context/AuthContext';
+import { usePermissions } from '@/hooks/usePermissions';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;

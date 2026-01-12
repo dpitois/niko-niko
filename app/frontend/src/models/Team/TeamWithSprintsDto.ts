@@ -1,5 +1,5 @@
-import type { User } from '../User';
 import type { Sprint } from '../Sprint';
+import type { User } from '../User';
 
 export interface TeamWithSprintsDto {
   id: string;

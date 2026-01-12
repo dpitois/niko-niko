@@ -1,13 +1,14 @@
 import React from 'react';
+import { Box, CircularProgress,Divider, Typography } from '@mui/material';
 import { useSnackbar } from 'notistack';
-import CreateTeamForm from '../components/CreateTeamForm';
-import useTeams from '../hooks/useTeams';
-import { useAuth } from '../context/AuthContext';
-import AdminTeamListItem from '../components/AdminTeamListItem'; // Use the new component
-import { deleteTeam } from '../services/teamService'; // Import deleteTeam service
-import type { TeamWithMembersAndSprints } from '../models/Team/TeamWithMembersAndSprints';
 
-import { Typography, Box, Divider, CircularProgress } from '@mui/material';
+import { useAuth } from '@/context/AuthContext';
+import useTeams from '@/hooks/useTeams';
+import type { TeamWithMembersAndSprints } from '@/models/Team/TeamWithMembersAndSprints';
+import { deleteTeam } from '@/services/teamService';
+
+import AdminTeamListItem from '@/components/AdminTeamListItem';
+import CreateTeamForm from '@/components/CreateTeamForm';
 
 const AdminTeamsPage: React.FC = () => {
   const { isSuperAdmin } = useAuth();

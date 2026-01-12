@@ -1,47 +1,49 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect,useState } from 'react';
+import { Delete as DeleteIcon } from '@mui/icons-material';
 import {
-  Box,
-  Typography,
-  Tabs,
-  Tab,
-  CircularProgress,
   Alert,
-  TableContainer,
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
   Avatar,
-  Paper,
-  IconButton,
+  Box,
+  Button,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
-  Button,
   Divider,
+  FormControl,
+  Grid,
+  IconButton,
+  InputLabel,
   List,
   ListItem,
-  Grid,
-  Select,
   MenuItem,
-  FormControl,
-  InputLabel,
+  Paper,
+  Select,
+  Tab,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Tabs,
+  Typography,
 } from '@mui/material';
-import { Delete as DeleteIcon } from '@mui/icons-material';
-import { useUsers } from '../hooks/useUsers';
-import { useAuth } from '../context/AuthContext';
+import axios from 'axios';
 import { useSnackbar } from 'notistack';
-import { deleteUser } from '../services/userService';
-import useTeams from '../hooks/useTeams'; // For team selection in invitations
-import CreateTeamInvitationForm from '../components/CreateTeamInvitationForm'; // For creating invitations
-import { teamInvitationService } from '../services/teamInvitationService'; // For fetching/deleting invitations
-import useSWR from 'swr'; // For invitations
-import type { TeamInvitation } from '../models/Team/Invitation/TeamInvitation';
-import type { TeamWithMembersAndSprints } from '../models/Team/TeamWithMembersAndSprints';
-import axios from 'axios'; // For error handling
+import useSWR from 'swr';
+
+import { useAuth } from '@/context/AuthContext';
+import useTeams from '@/hooks/useTeams';
+import { useUsers } from '@/hooks/useUsers';
+import type { TeamInvitation } from '@/models/Team/Invitation/TeamInvitation';
+import type { TeamWithMembersAndSprints } from '@/models/Team/TeamWithMembersAndSprints';
+import { teamInvitationService } from '@/services/teamInvitationService';
+import { deleteUser } from '@/services/userService';
+
+import CreateTeamInvitationForm from '@/components/CreateTeamInvitationForm';
 
 interface TabPanelProps {
   children?: React.ReactNode;

@@ -1,10 +1,11 @@
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useState, useEffect, useCallback, useContext } from 'react';
-import { jwtDecode } from 'jwt-decode';
+import React, { createContext, useCallback, useContext,useEffect, useState } from 'react';
 import axios from 'axios';
-import type { TeamWithSprintsDto } from '../models/Team/TeamWithSprintsDto';
-import type { User } from '../models/User';
-import type { DecodedToken, TeamRole } from '../models/Auth';
+import { jwtDecode } from 'jwt-decode';
+
+import type { DecodedToken, TeamRole } from '@/models/Auth';
+import type { TeamWithSprintsDto } from '@/models/Team/TeamWithSprintsDto';
+import type { User } from '@/models/User';
 
 interface AuthContextType {
   user: DecodedToken | null;

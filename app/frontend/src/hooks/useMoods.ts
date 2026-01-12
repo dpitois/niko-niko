@@ -1,6 +1,7 @@
 import useSWR from 'swr';
-import { getMoodEntriesBySprint } from '../services/moodService';
-import type { Mood } from '../models/Mood';
+
+import type { Mood } from '@/models/Mood';
+import { getMoodEntriesBySprint } from '@/services/moodService';
 
 export const useMoods = (sprintId: string | null, userId?: string | null, date?: string | null) => {
   const swrKey = sprintId ? ['/moods', sprintId, userId, date] : null;

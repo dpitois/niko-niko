@@ -1,8 +1,9 @@
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
-import { ThemeProvider } from '@mui/material/styles';
+import React, { createContext, useContext, useEffect, useMemo,useState } from 'react';
 import type { PaletteMode } from '@mui/material';
-import { getTheme } from '../theme';
+import { ThemeProvider } from '@mui/material/styles';
+
+import { getTheme } from '@/theme';
 
 interface ColorModeContextType {
   toggleColorMode: () => void;

@@ -1,5 +1,6 @@
 import useSWR from 'swr';
-import { getTeams } from '../services/teamService';
+
+import { getTeams } from '@/services/teamService';
 
 const useTeams = () => {
   const { data, error, mutate } = useSWR('teams', getTeams);

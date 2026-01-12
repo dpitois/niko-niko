@@ -1,37 +1,38 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import { useColorMode } from '../../context/ColorModeContext';
 import {
+  Brightness4 as Brightness4Icon,
+  Brightness7 as Brightness7Icon,
+  ChevronLeft as ChevronLeftIcon,
+  ChevronRight as ChevronRightIcon,
+  Dashboard as DashboardIcon,
+  ExpandLess,
+  ExpandMore,
+  GroupWork as GroupWorkIcon,
+  History as HistoryIcon,
+  Login as LoginIcon,
+  Logout as LogoutIcon,
+  People as PeopleIcon,
+  Timeline as TimelineIcon,
+} from '@mui/icons-material';
+import {
+  Avatar,
   Box,
+  Collapse,
+  Divider,
+  IconButton,
   List,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Typography,
-  Divider,
-  Avatar,
-  IconButton,
   Tooltip,
-  Collapse,
+  Typography,
 } from '@mui/material';
-import {
-  Dashboard as DashboardIcon,
-  History as HistoryIcon,
-  People as PeopleIcon,
-  GroupWork as GroupWorkIcon,
-  Timeline as TimelineIcon,
-  Logout as LogoutIcon,
-  ChevronLeft as ChevronLeftIcon,
-  ChevronRight as ChevronRightIcon,
-  Login as LoginIcon,
-  ExpandLess,
-  ExpandMore,
-  Brightness4 as Brightness4Icon,
-  Brightness7 as Brightness7Icon,
-} from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
+
+import { useAuth } from '../../context/AuthContext';
+import { useColorMode } from '../../context/ColorModeContext';
 
 const DrawerHeader = styled('div')(({ theme }) => ({
   display: 'flex',

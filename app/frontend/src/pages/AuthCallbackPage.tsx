@@ -1,10 +1,10 @@
-import { useEffect } from 'react'; // Removed unused useCallback import
+import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+// Material UI Imports
+import { Box, CircularProgress,Container, Typography } from '@mui/material';
 import { useSnackbar } from 'notistack';
 
-// Material UI Imports
-import { Container, Box, Typography, CircularProgress } from '@mui/material';
+import { useAuth } from '@/context/AuthContext';
 
 const AuthCallbackPage = () => {
   const navigate = useNavigate();

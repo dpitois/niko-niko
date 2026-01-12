@@ -1,5 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Tabs, Tab, CircularProgress, Alert, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Avatar, Paper, IconButton, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button, Divider, List, ListItem, Grid } from '@mui/material';
+import {
+  Box,
+  Typography,
+  Tabs,
+  Tab,
+  CircularProgress,
+  Alert,
+  TableContainer,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Avatar,
+  Paper,
+  IconButton,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Button,
+  Divider,
+  List,
+  ListItem,
+  Grid,
+} from '@mui/material';
 import { Delete as DeleteIcon } from '@mui/icons-material';
 import { useUsers } from '../hooks/useUsers';
 import { useSnackbar } from 'notistack';
@@ -29,11 +55,7 @@ function TabPanel(props: TabPanelProps) {
       aria-labelledby={`simple-tab-${index}`}
       {...other}
     >
-      {value === index && (
-        <Box sx={{ p: 3 }}>
-          {children}
-        </Box>
-      )}
+      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
     </div>
   );
 }
@@ -61,7 +83,6 @@ const AdminUsersPage: React.FC = () => {
   const [invitationToDeleteId, setInvitationToDeleteId] = useState<string | null>(null);
   const [openConfirmInvitationDialog, setOpenConfirmInvitationDialog] = useState(false);
 
-
   // Set first team as default for invitation management
   useEffect(() => {
     if (teams && teams.length > 0 && !selectedTeamId) {
@@ -70,9 +91,13 @@ const AdminUsersPage: React.FC = () => {
   }, [teams, selectedTeamId]);
 
   // Fetch invitations for selected team
-  const { data: invitations, isLoading: isLoadingInvitations, error: invitationsError, mutate: mutateTeamInvitations } = useSWR<TeamInvitation[]>(
-    selectedTeamId ? `/teams/${selectedTeamId}/invitations` : null,
-    () => teamInvitationService.getTeamInvitations(selectedTeamId!)
+  const {
+    data: invitations,
+    isLoading: isLoadingInvitations,
+    error: invitationsError,
+    mutate: mutateTeamInvitations,
+  } = useSWR<TeamInvitation[]>(selectedTeamId ? `/teams/${selectedTeamId}/invitations` : null, () =>
+    teamInvitationService.getTeamInvitations(selectedTeamId!),
   );
 
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
@@ -198,7 +223,9 @@ const AdminUsersPage: React.FC = () => {
               </TableBody>
             </Table>
           </TableContainer>
-        ) : (!isLoadingUsers && !isErrorUsers && <Typography>No users found.</Typography>)}
+        ) : (
+          !isLoadingUsers && !isErrorUsers && <Typography>No users found.</Typography>
+        )}
       </TabPanel>
       <TabPanel value={value} index={1}>
         {isLoadingTeams && <CircularProgress />}
@@ -213,11 +240,18 @@ const AdminUsersPage: React.FC = () => {
               <select
                 value={selectedTeamId || ''}
                 onChange={(e) => setSelectedTeamId(e.target.value)}
-                style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc', marginBottom: '16px' }}
+                style={{
+                  padding: '8px',
+                  borderRadius: '4px',
+                  border: '1px solid #ccc',
+                  marginBottom: '16px',
+                }}
               >
                 <option value="">Select a team</option>
                 {teams.map((team: TeamWithMembersAndSprints) => (
-                  <option key={team.id} value={team.id}>{team.name}</option>
+                  <option key={team.id} value={team.id}>
+                    {team.name}
+                  </option>
                 ))}
               </select>
             </Box>
@@ -225,30 +259,68 @@ const AdminUsersPage: React.FC = () => {
             {selectedTeamId && (
               <>
                 <Box sx={{ mb: 3 }}>
-                  <CreateTeamInvitationForm teamId={selectedTeamId} onInvitationCreated={handleInvitationCreated} />
+                  <CreateTeamInvitationForm
+                    teamId={selectedTeamId}
+                    onInvitationCreated={handleInvitationCreated}
+                  />
                 </Box>
                 <Divider sx={{ my: 3 }} />
-                <Typography variant="h6" gutterBottom>Existing Team Invitations</Typography>
+                <Typography variant="h6" gutterBottom>
+                  Existing Team Invitations
+                </Typography>
                 {isLoadingInvitations && <CircularProgress />}
-                {invitationsError && <Alert severity="error">{invitationsError?.message || 'Failed to load invitations.'}</Alert>}
+                {invitationsError && (
+                  <Alert severity="error">
+                    {invitationsError?.message || 'Failed to load invitations.'}
+                  </Alert>
+                )}
                 {!isLoadingInvitations && invitations && invitations.length > 0 ? (
                   <List>
                     {invitations.map((invitation) => (
-                      <ListItem key={invitation.id} secondaryAction={
-                        <IconButton edge="end" aria-label="delete" onClick={() => handleDeleteInvitationClick(invitation.id)}>
-                          <DeleteIcon />
-                        </IconButton>
-                      }>
+                      <ListItem
+                        key={invitation.id}
+                        secondaryAction={
+                          <IconButton
+                            edge="end"
+                            aria-label="delete"
+                            onClick={() => handleDeleteInvitationClick(invitation.id)}
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        }
+                      >
                         <Grid container spacing={2} alignItems="center">
                           <Grid size={{ xs: 12, sm: 6 }}>
-                            <Typography variant="body1">Token: {invitation.token.substring(0, 10)}...</Typography>
-                            <Typography variant="body2" color="text.secondary">Expires: {new Date(invitation.expirationDate).toLocaleDateString()}</Typography>
+                            <Typography variant="body1">
+                              Token: {invitation.token.substring(0, 10)}...
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                              Expires: {new Date(invitation.expirationDate).toLocaleDateString()}
+                            </Typography>
                           </Grid>
                           <Grid size={{ xs: 12, sm: 6 }}>
-                            <Typography variant="body2" color={invitation.status === 'Accepted' ? 'success.main' : invitation.status === 'Expired' ? 'error.main' : 'info.main'}>
+                            <Typography
+                              variant="body2"
+                              color={
+                                invitation.status === 'Accepted'
+                                  ? 'success.main'
+                                  : invitation.status === 'Expired'
+                                    ? 'error.main'
+                                    : 'info.main'
+                              }
+                            >
                               Status: {invitation.status}
                             </Typography>
-                            <Button variant="outlined" size="small" onClick={() => navigator.clipboard.writeText(`${window.location.origin}/accept-invitation/${invitation.token}`)} sx={{ mt: 1 }}>
+                            <Button
+                              variant="outlined"
+                              size="small"
+                              onClick={() =>
+                                navigator.clipboard.writeText(
+                                  `${window.location.origin}/accept-invitation/${invitation.token}`,
+                                )
+                              }
+                              sx={{ mt: 1 }}
+                            >
                               Copy Link
                             </Button>
                           </Grid>
@@ -256,13 +328,17 @@ const AdminUsersPage: React.FC = () => {
                       </ListItem>
                     ))}
                   </List>
-                ) : (!isLoadingInvitations && !invitationsError && (
-                  <Typography>No invitations found for this team.</Typography>
-                ))}
+                ) : (
+                  !isLoadingInvitations &&
+                  !invitationsError && <Typography>No invitations found for this team.</Typography>
+                )}
               </>
             )}
           </>
-        ) : (!isLoadingTeams && !isErrorTeams && <Typography>No teams available to manage invitations.</Typography>)}
+        ) : (
+          !isLoadingTeams &&
+          !isErrorTeams && <Typography>No teams available to manage invitations.</Typography>
+        )}
       </TabPanel>
 
       <Dialog
@@ -271,7 +347,7 @@ const AdminUsersPage: React.FC = () => {
         aria-labelledby="confirm-delete-user-dialog-title"
         aria-describedby="confirm-delete-user-dialog-description"
       >
-        <DialogTitle id="confirm-delete-user-dialog-title">{"Confirm Delete User"}</DialogTitle>
+        <DialogTitle id="confirm-delete-user-dialog-title">{'Confirm Delete User'}</DialogTitle>
         <DialogContent>
           <DialogContentText id="confirm-delete-user-dialog-description">
             Are you sure you want to delete user "{userToDeleteName}"? This action cannot be undone.
@@ -291,7 +367,9 @@ const AdminUsersPage: React.FC = () => {
         aria-labelledby="confirm-delete-invitation-dialog-title"
         aria-describedby="confirm-delete-invitation-dialog-description"
       >
-        <DialogTitle id="confirm-delete-invitation-dialog-title">{"Confirm Delete Invitation"}</DialogTitle>
+        <DialogTitle id="confirm-delete-invitation-dialog-title">
+          {'Confirm Delete Invitation'}
+        </DialogTitle>
         <DialogContent>
           <DialogContentText id="confirm-delete-invitation-dialog-description">
             Are you sure you want to delete this invitation? This action cannot be undone.

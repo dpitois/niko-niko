@@ -7,7 +7,12 @@ import { MoodValues } from '../../models/MoodType';
 import { useMoods } from '../../hooks/useMoods';
 import { useAuth } from '../../context/AuthContext'; // To get current user
 import { createMoodEntry, updateMoodEntry } from '../../services/moodService'; // API services
-import { MoodBad, SentimentDissatisfied, SentimentNeutral, SentimentSatisfiedAlt } from '@mui/icons-material';
+import {
+  MoodBad,
+  SentimentDissatisfied,
+  SentimentNeutral,
+  SentimentSatisfiedAlt,
+} from '@mui/icons-material';
 import dayjs from 'dayjs';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 
@@ -96,9 +101,7 @@ const SprintMoodGrid: React.FC<SprintMoodGridProps> = ({
         // Check if there was an ORIGINAL entry before we started messing with it locally
         // We look at the 'moods' from SWR (server state) to decide Create vs Update
         const existingMood = moods?.find(
-            (m) =>
-            m.userId === user.sub &&
-            new Date(m.date).toDateString() === dateStr
+          (m) => m.userId === user.sub && new Date(m.date).toDateString() === dateStr,
         );
 
         if (existingMood) {
@@ -118,18 +121,17 @@ const SprintMoodGrid: React.FC<SprintMoodGridProps> = ({
             userId: user.sub,
           });
         }
-        
+
         // On success:
         mutateMoods(); // Revalidate SWR
         mutate(`/teams/${teamId}/sprints`); // Revalidate sprints stats
-        
+
         // Remove from pending state (UI will now reflect SWR data)
         setPendingMoods((prev) => {
           const newState = { ...prev };
           delete newState[cellKey];
           return newState;
         });
-
       } catch {
         enqueueSnackbar('Failed to save mood entry.', { variant: 'error' });
         // Remove from pending state to revert UI to server state
@@ -144,145 +146,173 @@ const SprintMoodGrid: React.FC<SprintMoodGridProps> = ({
     }, 1000); // 1 second debounce
   };
 
-    return (
-      <Box sx={{ overflowX: 'auto', maxWidth: '100%', pb: 1 }}>
-        <Box sx={{ minWidth: 'max-content', display: 'flex', flexDirection: 'column' }}>
-          {/* Header Row: Dates */}
-          <Box sx={{ display: 'flex' }}>
+  return (
+    <Box sx={{ overflowX: 'auto', maxWidth: '100%', pb: 1 }}>
+      <Box sx={{ minWidth: 'max-content', display: 'flex', flexDirection: 'column' }}>
+        {/* Header Row: Dates */}
+        <Box sx={{ display: 'flex' }}>
+          <Box
+            sx={{
+              width: 150,
+              flexShrink: 0,
+              p: 1,
+              position: 'sticky',
+              left: 0,
+              zIndex: 2,
+              backgroundColor:
+                theme.palette.mode === 'dark'
+                  ? theme.palette.background.paper
+                  : theme.palette.grey[200], // Match the general header background
+              borderBottom: `1px solid ${theme.palette.divider}`, // Add a subtle border to match mood cells
+            }}
+          />{' '}
+          {/* Spacer for member names */}
+          {sprintDates.map((date, index) => (
+            <Paper
+              key={index}
+              sx={{
+                width: 40,
+                height: 40,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor:
+                  theme.palette.mode === 'dark' ? theme.palette.grey[800] : theme.palette.grey[200],
+                fontWeight: 'bold',
+                fontSize: '0.75rem',
+                flexShrink: 0,
+                p: 0.5,
+              }}
+            >
+              {date.getDate()}
+            </Paper>
+          ))}
+        </Box>
+
+        {/* Mood Rows: Per Member */}
+        {teamMembers.map((member) => (
+          <Box key={member.id} sx={{ display: 'flex', mt: 0.5 }}>
             <Box
               sx={{
                 width: 150,
                 flexShrink: 0,
                 p: 1,
+                display: 'flex',
+                alignItems: 'center',
+                border: `1px solid ${theme.palette.divider}`,
+                backgroundColor:
+                  theme.palette.mode === 'dark'
+                    ? theme.palette.background.paper
+                    : theme.palette.grey[100],
+                borderRadius: '4px 0 0 4px',
                 position: 'sticky',
                 left: 0,
-                zIndex: 2,
-                backgroundColor: theme.palette.mode === 'dark' ? theme.palette.background.paper : theme.palette.grey[200], // Match the general header background
-                borderBottom: `1px solid ${theme.palette.divider}` // Add a subtle border to match mood cells
+                zIndex: 1,
               }}
-            /> {/* Spacer for member names */}
-            {sprintDates.map((date, index) => (
-              <Paper
-                key={index}
+            >
+              <Avatar
+                src={member.avatarUrl}
+                alt={member.name}
                 sx={{
-                  width: 40,
-                  height: 40,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  backgroundColor: theme.palette.mode === 'dark' ? theme.palette.grey[800] : theme.palette.grey[200],
-                  fontWeight: 'bold',
+                  width: 24,
+                  height: 24,
+                  mr: 1,
+                  bgcolor: theme.palette.primary.main,
                   fontSize: '0.75rem',
-                  flexShrink: 0,
-                  p: 0.5,
                 }}
               >
-                {date.getDate()}
-              </Paper>
-            ))}
-          </Box>
-  
-          {/* Mood Rows: Per Member */}
-          {teamMembers.map((member) => (
-            <Box key={member.id} sx={{ display: 'flex', mt: 0.5 }}>
-              <Box
-                sx={{
-                  width: 150,
-                  flexShrink: 0,
-                  p: 1,
-                  display: 'flex',
-                  alignItems: 'center',
-                  border: `1px solid ${theme.palette.divider}`,
-                  backgroundColor: theme.palette.mode === 'dark' ? theme.palette.background.paper : theme.palette.grey[100],
-                  borderRadius: '4px 0 0 4px',
-                  position: 'sticky',
-                  left: 0,
-                  zIndex: 1,
-                }}
-              >
-                <Avatar 
-                  src={member.avatarUrl}
-                  alt={member.name}
-                  sx={{ width: 24, height: 24, mr: 1, bgcolor: theme.palette.primary.main, fontSize: '0.75rem' }}
-                >
-                  {member.name ? member.name[0].toUpperCase() : '?'}
-                </Avatar>
-                <Typography variant="body2" noWrap>
-                  {member.name}
-                </Typography>
-              </Box>
-              {sprintDates.map((date, dateIndex) => {
-                // Determine display data: Pending > Server > Null
-                const dateStr = date.toDateString();
-                const cellKey = `${member.id}_${dateStr}`;
-                const pendingMood = pendingMoods[cellKey];
-
-                const serverMoodEntry = moods?.find(
-                  (m) =>
-                    m.userId === member.id &&
-                    new Date(m.date).toDateString() === dateStr
-                );
-                
-                // Construct a virtual mood object for display
-                const displayMoodEntry = pendingMood !== undefined 
-                    ? { mood: pendingMood, date: date.toISOString(), userId: member.id } // Virtual entry from pending state
-                    : serverMoodEntry;
-
-                const isFuture = dayjs(date).isAfter(today);
-                const isToday = dayjs(date).isSame(today);
-                const canEdit = user && user.sub === member.id && !isFuture;
-  
-                return (
-                  <Paper
-                    key={dateIndex}
-                    sx={{
-                      width: 40,
-                      height: 40,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      backgroundColor: displayMoodEntry ? getMoodColor(displayMoodEntry.mood) : (theme.palette.mode === 'dark' ? theme.palette.grey[700] : theme.palette.grey[300]),
-                      color: 'white',
-                      cursor: canEdit ? 'pointer' : 'default',
-                      opacity: canEdit ? 1 : 0.7,
-                      transition: 'background-color 0.3s',
-                      flexShrink: 0,
-                      p: 0.5,
-                      '&:hover': canEdit
-                        ? {
-                            backgroundColor: displayMoodEntry
-                              ? getMoodColor(displayMoodEntry.mood)
-                              : (theme.palette.mode === 'dark' ? theme.palette.grey[600] : theme.palette.grey[400]),
-                          }
-                        : {},
-                    }}
-                    onClick={() => {
-                        if (!canEdit) return;
-                        // Cycle logic based on currently DISPLAYED mood
-                        const currentMoodValue = displayMoodEntry ? displayMoodEntry.mood : null;
-                        let nextMood: MoodType;
-                        
-                        if (currentMoodValue === null) {
-                            nextMood = MoodValues.Happy;
-                        } else {
-                            nextMood = ((currentMoodValue + 1) % Object.keys(MoodValues).length) as MoodType;
-                        }
-                        
-                        handleMoodClick(date, nextMood);
-                    }} 
-                  >
-                    {displayMoodEntry ? getMoodIcon(displayMoodEntry.mood) : null}
-                    {(isFuture || isToday) && (
-                      <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.7)', position: displayMoodEntry ? 'absolute' : 'static', fontSize: displayMoodEntry ? '0.6rem' : '0.75rem' }}>
-                        {date.getDate()}
-                      </Typography>
-                    )}
-                  </Paper>
-                );
-              })}
+                {member.name ? member.name[0].toUpperCase() : '?'}
+              </Avatar>
+              <Typography variant="body2" noWrap>
+                {member.name}
+              </Typography>
             </Box>
-          ))}
-        </Box>
+            {sprintDates.map((date, dateIndex) => {
+              // Determine display data: Pending > Server > Null
+              const dateStr = date.toDateString();
+              const cellKey = `${member.id}_${dateStr}`;
+              const pendingMood = pendingMoods[cellKey];
+
+              const serverMoodEntry = moods?.find(
+                (m) => m.userId === member.id && new Date(m.date).toDateString() === dateStr,
+              );
+
+              // Construct a virtual mood object for display
+              const displayMoodEntry =
+                pendingMood !== undefined
+                  ? { mood: pendingMood, date: date.toISOString(), userId: member.id } // Virtual entry from pending state
+                  : serverMoodEntry;
+
+              const isFuture = dayjs(date).isAfter(today);
+              const isToday = dayjs(date).isSame(today);
+              const canEdit = user && user.sub === member.id && !isFuture;
+
+              return (
+                <Paper
+                  key={dateIndex}
+                  sx={{
+                    width: 40,
+                    height: 40,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: displayMoodEntry
+                      ? getMoodColor(displayMoodEntry.mood)
+                      : theme.palette.mode === 'dark'
+                        ? theme.palette.grey[700]
+                        : theme.palette.grey[300],
+                    color: 'white',
+                    cursor: canEdit ? 'pointer' : 'default',
+                    opacity: canEdit ? 1 : 0.7,
+                    transition: 'background-color 0.3s',
+                    flexShrink: 0,
+                    p: 0.5,
+                    '&:hover': canEdit
+                      ? {
+                          backgroundColor: displayMoodEntry
+                            ? getMoodColor(displayMoodEntry.mood)
+                            : theme.palette.mode === 'dark'
+                              ? theme.palette.grey[600]
+                              : theme.palette.grey[400],
+                        }
+                      : {},
+                  }}
+                  onClick={() => {
+                    if (!canEdit) return;
+                    // Cycle logic based on currently DISPLAYED mood
+                    const currentMoodValue = displayMoodEntry ? displayMoodEntry.mood : null;
+                    let nextMood: MoodType;
+
+                    if (currentMoodValue === null) {
+                      nextMood = MoodValues.Happy;
+                    } else {
+                      nextMood = ((currentMoodValue + 1) %
+                        Object.keys(MoodValues).length) as MoodType;
+                    }
+
+                    handleMoodClick(date, nextMood);
+                  }}
+                >
+                  {displayMoodEntry ? getMoodIcon(displayMoodEntry.mood) : null}
+                  {(isFuture || isToday) && (
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: 'rgba(255,255,255,0.7)',
+                        position: displayMoodEntry ? 'absolute' : 'static',
+                        fontSize: displayMoodEntry ? '0.6rem' : '0.75rem',
+                      }}
+                    >
+                      {date.getDate()}
+                    </Typography>
+                  )}
+                </Paper>
+              );
+            })}
+          </Box>
+        ))}
       </Box>
-    );
-  };export default SprintMoodGrid;
+    </Box>
+  );
+};
+export default SprintMoodGrid;

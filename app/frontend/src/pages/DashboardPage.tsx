@@ -20,7 +20,9 @@ const DashboardPage: React.FC = () => {
   }
 
   if (isErrorTeams) {
-    return <Typography color="error">Failed to load teams. Make sure you are logged in.</Typography>;
+    return (
+      <Typography color="error">Failed to load teams. Make sure you are logged in.</Typography>
+    );
   }
 
   return (
@@ -75,7 +77,8 @@ const TeamDashboardSection: React.FC<TeamDashboardSectionProps> = ({ team }) => 
         {currentSprint ? (
           <Box>
             <Typography variant="subtitle1" color="text.secondary">
-              ({new Date(currentSprint.startDate).toLocaleDateString()} - {new Date(currentSprint.endDate).toLocaleDateString()})
+              ({new Date(currentSprint.startDate).toLocaleDateString()} -{' '}
+              {new Date(currentSprint.endDate).toLocaleDateString()})
             </Typography>
             <Box sx={{ overflowX: 'auto', pb: 2 }}>
               <SprintMoodGrid

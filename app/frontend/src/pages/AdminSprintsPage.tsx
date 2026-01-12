@@ -13,7 +13,7 @@ import {
   DialogTitle,
   Button,
   Divider,
-  Chip
+  Chip,
 } from '@mui/material';
 import { Delete as DeleteIcon } from '@mui/icons-material';
 import { useSnackbar } from 'notistack';
@@ -58,8 +58,8 @@ const AdminSprintsPage: React.FC = () => {
   };
 
   const getTeamName = (teamId: string): string => {
-    return teams?.find(t => t.id === teamId)?.name ?? 'Unknown Team';
-  }
+    return teams?.find((t) => t.id === teamId)?.name ?? 'Unknown Team';
+  };
 
   return (
     <Box>
@@ -90,10 +90,17 @@ const AdminSprintsPage: React.FC = () => {
         <List>
           {sprints && sprints.length > 0 ? (
             sprints.map((sprint) => (
-              <ListItem key={sprint.id} divider sx={{ pr: 12 }}> {/* Add padding-right for absolute positioned button if needed, but here we use flex */}
+              <ListItem key={sprint.id} divider sx={{ pr: 12 }}>
+                {' '}
+                {/* Add padding-right for absolute positioned button if needed, but here we use flex */}
                 <Box sx={{ display: 'flex', width: '100%', alignItems: 'center', gap: 2 }}>
                   {/* Sprint Name */}
-                  <Typography variant="subtitle1" component="span" sx={{ fontWeight: 'bold', width: '25%', minWidth: '150px' }} noWrap>
+                  <Typography
+                    variant="subtitle1"
+                    component="span"
+                    sx={{ fontWeight: 'bold', width: '25%', minWidth: '150px' }}
+                    noWrap
+                  >
                     {sprint.name}
                   </Typography>
 
@@ -101,12 +108,22 @@ const AdminSprintsPage: React.FC = () => {
                   <Chip label={getTeamName(sprint.teamId)} size="small" variant="outlined" />
 
                   {/* Dates (Flexible space) */}
-                  <Typography variant="body2" color="text.secondary" sx={{ flexGrow: 1, textAlign: 'center', display: { xs: 'none', sm: 'block' } }}>
-                    {new Date(sprint.startDate).toLocaleDateString()} — {new Date(sprint.endDate).toLocaleDateString()}
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ flexGrow: 1, textAlign: 'center', display: { xs: 'none', sm: 'block' } }}
+                  >
+                    {new Date(sprint.startDate).toLocaleDateString()} —{' '}
+                    {new Date(sprint.endDate).toLocaleDateString()}
                   </Typography>
 
                   {/* Delete Button */}
-                  <IconButton onClick={() => handleDeleteClick(sprint)} color="error" size="small" aria-label="delete">
+                  <IconButton
+                    onClick={() => handleDeleteClick(sprint)}
+                    color="error"
+                    size="small"
+                    aria-label="delete"
+                  >
                     <DeleteIcon />
                   </IconButton>
                 </Box>
@@ -117,16 +134,14 @@ const AdminSprintsPage: React.FC = () => {
           )}
         </List>
       )}
-      
+
       {/* Delete Confirmation Dialog */}
-      <Dialog
-        open={sprintToDelete !== null}
-        onClose={handleCloseDeleteDialog}
-      >
+      <Dialog open={sprintToDelete !== null} onClose={handleCloseDeleteDialog}>
         <DialogTitle>Delete Sprint?</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete the sprint "<strong>{sprintToDelete?.name}</strong>"? This action cannot be undone.
+            Are you sure you want to delete the sprint "<strong>{sprintToDelete?.name}</strong>"?
+            This action cannot be undone.
           </DialogContentText>
         </DialogContent>
         <DialogActions>

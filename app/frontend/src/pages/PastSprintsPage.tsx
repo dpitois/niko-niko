@@ -40,7 +40,7 @@ const PastSprintsPage: React.FC = () => {
 
   // Helper to get team name
   const getTeamName = (teamId: string): string => {
-    return teams.find(team => team.id === teamId)?.name || 'Unknown Team';
+    return teams.find((team) => team.id === teamId)?.name || 'Unknown Team';
   };
 
   return (
@@ -56,11 +56,7 @@ const PastSprintsPage: React.FC = () => {
               <CardContent>
                 <ListItem disablePadding>
                   <ListItemText
-                    primary={
-                      <Typography variant="h6">
-                        {sprint.name}
-                      </Typography>
-                    }
+                    primary={<Typography variant="h6">{sprint.name}</Typography>}
                     secondary={
                       <React.Fragment>
                         <Typography

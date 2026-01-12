@@ -20,7 +20,7 @@ export const usePermissions = () => {
     // Only team admins or super admins can manage a specific team
     return isSuperAdmin || isTeamAdmin(teamId);
   };
-  
+
   const canDeleteTeam = (teamId: string): boolean => {
     return isSuperAdmin || isTeamAdmin(teamId);
   };
@@ -32,7 +32,7 @@ export const usePermissions = () => {
   const canManageTeamMembers = (teamId: string): boolean => {
     return isSuperAdmin || isTeamAdmin(teamId);
   };
-  
+
   const canViewTeam = (teamId: string): boolean => {
     return isSuperAdmin || isTeamAdmin(teamId) || isTeamMember(teamId);
   };

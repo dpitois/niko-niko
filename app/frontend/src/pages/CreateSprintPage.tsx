@@ -76,7 +76,9 @@ const CreateSprintPage: React.FC = () => {
                   <em>-- Select a Team --</em>
                 </MenuItem>
                 {teams.map((team: TeamWithMembersAndSprints) => (
-                  <MenuItem key={team.id} value={team.id}>{team.name}</MenuItem>
+                  <MenuItem key={team.id} value={team.id}>
+                    {team.name}
+                  </MenuItem>
                 ))}
               </Select>
             </FormControl>

@@ -19,7 +19,7 @@ export const useColorMode = () => useContext(ColorModeContext);
 export const ColorModeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [mode, setMode] = useState<PaletteMode>(() => {
     const savedMode = localStorage.getItem('theme_mode');
-    return (savedMode === 'dark' || savedMode === 'light') ? savedMode : 'light';
+    return savedMode === 'dark' || savedMode === 'light' ? savedMode : 'light';
   });
 
   useEffect(() => {
@@ -33,16 +33,14 @@ export const ColorModeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       },
       mode,
     }),
-    [mode]
+    [mode],
   );
 
   const theme = useMemo(() => getTheme(mode), [mode]);
 
   return (
     <ColorModeContext.Provider value={colorMode}>
-      <ThemeProvider theme={theme}>
-        {children}
-      </ThemeProvider>
+      <ThemeProvider theme={theme}>{children}</ThemeProvider>
     </ColorModeContext.Provider>
   );
 };

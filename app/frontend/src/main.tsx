@@ -15,11 +15,13 @@ dayjs.locale(userLocale);
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
-      <AuthProvider> {/* Wrap App with AuthProvider */}
+      <AuthProvider>
+        {' '}
+        {/* Wrap App with AuthProvider */}
         <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={userLocale}>
           <App />
         </LocalizationProvider>
       </AuthProvider>
     </BrowserRouter>
-  </StrictMode>
+  </StrictMode>,
 );

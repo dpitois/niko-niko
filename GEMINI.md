@@ -210,6 +210,12 @@ If you wish to run frontend and/or backend locally without Docker Compose, follo
     ```
     Fix any lint or Typescript error.
 
+5.  Format code using Prettier:
+    ```bash
+    npm run format
+    ```
+    Ensure code is properly formatted before committing.
+
 ## Development Conventions
 
 *   **Project Structure**: The project is organized into an `api` directory for all .NET backend projects and an `app` directory for the frontend application.

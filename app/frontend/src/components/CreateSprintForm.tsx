@@ -47,7 +47,11 @@ const CreateSprintForm: React.FC<CreateSprintFormProps> = ({ teamId, onSprintCre
   };
 
   return (
-    <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3, maxWidth: 400, mx: 'auto', p: 3, border: '1px solid #ccc', borderRadius: '8px' }}>
+    <Box
+      component="form"
+      onSubmit={handleSubmit}
+      sx={{ mt: 3, maxWidth: 400, mx: 'auto', p: 3, border: '1px solid #ccc', borderRadius: '8px' }}
+    >
       <Typography variant="h5" component="h3" gutterBottom>
         Create New Sprint
       </Typography>

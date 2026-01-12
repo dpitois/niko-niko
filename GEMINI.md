@@ -129,25 +129,25 @@ The project can be configured to use **PostgreSQL** or **SQLite**.
 
 ### 1.2. Managing Entity Framework Core Migrations
 
-EF Core migrations must be run inside the `backend` Docker container to ensure access to the mapped SQLite database.
+EF Core migrations should be managed locally on your development machine, as the Docker container does not mount the source code by default.
 
-1.  **Ensure the `backend` service is running** (at least `docker compose up -d backend`).
-2.  **Access the `backend` container's shell**:
+**IMPORTANT:**
+1.  **Create Migrations Locally:** Use the `dotnet ef migrations add` command from your local terminal.
+2.  **NEVER Apply Manually:** Do **not** run `dotnet ef database update`. The application automatically applies pending migrations when the backend service starts.
+
+**Procedure to Create a Migration:**
+
+1.  **Navigate to the API project folder** locally:
     ```bash
-    docker compose exec backend bash
+    cd api/NikoNiko.Api
     ```
-3.  **Navigate to the API project folder** inside the container:
-    ```bash
-    cd /app/api/NikoNiko.Api
-    ```
-4.  **Add a new migration** (replace `YourMigrationName` with a descriptive name):
+2.  **Create a new migration file** (replace `YourMigrationName` with a descriptive name):
     ```bash
     dotnet ef migrations add YourMigrationName --project ../NikoNiko.Data --startup-project .
     ```
-5.  **Migrations are applied automatically** when the `backend` service starts via `dbContext.Database.Migrate()` in `Program.cs`. You do not need to run `dotnet ef database update` manually.
-6.  **Exit the container shell**:
+3.  **Restart the backend service** (if running via Docker) to apply changes:
     ```bash
-    exit
+    docker compose restart backend
     ```
 
 ### 2. Run with Docker Compose (Recommended)

@@ -61,7 +61,7 @@ public class ApplicationDbContext : DbContext
             .WithMany()
             .HasForeignKey(ti => ti.AcceptedByUserId)
             .IsRequired(false) // AcceptedByUser can be null
-            .OnDelete(DeleteBehavior.Restrict); // Prevent deleting a user who accepted an invitation
+            .OnDelete(DeleteBehavior.SetNull); // Allow deleting a user who accepted an invitation
 
         // Add unique constraints
         modelBuilder.Entity<User>()

@@ -1,5 +1,7 @@
 import React from 'react';
-import { Delete as DeleteIcon, Face as FaceIcon,Group as GroupIcon } from '@mui/icons-material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import FaceIcon from '@mui/icons-material/Face';
+import GroupIcon from '@mui/icons-material/Group';
 import {
   Avatar,
   Box,

@@ -1,5 +1,5 @@
-import React, { useEffect,useState } from 'react';
-import { Delete as DeleteIcon } from '@mui/icons-material';
+import React, { useEffect, useState } from 'react';
+import DeleteIcon from '@mui/icons-material/Delete';
 import {
   Alert,
   Avatar,

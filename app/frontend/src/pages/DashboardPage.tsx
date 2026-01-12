@@ -1,5 +1,5 @@
 import React from 'react';
-import { Face as FaceIcon } from '@mui/icons-material';
+import FaceIcon from '@mui/icons-material/Face';
 // Material UI Imports
 import { Box, Card, CardContent, Chip,CircularProgress, Typography } from '@mui/material';
 

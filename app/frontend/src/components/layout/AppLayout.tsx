@@ -1,5 +1,5 @@
 import React from 'react';
-import { Menu as MenuIcon } from '@mui/icons-material';
+import MenuIcon from '@mui/icons-material/Menu';
 import {
   AppBar,
   Box,
@@ -14,7 +14,7 @@ import {
 import type { CSSObject,Theme } from '@mui/material/styles';
 import { styled } from '@mui/material/styles';
 
-import NotificationListener from '../NotificationListener';
+import NotificationListener from '@/components/NotificationListener';
 import Sidebar from './Sidebar';
 
 const drawerWidth = 240;

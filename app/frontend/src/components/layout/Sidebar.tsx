@@ -1,20 +1,18 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import {
-  Brightness4 as Brightness4Icon,
-  Brightness7 as Brightness7Icon,
-  ChevronLeft as ChevronLeftIcon,
-  ChevronRight as ChevronRightIcon,
-  Dashboard as DashboardIcon,
-  ExpandLess,
-  ExpandMore,
-  GroupWork as GroupWorkIcon,
-  History as HistoryIcon,
-  Login as LoginIcon,
-  Logout as LogoutIcon,
-  People as PeopleIcon,
-  Timeline as TimelineIcon,
-} from '@mui/icons-material';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import ExpandLess from '@mui/icons-material/ExpandLess';
+import ExpandMore from '@mui/icons-material/ExpandMore';
+import GroupWorkIcon from '@mui/icons-material/GroupWork';
+import HistoryIcon from '@mui/icons-material/History';
+import LoginIcon from '@mui/icons-material/Login';
+import LogoutIcon from '@mui/icons-material/Logout';
+import PeopleIcon from '@mui/icons-material/People';
+import TimelineIcon from '@mui/icons-material/Timeline';
 import {
   Avatar,
   Box,
@@ -31,8 +29,8 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
-import { useAuth } from '../../context/AuthContext';
-import { useColorMode } from '../../context/ColorModeContext';
+import { useAuth } from '@/context/AuthContext';
+import { useColorMode } from '@/context/ColorModeContext';
 
 const DrawerHeader = styled('div')(({ theme }) => ({
   display: 'flex',

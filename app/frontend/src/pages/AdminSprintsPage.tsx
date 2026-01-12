@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Delete as DeleteIcon } from '@mui/icons-material';
+import DeleteIcon from '@mui/icons-material/Delete';
 import {
   Box,
   Button,

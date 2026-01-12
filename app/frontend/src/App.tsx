@@ -1,7 +1,7 @@
 // React Imports
 import { useRef } from 'react';
 import { Navigate, Outlet,Route, Routes } from 'react-router-dom';
-import { Close as CloseIcon } from '@mui/icons-material';
+import CloseIcon from '@mui/icons-material/Close';
 import { IconButton } from '@mui/material';
 // Material UI Imports
 import CssBaseline from '@mui/material/CssBaseline';

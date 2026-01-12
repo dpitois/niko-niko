@@ -6,7 +6,8 @@ import type { TeamWithMembersAndSprints } from '../models/Team/TeamWithMembersAn
 import type { Sprint } from '../models/Sprint';
 
 // Material UI Imports
-import { Typography, Box, Card, CardContent, CircularProgress } from '@mui/material';
+import { Typography, Box, Card, CardContent, CircularProgress, Chip } from '@mui/material';
+import { Face as FaceIcon } from '@mui/icons-material';
 
 const DashboardPage: React.FC = () => {
   const { teams, isLoading: isLoadingTeams, isError: isErrorTeams } = useTeams();
@@ -71,9 +72,20 @@ const TeamDashboardSection: React.FC<TeamDashboardSectionProps> = ({ team }) => 
   return (
     <Card sx={{ mb: 4, p: 2, boxShadow: 3 }}>
       <CardContent>
-        <Typography variant="h5" component="h2" gutterBottom>
-          {team.name} - Current Sprint
-        </Typography>
+        <Box
+          sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}
+        >
+          <Typography variant="h5" component="h2" gutterBottom>
+            {team.name} - Current Sprint
+          </Typography>
+          <Chip
+            icon={<FaceIcon />}
+            label={`Owner: ${team.adminName}`}
+            variant="outlined"
+            size="small"
+            color="primary"
+          />
+        </Box>
         {currentSprint ? (
           <Box>
             <Typography variant="subtitle1" color="text.secondary">

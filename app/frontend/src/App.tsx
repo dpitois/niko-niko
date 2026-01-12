@@ -88,7 +88,7 @@ function App() {
             <Route
               path="/admin"
               element={
-                <ProtectedRoute requiredSuperAdmin={true}>
+                <ProtectedRoute>
                   <Navigate to="/admin/teams" />
                 </ProtectedRoute>
               }
@@ -104,7 +104,7 @@ function App() {
             <Route
               path="/admin/users"
               element={
-                <ProtectedRoute requiredSuperAdmin={true}>
+                <ProtectedRoute>
                   <AdminUsersPage /> {/* To be created */}
                 </ProtectedRoute>
               }
@@ -112,7 +112,7 @@ function App() {
             <Route
               path="/admin/sprints"
               element={
-                <ProtectedRoute requiredSuperAdmin={true}>
+                <ProtectedRoute>
                   <AdminSprintsPage /> {/* To be created */}
                 </ProtectedRoute>
               }

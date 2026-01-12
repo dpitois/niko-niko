@@ -191,6 +191,14 @@ public class NikoNikoApiTestApplication : WebApplicationFactory<Program>
         return (user, client, jwtToken);
     }
 
+    public HttpClient CreateDefaultClient()
+    {
+        return CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false
+        });
+    }
+
     public async Task<Team> CreateTeam(string name, Guid adminId)
     {
         using var scope = Services.CreateScope();

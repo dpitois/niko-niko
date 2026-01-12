@@ -1,7 +1,9 @@
-import api from './api';
-import type { Mood } from '../models/Mood';
-import type { CreateMood } from '../models/CreateMood';
 import dayjs from 'dayjs';
+
+import type { CreateMood } from '@/models/CreateMood';
+import type { Mood } from '@/models/Mood';
+
+import api from './api';
 
 export const createMoodEntry = async (moodEntry: CreateMood): Promise<Mood> => {
   const payload = {

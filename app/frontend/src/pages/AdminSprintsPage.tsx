@@ -1,27 +1,29 @@
 import React, { useState } from 'react';
+import DeleteIcon from '@mui/icons-material/Delete';
 import {
   Box,
-  Typography,
-  List,
-  ListItem,
-  IconButton,
+  Button,
+  Chip,
   CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
-  Button,
   Divider,
-  Chip,
+  IconButton,
+  List,
+  ListItem,
+  Typography,
 } from '@mui/material';
-import { Delete as DeleteIcon } from '@mui/icons-material';
 import { useSnackbar } from 'notistack';
-import useSprints from '../hooks/useSprints';
-import useTeams from '../hooks/useTeams';
-import AdminCreateSprintForm from '../components/AdminCreateSprintForm';
-import { deleteSprint } from '../services/sprintService';
-import type { Sprint } from '../models/Sprint';
+
+import useSprints from '@/hooks/useSprints';
+import useTeams from '@/hooks/useTeams';
+import type { Sprint } from '@/models/Sprint';
+import { deleteSprint } from '@/services/sprintService';
+
+import AdminCreateSprintForm from '@/components/AdminCreateSprintForm';
 
 const AdminSprintsPage: React.FC = () => {
   const { teams, isLoading: isLoadingTeams } = useTeams();

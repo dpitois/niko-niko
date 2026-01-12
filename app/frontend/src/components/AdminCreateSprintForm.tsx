@@ -1,18 +1,19 @@
 import React, { useState } from 'react';
-import { createSprint } from '../services/sprintService';
-import type { CreateSprint } from '../models/CreateSprint';
-import type { TeamDto } from '../models/Team';
 import {
   Box,
-  TextField,
   Button,
-  Typography,
-  Select,
-  MenuItem,
   FormControl,
-  InputLabel,
   Grid,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+  Typography,
 } from '@mui/material';
+
+import type { CreateSprint } from '@/models/CreateSprint';
+import type { TeamDto } from '@/models/Team';
+import { createSprint } from '@/services/sprintService';
 
 interface AdminCreateSprintFormProps {
   teams: TeamDto[];

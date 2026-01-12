@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Button, TextField, Box, Typography, Alert } from '@mui/material';
-import { useAuth } from '../context/AuthContext';
-import { teamInvitationService } from '../services/teamInvitationService';
-import type { TeamInvitation } from '../models/Team/Invitation/TeamInvitation';
+import { Alert,Box, Button, TextField, Typography } from '@mui/material';
 import axios from 'axios';
+
+import { useAuth } from '@/context/AuthContext';
+import type { TeamInvitation } from '@/models/Team/Invitation/TeamInvitation';
+import { teamInvitationService } from '@/services/teamInvitationService';
 
 interface CreateTeamInvitationFormProps {
   teamId: string;

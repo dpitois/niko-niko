@@ -1,5 +1,6 @@
 import useSWR from 'swr';
-import { getSprints } from '../services/sprintService';
+
+import { getSprints } from '@/services/sprintService';
 
 const useSprints = (teamId?: string) => {
   const { data, error, mutate } = useSWR(teamId ? `sprints-${teamId}` : 'sprints', () =>

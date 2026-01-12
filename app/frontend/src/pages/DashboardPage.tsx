@@ -1,13 +1,14 @@
 import React from 'react';
-import useTeams from '../hooks/useTeams';
-import useSprints from '../hooks/useSprints'; // Import useSprints
-import SprintMoodGrid from '../components/sprints/SprintMoodGrid'; // Import SprintMoodGrid
-import type { TeamWithMembersAndSprints } from '../models/Team/TeamWithMembersAndSprints';
-import type { Sprint } from '../models/Sprint';
-
+import FaceIcon from '@mui/icons-material/Face';
 // Material UI Imports
-import { Typography, Box, Card, CardContent, CircularProgress, Chip } from '@mui/material';
-import { Face as FaceIcon } from '@mui/icons-material';
+import { Box, Card, CardContent, Chip,CircularProgress, Typography } from '@mui/material';
+
+import useSprints from '@/hooks/useSprints';
+import useTeams from '@/hooks/useTeams';
+import type { Sprint } from '@/models/Sprint';
+import type { TeamWithMembersAndSprints } from '@/models/Team/TeamWithMembersAndSprints';
+
+import SprintMoodGrid from '@/components/sprints/SprintMoodGrid';
 
 const DashboardPage: React.FC = () => {
   const { teams, isLoading: isLoadingTeams, isError: isErrorTeams } = useTeams();

@@ -1,19 +1,20 @@
 import React from 'react';
-import useSprints from '../hooks/useSprints';
-import useTeams from '../hooks/useTeams';
 import {
-  Container,
-  Typography,
-  Box,
-  CircularProgress,
   Alert,
+  Box,
+  Card,
+  CardContent,
+  CircularProgress,
+  Container,
   List,
   ListItem,
   ListItemText,
-  Card,
-  CardContent,
+  Typography,
 } from '@mui/material';
-import type { Sprint } from '../models/Sprint';
+
+import useSprints from '@/hooks/useSprints';
+import useTeams from '@/hooks/useTeams';
+import type { Sprint } from '@/models/Sprint';
 
 const PastSprintsPage: React.FC = () => {
   const { sprints, isLoading: isLoadingSprints, isError: isErrorSprints } = useSprints();

@@ -1,6 +1,7 @@
+import type { CreateTeamInvitation } from '@/models/Team/Invitation/CreateTeamInvitation';
+import type { TeamInvitation } from '@/models/Team/Invitation/TeamInvitation';
+
 import api from './api';
-import type { TeamInvitation } from '../models/Team/Invitation/TeamInvitation';
-import type { CreateTeamInvitation } from '../models/Team/Invitation/CreateTeamInvitation';
 
 const BASE_URL = '/teamInvitations';
 const TEAMS_BASE_URL = '/teams'; // Correction ici

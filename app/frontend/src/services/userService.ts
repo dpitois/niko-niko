@@ -1,5 +1,6 @@
+import type { User } from '@/models/User';
+
 import api from './api';
-import type { User } from '../models/User';
 
 export const getUsers = async (): Promise<User[]> => {
   const { data } = await api.get('/users');

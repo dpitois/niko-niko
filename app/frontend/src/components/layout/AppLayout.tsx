@@ -1,20 +1,21 @@
 import React from 'react';
+import MenuIcon from '@mui/icons-material/Menu';
 import {
+  AppBar,
   Box,
   CssBaseline,
   Drawer as MuiDrawer,
-  AppBar,
-  Toolbar,
   IconButton,
+  Toolbar,
   Typography,
-  useTheme,
   useMediaQuery,
+  useTheme,
 } from '@mui/material';
-import { Menu as MenuIcon } from '@mui/icons-material';
+import type { CSSObject,Theme } from '@mui/material/styles';
 import { styled } from '@mui/material/styles';
-import type { Theme, CSSObject } from '@mui/material/styles';
-import Sidebar from './Sidebar'; // This is now the content of the drawer
-import NotificationListener from '../NotificationListener';
+
+import NotificationListener from '@/components/NotificationListener';
+import Sidebar from './Sidebar';
 
 const drawerWidth = 240;
 

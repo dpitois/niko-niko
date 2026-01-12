@@ -1,18 +1,21 @@
 import React from 'react';
+import DeleteIcon from '@mui/icons-material/Delete';
+import FaceIcon from '@mui/icons-material/Face';
+import GroupIcon from '@mui/icons-material/Group';
 import {
-  Box,
-  Typography,
-  Button,
-  Paper,
   Avatar,
+  Box,
+  Button,
+  Chip,
   List,
   ListItem,
   ListItemAvatar,
   ListItemText,
-  Chip,
+  Paper,
+  Typography,
 } from '@mui/material';
-import { Delete as DeleteIcon, Group as GroupIcon, Face as FaceIcon } from '@mui/icons-material';
-import type { TeamWithMembersAndSprints } from '../models/Team/TeamWithMembersAndSprints';
+
+import type { TeamWithMembersAndSprints } from '@/models/Team/TeamWithMembersAndSprints';
 
 interface AdminTeamListItemProps {
   team: TeamWithMembersAndSprints;

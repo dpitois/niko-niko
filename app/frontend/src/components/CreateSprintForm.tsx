@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { createSprint } from '../services/sprintService';
-import type { CreateSprint } from '../models/CreateSprint';
-import { Box, TextField, Button, Typography, Stack } from '@mui/material';
+import { Box, Button, Stack,TextField, Typography } from '@mui/material';
+
+import type { CreateSprint } from '@/models/CreateSprint';
+import { createSprint } from '@/services/sprintService';
 
 interface CreateSprintFormProps {
   teamId: string;

@@ -1,6 +1,7 @@
 import useSWR from 'swr';
-import { getSprintById } from '../services/sprintService';
-import type { Sprint } from '../models/Sprint';
+
+import type { Sprint } from '@/models/Sprint';
+import { getSprintById } from '@/services/sprintService';
 
 export const useSprint = (sprintId: string | null) => {
   const { data, error, isLoading, mutate } = useSWR<Sprint>(

@@ -1,6 +1,7 @@
+import type { CreateSprint } from '@/models/CreateSprint';
+import type { Sprint } from '@/models/Sprint';
+
 import api from './api';
-import type { Sprint } from '../models/Sprint';
-import type { CreateSprint } from '../models/CreateSprint';
 
 export const getSprints = async (teamId?: string): Promise<Sprint[]> => {
   const url = teamId ? `/sprints?teamId=${teamId}` : '/sprints';

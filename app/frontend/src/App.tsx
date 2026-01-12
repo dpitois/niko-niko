@@ -1,33 +1,31 @@
 // React Imports
 import { useRef } from 'react';
-import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
-import LoginPage from './pages/LoginPage';
-import DashboardPage from './pages/DashboardPage';
-import CreateSprintPage from './pages/CreateSprintPage';
-import MoodEntryStandalonePage from './pages/MoodEntryStandalonePage';
-import AcceptInvitationPage from './pages/AcceptInvitationPage';
-import AuthCallbackPage from './pages/AuthCallbackPage';
-import ProtectedRoute from './components/ProtectedRoute';
-import AppLayout from './components/layout/AppLayout';
-
-// New placeholder pages
-import PastSprintsPage from './pages/PastSprintsPage';
-import AdminTeamsPage from './pages/AdminTeamsPage';
-import AdminUsersPage from './pages/AdminUsersPage';
-import AdminSprintsPage from './pages/AdminSprintsPage';
-
-import './App.css';
-
+import { Navigate, Outlet,Route, Routes } from 'react-router-dom';
+import CloseIcon from '@mui/icons-material/Close';
+import { IconButton } from '@mui/material';
 // Material UI Imports
 import CssBaseline from '@mui/material/CssBaseline';
-import { IconButton } from '@mui/material';
-import { Close as CloseIcon } from '@mui/icons-material';
-
-// Context Imports
-import { ColorModeProvider } from './context/ColorModeContext';
-
 // notistack imports
 import { SnackbarProvider } from 'notistack';
+
+// Context Imports
+import { ColorModeProvider } from '@/context/ColorModeContext';
+
+import AppLayout from '@/components/layout/AppLayout';
+import ProtectedRoute from '@/components/ProtectedRoute';
+import AcceptInvitationPage from '@/pages/AcceptInvitationPage';
+import AdminSprintsPage from '@/pages/AdminSprintsPage';
+import AdminTeamsPage from '@/pages/AdminTeamsPage';
+import AdminUsersPage from '@/pages/AdminUsersPage';
+import AuthCallbackPage from '@/pages/AuthCallbackPage';
+import CreateSprintPage from '@/pages/CreateSprintPage';
+import DashboardPage from '@/pages/DashboardPage';
+import LoginPage from '@/pages/LoginPage';
+import MoodEntryStandalonePage from '@/pages/MoodEntryStandalonePage';
+// New placeholder pages
+import PastSprintsPage from '@/pages/PastSprintsPage';
+
+import './App.css';
 
 const ProtectedLayout = () => (
   <AppLayout>

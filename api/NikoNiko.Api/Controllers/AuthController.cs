@@ -276,6 +276,28 @@ public class AuthController : ControllerBase
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
+
+            // Auto-create a team for new users who sign up without an invitation token
+            if (string.IsNullOrEmpty(invitationToken))
+            {
+                var teamName = $"{(string.IsNullOrWhiteSpace(user.Name) ? "My" : user.Name)}'s Team";
+                var newTeam = new Team
+                {
+                    Name = teamName,
+                    AdminId = user.Id
+                };
+
+                var teamUser = new TeamUser
+                {
+                    Team = newTeam,
+                    UserId = user.Id
+                };
+
+                _context.Teams.Add(newTeam);
+                _context.TeamUsers.Add(teamUser);
+                await _context.SaveChangesAsync();
+                _logger.LogInformation("Auto-created team {TeamName} for new user {Email}.", teamName, user.Email);
+            }
         }
         else
         {

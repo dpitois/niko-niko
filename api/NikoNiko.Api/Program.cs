@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using NikoNiko.Api.Authorization;
+using NikoNiko.Api.GraphQL.Queries;
 using NikoNiko.Data;
 using NikoNiko.Data.PostgreSql;
 using NikoNiko.Data.Sqlite;
@@ -138,11 +139,11 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+    options.IncludeXmlComments(System.IO.Path.Combine(AppContext.BaseDirectory, xmlFilename));
     
     // Also include XML comments from Core project if they exist
     var coreXmlFilename = "NikoNiko.Core.xml";
-    var coreXmlPath = Path.Combine(AppContext.BaseDirectory, coreXmlFilename);
+    var coreXmlPath = System.IO.Path.Combine(AppContext.BaseDirectory, coreXmlFilename);
     if (File.Exists(coreXmlPath))
     {
         options.IncludeXmlComments(coreXmlPath);
@@ -150,6 +151,10 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 builder.Services.AddHealthChecks();
+
+// Add GraphQL services
+builder.Services.AddGraphQLServer()
+    .AddQueryType<Query>();
 
 // -----------------------------------------------------------------------------
 var app = builder.Build();
@@ -196,6 +201,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapGraphQL();
 
 // -----------------------------------------------------------------------------
 // Helper method to seed and synchronize super admin roles on startup

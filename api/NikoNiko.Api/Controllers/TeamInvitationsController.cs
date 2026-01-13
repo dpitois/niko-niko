@@ -85,7 +85,7 @@ namespace NikoNiko.Api.Controllers
                 var acceptedInvitation = await _teamInvitationService.AcceptTeamInvitationAsync(token, userId);
                 return Ok(acceptedInvitation);
             }
-            catch (KeyNotFoundException ex)
+            catch (System.Collections.Generic.KeyNotFoundException ex)
             {
                 return NotFound(ex.Message);
             }

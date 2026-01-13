@@ -328,4 +328,104 @@ public class GraphQLTests : IClassFixture<NikoNikoApiTestApplication>
         // Assert
         Assert.Equal("Sprint GraphQL", data.GetProperty("createSprint").GetProperty("name").GetString());
     }
+
+    [Fact]
+    public async Task GetMyTeamsDashboard_ShouldReturnFullData()
+    {
+        // Arrange
+        var (user, client, _) = await _factory.CreateUserAndClient("Dashboard User");
+        var team = await _factory.CreateTeam("Dashboard Team", user.Id);
+
+        Guid sprintId;
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<Data.ApplicationDbContext>();
+
+            // Add admin as member too
+            db.TeamUsers.Add(new TeamUser { TeamId = team.Id, UserId = user.Id });
+
+            // Create Sprint
+            var sprint = new Sprint
+            {
+                Id = Guid.NewGuid(),
+                Name = "Current Sprint",
+                TeamId = team.Id,
+                StartDate = DateTime.UtcNow.AddDays(-2),
+                EndDate = DateTime.UtcNow.AddDays(5)
+            };
+            db.Sprints.Add(sprint);
+
+            // Add Mood Entry
+            var moodEntry = new MoodEntry
+            {
+                Id = Guid.NewGuid(),
+                UserId = user.Id,
+                SprintId = sprint.Id,
+                Mood = MoodType.Happy,
+                Date = DateTime.UtcNow.AddDays(-1).Date
+            };
+            db.MoodEntries.Add(moodEntry);
+
+            await db.SaveChangesAsync();
+            sprintId = sprint.Id;
+        }
+
+        // Act - Exactly the query used by the frontend
+        var query = @"
+            query GetMyTeamsDashboard {
+                myTeams {
+                    id
+                    name
+                    adminId
+                    admin {
+                        id
+                        name
+                    }
+                    members {
+                        id
+                        name
+                        email
+                        avatarUrl
+                    }
+                    sprints(order: { startDate: DESC }) {
+                        id
+                        name
+                        startDate
+                        endDate
+                        moodEntries {
+                            id
+                            mood
+                            date
+                            userId
+                        }
+                    }
+                }
+            }
+        ";
+
+        var data = await ExecuteGraphQLQueryAsync(client, query);
+
+        // Assert
+        var teams = data.GetProperty("myTeams").EnumerateArray().ToList();
+        Assert.Single(teams);
+
+        var teamData = teams[0];
+        Assert.Equal("Dashboard Team", teamData.GetProperty("name").GetString());
+
+        // Check members (should include the admin as they are added via CreateTeam in factory usually)
+        var members = teamData.GetProperty("members").EnumerateArray().ToList();
+        Assert.NotEmpty(members);
+        Assert.Contains(members, m => Guid.Parse(m.GetProperty("id").GetString()!) == user.Id);
+
+        // Check sprints
+        var sprints = teamData.GetProperty("sprints").EnumerateArray().ToList();
+        Assert.Single(sprints);
+        Assert.Equal("Current Sprint", sprints[0].GetProperty("name").GetString());
+
+        // Check mood entries
+        var moodEntries = sprints[0].GetProperty("moodEntries").EnumerateArray().ToList();
+        Assert.Single(moodEntries);
+        Assert.Equal("HAPPY", moodEntries[0].GetProperty("mood").GetString());
+        Assert.Equal(user.Id, Guid.Parse(moodEntries[0].GetProperty("userId").GetString()!));
+    }
 }

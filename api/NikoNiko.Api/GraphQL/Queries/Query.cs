@@ -1,6 +1,7 @@
 using System.Security.Claims;
 
 using HotChocolate.Authorization;
+using HotChocolate.Data;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -11,9 +12,8 @@ namespace NikoNiko.Api.GraphQL.Queries;
 
 public class Query
 {
-    public string Hello() => "World";
-
     [Authorize]
+    [UseProjection]
     public async Task<User?> GetMe(ApplicationDbContext dbContext, IHttpContextAccessor httpContextAccessor)
     {
         var email = httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.Email)
@@ -40,6 +40,11 @@ public class Query
 
         // Returning teams where the user is a member or admin
         return dbContext.Teams
+            .Include(t => t.Admin)
+            .Include(t => t.Sprints)
+                .ThenInclude(s => s.MoodEntries)
+            .Include(t => t.TeamUsers)
+                .ThenInclude(tu => tu.User)
             .Where(t => t.TeamUsers.Any(tu => tu.User.Email == email) || t.Admin.Email == email)
             .AsNoTracking();
     }

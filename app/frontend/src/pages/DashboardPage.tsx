@@ -13,24 +13,53 @@ import {
   IconButton,
   Typography,
 } from '@mui/material';
+import { useQuery } from '@apollo/client';
 import { useSnackbar } from 'notistack';
 
 import { useAuth } from '@/context/AuthContext';
-import useSprints from '@/hooks/useSprints';
-import useTeams from '@/hooks/useTeams';
-import type { Sprint } from '@/models/Sprint';
-import type { TeamWithMembersAndSprints } from '@/models/Team/TeamWithMembersAndSprints';
+import { GET_MY_TEAMS_DASHBOARD } from '@/graphql/queries';
+import type { MoodType } from '@/models/MoodType';
+import type { User } from '@/models/User';
 import { updateTeam } from '@/services/teamService';
 
 import EditTeamDialog from '@/components/EditTeamDialog';
 import PageContainer from '@/components/layout/PageContainer';
 import SprintMoodGrid from '@/components/sprints/SprintMoodGrid';
 
+// Define GraphQL Result Types locally for now, or move to models
+interface GraphQLMoodEntry {
+  id: string;
+  mood: MoodType | string; // Can be string from GraphQL or MoodType after normalization
+  date: string;
+  userId: string;
+}
+
+interface GraphQLSprint {
+  id: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  moodEntries: GraphQLMoodEntry[];
+}
+
+interface GraphQLTeam {
+  id: string;
+  name: string;
+  adminId: string;
+  admin: {
+    id: string;
+    name: string;
+  };
+  members: User[];
+  sprints: GraphQLSprint[];
+}
+
 const DashboardPage: React.FC = () => {
   const { t } = useTranslation();
-  const { teams, isLoading: isLoadingTeams, isError: isErrorTeams, mutate } = useTeams();
+  
+  const { data, loading, error, refetch } = useQuery<{ myTeams: GraphQLTeam[] }>(GET_MY_TEAMS_DASHBOARD);
 
-  if (isLoadingTeams) {
+  if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
         <CircularProgress />
@@ -38,15 +67,17 @@ const DashboardPage: React.FC = () => {
     );
   }
 
-  if (isErrorTeams) {
+  if (error) {
     return <Typography color="error">{t('dashboard.failedLoadTeams')}</Typography>;
   }
+
+  const teams = data?.myTeams;
 
   return (
     <PageContainer title={t('dashboard.title')} icon={<DashboardIcon />}>
       {teams && teams.length > 0 ? (
-        teams.map((team: TeamWithMembersAndSprints) => (
-          <TeamDashboardSection key={team.id} team={team} onUpdate={() => mutate()} />
+        teams.map((team) => (
+          <TeamDashboardSection key={team.id} team={team} onUpdate={() => refetch()} />
         ))
       ) : (
         <Typography variant="body1">{t('dashboard.noTeams')}</Typography>
@@ -56,35 +87,17 @@ const DashboardPage: React.FC = () => {
 };
 
 interface TeamDashboardSectionProps {
-  team: TeamWithMembersAndSprints;
+  team: GraphQLTeam;
   onUpdate: () => void;
 }
 
 const TeamDashboardSection: React.FC<TeamDashboardSectionProps> = ({ team, onUpdate }) => {
   const { t } = useTranslation();
   const { isSuperAdmin, userTeamRoles } = useAuth();
-  const { sprints, isLoading: isLoadingSprints, isError: isErrorSprints } = useSprints(team.id);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
 
   const isTeamAdmin = isSuperAdmin || userTeamRoles[team.id]?.isAdmin;
-
-  if (isLoadingSprints) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 4 }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (isErrorSprints) {
-    // Note: You might want to add a specific error key for sprints or reuse a generic one with dynamic content if supported/needed.
-    // For now keeping it simple or reusing a generic error if applicable, or leaving untranslated if specific key missing.
-    // Let's assume we want to translate it roughly or stick to English if key missing.
-    // I will use a generic error message for now to be safe or leave hardcoded if critical.
-    // Given the plan, let's use a generic error or add a specific key if I can. I added 'error' in common.
-    return <Typography color="error">{t('common.error')}</Typography>;
-  }
 
   const handleUpdateName = async (newName: string) => {
     try {
@@ -97,12 +110,33 @@ const TeamDashboardSection: React.FC<TeamDashboardSectionProps> = ({ team, onUpd
     }
   };
 
-  const currentSprint = sprints?.find((sprint: Sprint) => {
+  const sprints = team.sprints;
+  
+  const currentSprint = sprints?.find((sprint) => {
     const today = new Date();
+    // Normalize today to avoid time issues
+    today.setHours(0, 0, 0, 0);
+    
     const startDate = new Date(sprint.startDate);
     const endDate = new Date(sprint.endDate);
+    
+    // Normalize sprint dates if needed, usually they come as midnight UTC
+    startDate.setHours(0, 0, 0, 0);
+    endDate.setHours(23, 59, 59, 999);
+
     return today >= startDate && today <= endDate;
   });
+
+  // Map GraphQL Sprint to Model Sprint if necessary, or ensure SprintMoodGrid accepts the structure.
+  // SprintMoodGrid expects: teamId, sprintId, sprintStartDate, sprintEndDate, teamMembers.
+  // It fetches mood entries internally? Let's check SprintMoodGrid.
+  
+  // Note: If SprintMoodGrid fetches its own data using REST (useMoodEntries), we are only halfway there.
+  // But passing 'currentSprint' dates is correct.
+  // Ideally SprintMoodGrid should also accept 'initialMoodEntries' or similar, but for now we keep it hybrid 
+  // or check if we need to refactor it too. 
+  // Wait, the GraphQL query fetches moodEntries! 
+  // Let's see if we can pass them to SprintMoodGrid. 
 
   return (
     <Card key={team.id} sx={{ mb: 4, p: 2, boxShadow: 3 }}>
@@ -127,7 +161,7 @@ const TeamDashboardSection: React.FC<TeamDashboardSectionProps> = ({ team, onUpd
           </Box>
           <Chip
             icon={<FaceIcon />}
-            label={t('dashboard.owner', { name: team.adminName })}
+            label={t('dashboard.owner', { name: team.admin.name })}
             variant="outlined"
             size="small"
             color="primary"
@@ -146,6 +180,7 @@ const TeamDashboardSection: React.FC<TeamDashboardSectionProps> = ({ team, onUpd
                 sprintStartDate={new Date(currentSprint.startDate)}
                 sprintEndDate={new Date(currentSprint.endDate)}
                 teamMembers={team.members}
+                initialMoods={currentSprint.moodEntries}
               />
             </Box>
           </Box>

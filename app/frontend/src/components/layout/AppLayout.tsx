@@ -11,7 +11,7 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material';
-import type { CSSObject,Theme } from '@mui/material/styles';
+import type { CSSObject, Theme } from '@mui/material/styles';
 import { styled } from '@mui/material/styles';
 
 import NotificationListener from '@/components/NotificationListener';

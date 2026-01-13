@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useContext, useEffect, useMemo,useState } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import type { PaletteMode } from '@mui/material';
 import { ThemeProvider } from '@mui/material/styles';
 

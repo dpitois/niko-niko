@@ -166,26 +166,33 @@ const SprintMoodGrid: React.FC<SprintMoodGridProps> = ({
             }}
           />{' '}
           {/* Spacer for member names */}
-          {sprintDates.map((date, index) => (
-            <Paper
-              key={index}
-              sx={{
-                width: 40,
-                height: 40,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor:
-                  theme.palette.mode === 'dark' ? theme.palette.grey[800] : theme.palette.grey[200],
-                fontWeight: 'bold',
-                fontSize: '0.75rem',
-                flexShrink: 0,
-                p: 0.5,
-              }}
-            >
-              {date.getDate()}
-            </Paper>
-          ))}
+          {sprintDates.map((date, index) => {
+            const isToday = dayjs(date).isSame(today, 'day');
+            return (
+              <Paper
+                key={index}
+                sx={{
+                  width: 40,
+                  height: 40,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: isToday
+                    ? theme.palette.primary.main
+                    : theme.palette.mode === 'dark'
+                      ? theme.palette.grey[800]
+                      : theme.palette.grey[200],
+                  color: isToday ? theme.palette.primary.contrastText : 'inherit',
+                  fontWeight: 'bold',
+                  fontSize: '0.75rem',
+                  flexShrink: 0,
+                  p: 0.5,
+                }}
+              >
+                {date.getDate()}
+              </Paper>
+            );
+          })}
         </Box>
 
         {/* Mood Rows: Per Member */}
@@ -266,6 +273,7 @@ const SprintMoodGrid: React.FC<SprintMoodGridProps> = ({
                     transition: 'background-color 0.3s',
                     flexShrink: 0,
                     p: 0.5,
+                    border: isToday ? `2px solid ${theme.palette.primary.main}` : 'none',
                     '&:hover': canEdit
                       ? {
                           backgroundColor: displayMoodEntry
@@ -293,7 +301,7 @@ const SprintMoodGrid: React.FC<SprintMoodGridProps> = ({
                   }}
                 >
                   {displayMoodEntry ? getMoodIcon(displayMoodEntry.mood) : null}
-                  {(isFuture || isToday) && (
+                  {isFuture && (
                     <Typography
                       variant="caption"
                       sx={{

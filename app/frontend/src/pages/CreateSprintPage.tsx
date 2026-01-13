@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useNavigate,useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import Box from '@mui/material/Box';
 // Material UI Imports
 import Container from '@mui/material/Container';

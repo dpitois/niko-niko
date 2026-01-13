@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Box, Button,Container, Typography } from '@mui/material';
+import { Box, Button, Container, Typography } from '@mui/material';
 
 const LoginPage = () => {
   const [githubLoginHref] = useState(() => {

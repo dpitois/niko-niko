@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 // Material UI Imports
-import { Box, CircularProgress,Container, Typography } from '@mui/material';
+import { Box, CircularProgress, Container, Typography } from '@mui/material';
 import { useSnackbar } from 'notistack';
 
 import { useAuth } from '@/context/AuthContext';

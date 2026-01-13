@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import DeleteIcon from '@mui/icons-material/Delete';
+import PeopleIcon from '@mui/icons-material/People';
 import {
   Alert,
   Avatar,
@@ -44,6 +45,7 @@ import { teamInvitationService } from '@/services/teamInvitationService';
 import { deleteUser } from '@/services/userService';
 
 import CreateTeamInvitationForm from '@/components/CreateTeamInvitationForm';
+import PageContainer from '@/components/layout/PageContainer';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -179,11 +181,7 @@ const AdminUsersPage: React.FC = () => {
   };
 
   return (
-    <Box sx={{ width: '100%' }}>
-      <Typography variant="h4" component="h1" gutterBottom>
-        Admin Users
-      </Typography>
-
+    <PageContainer title="Admin Users" icon={<PeopleIcon />}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={value} onChange={handleChange} aria-label="admin users tabs">
           <Tab label="User Management" {...a11yProps(0)} />
@@ -390,7 +388,7 @@ const AdminUsersPage: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
-    </Box>
+    </PageContainer>
   );
 };
 

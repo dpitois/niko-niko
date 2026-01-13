@@ -1,11 +1,11 @@
 import React from 'react';
+import HistoryIcon from '@mui/icons-material/History';
 import {
   Alert,
   Box,
   Card,
   CardContent,
   CircularProgress,
-  Container,
   List,
   ListItem,
   ListItemText,
@@ -15,6 +15,8 @@ import {
 import useSprints from '@/hooks/useSprints';
 import useTeams from '@/hooks/useTeams';
 import type { Sprint } from '@/models/Sprint';
+
+import PageContainer from '@/components/layout/PageContainer';
 
 const PastSprintsPage: React.FC = () => {
   const { sprints, isLoading: isLoadingSprints, isError: isErrorSprints } = useSprints();
@@ -45,11 +47,7 @@ const PastSprintsPage: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4 }}>
-      <Typography variant="h4" component="h1" gutterBottom>
-        Past Sprints
-      </Typography>
-
+    <PageContainer title="Past Sprints" icon={<HistoryIcon />}>
       {pastSprints.length > 0 ? (
         <List>
           {pastSprints.map((sprint: Sprint) => (
@@ -80,7 +78,7 @@ const PastSprintsPage: React.FC = () => {
       ) : (
         <Typography variant="body1">No past sprints found.</Typography>
       )}
-    </Container>
+    </PageContainer>
   );
 };
 

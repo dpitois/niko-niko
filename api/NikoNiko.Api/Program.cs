@@ -8,11 +8,14 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using NikoNiko.Api.Authorization;
+using NikoNiko.Api.GraphQL.Mutations;
 using NikoNiko.Api.GraphQL.Queries;
+using NikoNiko.Api.GraphQL.Types;
 using NikoNiko.Data;
 using NikoNiko.Data.PostgreSql;
 using NikoNiko.Data.Sqlite;
 using NikoNiko.Services;
+using Microsoft.Extensions.DependencyInjection;
 using IAuthorizationHandler = Microsoft.AspNetCore.Authorization.IAuthorizationHandler;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -154,7 +157,16 @@ builder.Services.AddHealthChecks();
 
 // Add GraphQL services
 builder.Services.AddGraphQLServer()
-    .AddQueryType<Query>();
+    .AddQueryType<Query>()
+    .AddMutationType<Mutation>()
+    .AddType<UserType>()
+    .AddType<TeamType>()
+    .AddType<SprintType>()
+    .AddType<MoodEntryType>()
+    .AddAuthorization()
+    .AddFiltering()
+    .AddSorting()
+    .AddProjections();
 
 // -----------------------------------------------------------------------------
 var app = builder.Build();

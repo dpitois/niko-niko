@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import DeleteIcon from '@mui/icons-material/Delete';
+import TimelineIcon from '@mui/icons-material/Timeline';
 import {
   Box,
   Button,
@@ -24,6 +25,7 @@ import type { Sprint } from '@/models/Sprint';
 import { deleteSprint } from '@/services/sprintService';
 
 import AdminCreateSprintForm from '@/components/AdminCreateSprintForm';
+import PageContainer from '@/components/layout/PageContainer';
 
 const AdminSprintsPage: React.FC = () => {
   const { teams, isLoading: isLoadingTeams } = useTeams();
@@ -64,11 +66,7 @@ const AdminSprintsPage: React.FC = () => {
   };
 
   return (
-    <Box>
-      <Typography variant="h4" component="h1" gutterBottom>
-        Admin Sprints Management
-      </Typography>
-
+    <PageContainer title="Admin Sprints Management" icon={<TimelineIcon />}>
       <Box sx={{ mb: 4 }}>
         <Typography variant="h5" component="h2" gutterBottom>
           Create New Sprint
@@ -153,7 +151,7 @@ const AdminSprintsPage: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
-    </Box>
+    </PageContainer>
   );
 };
 

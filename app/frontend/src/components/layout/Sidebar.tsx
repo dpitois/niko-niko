@@ -2,6 +2,7 @@ import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
+import BugReportIcon from '@mui/icons-material/BugReport';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import DashboardIcon from '@mui/icons-material/Dashboard';
@@ -24,6 +25,8 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Menu,
+  MenuItem,
   Tooltip,
   Typography,
 } from '@mui/material';
@@ -37,7 +40,7 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   alignItems: 'center',
   padding: theme.spacing(0, 1),
   ...theme.mixins.toolbar,
-  justifyContent: 'flex-end',
+  justifyContent: 'space-between', // Changed from flex-end to space-between
 }));
 
 interface SidebarProps {
@@ -51,16 +54,28 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose, handleDrawer
   const { toggleColorMode, mode } = useColorMode();
   const navigate = useNavigate();
 
+  const repoUrl = import.meta.env.VITE_GITHUB_REPO_URL;
+
   const isAnyTeamAdmin = Object.values(userTeamRoles).some((role) => role.isAdmin);
   const showAdminMenu = isSuperAdmin || isAnyTeamAdmin;
 
   const [openAdminMenu, setOpenAdminMenu] = React.useState(false);
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
   const handleAdminMenuClick = () => {
     setOpenAdminMenu(!openAdminMenu);
   };
 
+  const handleUserMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleUserMenuClose = () => {
+    setAnchorEl(null);
+  };
+
   const handleLogout = () => {
+    handleUserMenuClose();
     logout();
     navigate('/login');
     window.location.reload();
@@ -249,6 +264,20 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose, handleDrawer
   return (
     <>
       <DrawerHeader>
+        <Typography
+          variant="h6"
+          noWrap
+          component="div"
+          sx={{
+            ml: 2,
+            opacity: open ? 1 : 0,
+            transition: 'opacity 0.2s',
+            fontWeight: 'bold',
+            flexGrow: 1,
+          }}
+        >
+          Niko Niko
+        </Typography>
         <IconButton onClick={open ? handleDrawerClose : handleDrawerOpen}>
           {open ? <ChevronLeftIcon /> : <ChevronRightIcon />}
         </IconButton>
@@ -258,74 +287,102 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose, handleDrawer
       <Box sx={{ flexGrow: 1 }} /> {/* Pushes user info to the bottom */}
       <Divider />
       {user && (
-        <Box
-          sx={{
-            p: 2,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: open ? 'flex-start' : 'center',
-          }}
-        >
-          <Avatar src={user.avatar_url} alt={user.name} sx={{ mr: open ? 2 : 0 }}>
-            {user.name ? user.name[0].toUpperCase() : '?'}
-          </Avatar>
-          {open && (
-            <Tooltip title={user.email} arrow>
-              <Typography variant="body1" noWrap>
-                {user.name}
-              </Typography>
-            </Tooltip>
-          )}
-        </Box>
-      )}
-      {user && (
-        <List>
-          <ListItem disablePadding sx={{ display: 'block' }}>
-            <ListItemButton
-              onClick={toggleColorMode}
-              sx={{
-                minHeight: 48,
-                justifyContent: open ? 'initial' : 'center',
-                px: 2.5,
+        <>
+          <List>
+            <ListItem disablePadding sx={{ display: 'block' }}>
+              <Tooltip title={!open ? user.name : ''} placement="right" arrow>
+                <ListItemButton
+                  onClick={handleUserMenuOpen}
+                  sx={{
+                    minHeight: 48,
+                    justifyContent: open ? 'initial' : 'center',
+                    px: 2.5,
+                  }}
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      mr: open ? 2 : 'auto',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Avatar src={user.avatar_url} alt={user.name} sx={{ width: 32, height: 32 }}>
+                      {user.name ? user.name[0].toUpperCase() : '?'}
+                    </Avatar>
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={user.name}
+                    secondary={user.email}
+                    sx={{
+                      opacity: open ? 1 : 0,
+                      '& .MuiListItemText-secondary': {
+                        fontSize: '0.7rem',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      },
+                    }}
+                  />
+                </ListItemButton>
+              </Tooltip>
+            </ListItem>
+          </List>
+
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={handleUserMenuClose}
+            onClick={handleUserMenuClose}
+            transformOrigin={{ horizontal: 'left', vertical: 'bottom' }}
+            anchorOrigin={{ horizontal: 'left', vertical: 'top' }}
+            slotProps={{
+              paper: {
+                elevation: 3,
+                sx: {
+                  mb: 1,
+                  minWidth: 180,
+                  '& .MuiAvatar-root': {
+                    width: 32,
+                    height: 32,
+                    ml: -0.5,
+                    mr: 1,
+                  },
+                },
+              },
+            }}
+          >
+            {repoUrl && (
+              <MenuItem component="a" href={repoUrl} target="_blank" rel="noopener noreferrer">
+                <ListItemIcon>
+                  <BugReportIcon fontSize="small" />
+                </ListItemIcon>
+                Report a Bug
+              </MenuItem>
+            )}
+            <MenuItem
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleColorMode();
               }}
             >
-              <ListItemIcon
-                sx={{
-                  minWidth: 0,
-                  mr: open ? 3 : 'auto',
-                  justifyContent: 'center',
-                }}
-              >
-                {mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
+              <ListItemIcon>
+                {mode === 'dark' ? (
+                  <Brightness7Icon fontSize="small" />
+                ) : (
+                  <Brightness4Icon fontSize="small" />
+                )}
               </ListItemIcon>
-              <ListItemText
-                primary={mode === 'dark' ? 'Light Mode' : 'Dark Mode'}
-                sx={{ opacity: open ? 1 : 0 }}
-              />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding sx={{ display: 'block' }}>
-            <ListItemButton
-              onClick={handleLogout}
-              sx={{
-                minHeight: 48,
-                justifyContent: open ? 'initial' : 'center',
-                px: 2.5,
-              }}
-            >
-              <ListItemIcon
-                sx={{
-                  minWidth: 0,
-                  mr: open ? 3 : 'auto',
-                  justifyContent: 'center',
-                }}
-              >
-                <LogoutIcon />
+              {mode === 'dark' ? 'Light Mode' : 'Dark Mode'}
+            </MenuItem>
+            <Divider />
+            <MenuItem onClick={handleLogout}>
+              <ListItemIcon>
+                <LogoutIcon fontSize="small" />
               </ListItemIcon>
-              <ListItemText primary="Logout" sx={{ opacity: open ? 1 : 0 }} />
-            </ListItemButton>
-          </ListItem>
-        </List>
+              Logout
+            </MenuItem>
+          </Menu>
+        </>
       )}
     </>
   );

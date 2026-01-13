@@ -18,10 +18,8 @@ import AdminSprintsPage from '@/pages/AdminSprintsPage';
 import AdminTeamsPage from '@/pages/AdminTeamsPage';
 import AdminUsersPage from '@/pages/AdminUsersPage';
 import AuthCallbackPage from '@/pages/AuthCallbackPage';
-import CreateSprintPage from '@/pages/CreateSprintPage';
 import DashboardPage from '@/pages/DashboardPage';
 import LoginPage from '@/pages/LoginPage';
-import MoodEntryStandalonePage from '@/pages/MoodEntryStandalonePage';
 // New placeholder pages
 import PastSprintsPage from '@/pages/PastSprintsPage';
 
@@ -77,7 +75,7 @@ function App() {
               path="/past-sprints"
               element={
                 <ProtectedRoute>
-                  <PastSprintsPage /> {/* To be created */}
+                  <PastSprintsPage />
                 </ProtectedRoute>
               }
             />
@@ -95,7 +93,7 @@ function App() {
               path="/admin/teams"
               element={
                 <ProtectedRoute requiredSuperAdmin={true}>
-                  <AdminTeamsPage /> {/* To be created */}
+                  <AdminTeamsPage />
                 </ProtectedRoute>
               }
             />
@@ -103,7 +101,7 @@ function App() {
               path="/admin/users"
               element={
                 <ProtectedRoute>
-                  <AdminUsersPage /> {/* To be created */}
+                  <AdminUsersPage />
                 </ProtectedRoute>
               }
             />
@@ -111,24 +109,7 @@ function App() {
               path="/admin/sprints"
               element={
                 <ProtectedRoute>
-                  <AdminSprintsPage /> {/* To be created */}
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/sprint/create/:teamId?"
-              element={
-                <ProtectedRoute>
-                  <CreateSprintPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/moodentry/:sprintId"
-              element={
-                <ProtectedRoute>
-                  <MoodEntryStandalonePage />
+                  <AdminSprintsPage />
                 </ProtectedRoute>
               }
             />

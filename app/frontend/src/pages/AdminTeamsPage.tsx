@@ -1,4 +1,5 @@
 import React from 'react';
+import GroupWorkIcon from '@mui/icons-material/GroupWork';
 import { Box, CircularProgress, Divider, Typography } from '@mui/material';
 import { useSnackbar } from 'notistack';
 
@@ -9,6 +10,7 @@ import { deleteTeam } from '@/services/teamService';
 
 import AdminTeamListItem from '@/components/AdminTeamListItem';
 import CreateTeamForm from '@/components/CreateTeamForm';
+import PageContainer from '@/components/layout/PageContainer';
 
 const AdminTeamsPage: React.FC = () => {
   const { isSuperAdmin } = useAuth();
@@ -29,11 +31,7 @@ const AdminTeamsPage: React.FC = () => {
   };
 
   return (
-    <Box>
-      <Typography variant="h4" component="h1" gutterBottom>
-        Admin Teams
-      </Typography>
-
+    <PageContainer title="Admin Teams" icon={<GroupWorkIcon />}>
       {isSuperAdmin && (
         <Box sx={{ mb: 4 }}>
           <Typography variant="h5" component="h2" gutterBottom>
@@ -64,7 +62,7 @@ const AdminTeamsPage: React.FC = () => {
       ) : (
         <Typography variant="body1">No teams found.</Typography>
       )}
-    </Box>
+    </PageContainer>
   );
 };
 

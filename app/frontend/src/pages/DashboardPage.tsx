@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import DashboardIcon from '@mui/icons-material/Dashboard';
 import EditIcon from '@mui/icons-material/Edit';
 import FaceIcon from '@mui/icons-material/Face';
 // Material UI Imports
@@ -21,6 +22,7 @@ import type { TeamWithMembersAndSprints } from '@/models/Team/TeamWithMembersAnd
 import { updateTeam } from '@/services/teamService';
 
 import EditTeamDialog from '@/components/EditTeamDialog';
+import PageContainer from '@/components/layout/PageContainer';
 import SprintMoodGrid from '@/components/sprints/SprintMoodGrid';
 
 const DashboardPage: React.FC = () => {
@@ -41,11 +43,7 @@ const DashboardPage: React.FC = () => {
   }
 
   return (
-    <Box sx={{ mt: 2 }}>
-      <Typography variant="h4" component="h1" gutterBottom>
-        Home
-      </Typography>
-
+    <PageContainer title="Home" icon={<DashboardIcon />}>
       {teams && teams.length > 0 ? (
         teams.map((team: TeamWithMembersAndSprints) => (
           <TeamDashboardSection key={team.id} team={team} onUpdate={() => mutate()} />
@@ -53,7 +51,7 @@ const DashboardPage: React.FC = () => {
       ) : (
         <Typography variant="body1">You don't belong to any teams yet.</Typography>
       )}
-    </Box>
+    </PageContainer>
   );
 };
 

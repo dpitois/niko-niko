@@ -67,6 +67,8 @@ services:
     build:
       context: ./app/frontend
       dockerfile: Dockerfile
+      args:
+        - VITE_GITHUB_REPO_URL=${VITE_GITHUB_REPO_URL}
     container_name: nikoniko_frontend
     depends_on:
       backend:

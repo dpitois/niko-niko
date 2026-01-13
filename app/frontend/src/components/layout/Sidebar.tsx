@@ -28,6 +28,7 @@ import {
   Menu,
   MenuItem,
   Tooltip,
+  Typography,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
@@ -39,7 +40,7 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   alignItems: 'center',
   padding: theme.spacing(0, 1),
   ...theme.mixins.toolbar,
-  justifyContent: 'flex-end',
+  justifyContent: 'space-between', // Changed from flex-end to space-between
 }));
 
 interface SidebarProps {
@@ -263,6 +264,20 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose, handleDrawer
   return (
     <>
       <DrawerHeader>
+        <Typography
+          variant="h6"
+          noWrap
+          component="div"
+          sx={{
+            ml: 2,
+            opacity: open ? 1 : 0,
+            transition: 'opacity 0.2s',
+            fontWeight: 'bold',
+            flexGrow: 1,
+          }}
+        >
+          Niko Niko
+        </Typography>
         <IconButton onClick={open ? handleDrawerClose : handleDrawerOpen}>
           {open ? <ChevronLeftIcon /> : <ChevronRightIcon />}
         </IconButton>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import FaceIcon from '@mui/icons-material/Face';
@@ -30,16 +31,17 @@ interface AdminTeamListItemProps {
 }
 
 const AdminTeamListItem: React.FC<AdminTeamListItemProps> = ({ team, onDelete, onUpdate }) => {
+  const { t } = useTranslation();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
 
   const handleUpdateName = async (newName: string) => {
     try {
       await updateTeam(team.id, newName);
-      enqueueSnackbar('Team name updated successfully.', { variant: 'success' });
+      enqueueSnackbar(t('dashboard.teamUpdated'), { variant: 'success' });
       if (onUpdate) onUpdate();
     } catch {
-      enqueueSnackbar('Failed to update team name.', { variant: 'error' });
+      enqueueSnackbar(t('dashboard.teamUpdateFailed'), { variant: 'error' });
       throw new Error('Update failed');
     }
   };
@@ -54,14 +56,14 @@ const AdminTeamListItem: React.FC<AdminTeamListItemProps> = ({ team, onDelete, o
           <IconButton
             size="small"
             onClick={() => setIsEditDialogOpen(true)}
-            title="Edit team name"
+            title={t('adminTeams.listItem.editNameTitle')}
             sx={{ color: 'text.secondary' }}
           >
             <EditIcon fontSize="small" />
           </IconButton>
           <Chip
             icon={<FaceIcon />}
-            label={`Owner: ${team.adminName}`}
+            label={t('dashboard.owner', { name: team.adminName })}
             variant="outlined"
             size="small"
             color="primary"
@@ -74,7 +76,7 @@ const AdminTeamListItem: React.FC<AdminTeamListItemProps> = ({ team, onDelete, o
           onClick={() => onDelete(team.id)}
           size="small"
         >
-          Delete
+          {t('common.delete')}
         </Button>
       </Box>
 
@@ -86,7 +88,8 @@ const AdminTeamListItem: React.FC<AdminTeamListItemProps> = ({ team, onDelete, o
       />
       <Box>
         <Typography variant="subtitle2" sx={{ mb: 1, display: 'flex', alignItems: 'center' }}>
-          <GroupIcon sx={{ mr: 0.5 }} fontSize="small" /> Members ({team.members.length})
+          <GroupIcon sx={{ mr: 0.5 }} fontSize="small" />{' '}
+          {t('adminTeams.listItem.membersCount', { count: team.members.length })}
         </Typography>
         <List dense>
           {team.members.map((member) => (

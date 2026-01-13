@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Alert, Box, Button, TextField, Typography } from '@mui/material';
 import axios from 'axios';
 
@@ -15,6 +16,7 @@ const CreateTeamInvitationForm: React.FC<CreateTeamInvitationFormProps> = ({
   teamId,
   onInvitationCreated,
 }) => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [expirationInDays, setExpirationInDays] = useState<number>(7);
   const [invitationLink, setInvitationLink] = useState<string | null>(null);
@@ -28,7 +30,7 @@ const CreateTeamInvitationForm: React.FC<CreateTeamInvitationFormProps> = ({
     setInvitationLink(null);
 
     if (!user) {
-      setError('You must be logged in to create an invitation.');
+      setError(t('adminUsers.invitations.createForm.errorLogin'));
       return;
     }
 
@@ -39,12 +41,12 @@ const CreateTeamInvitationForm: React.FC<CreateTeamInvitationFormProps> = ({
       });
       const link = `${window.location.origin}/accept-invitation/${newInvitation.token}`;
       setInvitationLink(link);
-      setSuccess('Invitation created successfully!');
+      setSuccess(t('adminUsers.invitations.createForm.success'));
       if (onInvitationCreated) {
         onInvitationCreated(newInvitation);
       }
     } catch (err: unknown) {
-      let errorMessage = 'Failed to create invitation.';
+      let errorMessage = t('adminUsers.invitations.createForm.fail');
       if (axios.isAxiosError(err) && err.response?.data?.message) {
         errorMessage = err.response.data.message;
       } else if (err instanceof Error) {
@@ -61,7 +63,7 @@ const CreateTeamInvitationForm: React.FC<CreateTeamInvitationFormProps> = ({
       sx={{ mt: 3, p: 2, border: '1px solid #ccc', borderRadius: '8px' }}
     >
       <Typography variant="h6" gutterBottom>
-        Create Team Invitation
+        {t('adminUsers.invitations.createForm.title')}
       </Typography>
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
@@ -75,7 +77,7 @@ const CreateTeamInvitationForm: React.FC<CreateTeamInvitationFormProps> = ({
       )}
 
       <TextField
-        label="Expiration in Days"
+        label={t('adminUsers.invitations.createForm.expirationLabel')}
         type="number"
         value={expirationInDays}
         onChange={(e) => setExpirationInDays(Number(e.target.value))}
@@ -84,12 +86,14 @@ const CreateTeamInvitationForm: React.FC<CreateTeamInvitationFormProps> = ({
         inputProps={{ min: 1 }}
       />
       <Button type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
-        Generate Invitation Link
+        {t('adminUsers.invitations.createForm.generateButton')}
       </Button>
 
       {invitationLink && (
         <Box sx={{ mt: 3, p: 2, bgcolor: '#f0f0f0', borderRadius: '4px' }}>
-          <Typography variant="subtitle1">Invitation Link:</Typography>
+          <Typography variant="subtitle1">
+            {t('adminUsers.invitations.createForm.linkLabel')}
+          </Typography>
           <TextField
             fullWidth
             value={invitationLink}
@@ -106,7 +110,7 @@ const CreateTeamInvitationForm: React.FC<CreateTeamInvitationFormProps> = ({
             onClick={() => navigator.clipboard.writeText(invitationLink)}
             sx={{ mt: 1 }}
           >
-            Copy Link
+            {t('adminUsers.invitations.copyLink')}
           </Button>
         </Box>
       )}

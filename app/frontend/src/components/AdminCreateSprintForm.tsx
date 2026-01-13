@@ -1,15 +1,6 @@
 import React, { useState } from 'react';
-import {
-  Box,
-  Button,
-  FormControl,
-  Grid,
-  InputLabel,
-  MenuItem,
-  Select,
-  TextField,
-  Typography,
-} from '@mui/material';
+import { useTranslation } from 'react-i18next';
+import { Box, Button, Grid, MenuItem, TextField, Typography } from '@mui/material';
 
 import type { CreateSprint } from '@/models/CreateSprint';
 import type { TeamDto } from '@/models/Team';
@@ -24,6 +15,7 @@ const AdminCreateSprintForm: React.FC<AdminCreateSprintFormProps> = ({
   teams,
   onSprintCreated,
 }) => {
+  const { t } = useTranslation();
   const [name, setName] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -35,12 +27,12 @@ const AdminCreateSprintForm: React.FC<AdminCreateSprintFormProps> = ({
     setError(null);
 
     if (!name || !startDate || !endDate || !selectedTeamId) {
-      setError('Please fill in all fields and select a team.');
+      setError(t('adminSprints.createForm.errorFill'));
       return;
     }
 
     if (new Date(startDate) >= new Date(endDate)) {
-      setError('End date must be after start date.');
+      setError(t('adminSprints.createForm.errorDate'));
       return;
     }
 
@@ -60,7 +52,7 @@ const AdminCreateSprintForm: React.FC<AdminCreateSprintFormProps> = ({
       setEndDate('');
       setSelectedTeamId('');
     } catch {
-      setError('Failed to create sprint. Please try again.');
+      setError(t('adminSprints.createForm.errorFail'));
     }
   };
 
@@ -73,27 +65,26 @@ const AdminCreateSprintForm: React.FC<AdminCreateSprintFormProps> = ({
       )}
       <Grid container spacing={2} alignItems="center">
         <Grid size={{ xs: 12, md: 3 }}>
-          <FormControl fullWidth required>
-            <InputLabel id="team-select-label">Team</InputLabel>
-            <Select
-              labelId="team-select-label"
-              id="team-select"
-              value={selectedTeamId}
-              label="Team"
-              onChange={(e) => setSelectedTeamId(e.target.value)}
-            >
-              {teams.map((team) => (
-                <MenuItem key={team.id} value={team.id}>
-                  {team.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          <TextField
+            select
+            id="team-select"
+            label={t('adminSprints.createForm.teamLabel')}
+            value={selectedTeamId}
+            onChange={(e) => setSelectedTeamId(e.target.value)}
+            fullWidth
+            required
+          >
+            {teams.map((team) => (
+              <MenuItem key={team.id} value={team.id}>
+                {team.name}
+              </MenuItem>
+            ))}
+          </TextField>
         </Grid>
         <Grid size={{ xs: 12, md: 3 }}>
           <TextField
             id="sprint-name"
-            label="Sprint Name"
+            label={t('adminSprints.createForm.nameLabel')}
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -104,7 +95,7 @@ const AdminCreateSprintForm: React.FC<AdminCreateSprintFormProps> = ({
         <Grid size={{ xs: 6, md: 2 }}>
           <TextField
             id="start-date"
-            label="Start Date"
+            label={t('adminSprints.createForm.startDateLabel')}
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
@@ -118,7 +109,7 @@ const AdminCreateSprintForm: React.FC<AdminCreateSprintFormProps> = ({
         <Grid size={{ xs: 6, md: 2 }}>
           <TextField
             id="end-date"
-            label="End Date"
+            label={t('adminSprints.createForm.endDateLabel')}
             type="date"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
@@ -137,7 +128,7 @@ const AdminCreateSprintForm: React.FC<AdminCreateSprintFormProps> = ({
             fullWidth
             sx={{ height: '56px' }}
           >
-            Create
+            {t('adminSprints.createForm.createButton')}
           </Button>
         </Grid>
       </Grid>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { NavLink, useNavigate } from 'react-router-dom';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
@@ -10,6 +11,7 @@ import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import GroupWorkIcon from '@mui/icons-material/GroupWork';
 import HistoryIcon from '@mui/icons-material/History';
+import LanguageIcon from '@mui/icons-material/Language';
 import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PeopleIcon from '@mui/icons-material/People';
@@ -17,7 +19,13 @@ import TimelineIcon from '@mui/icons-material/Timeline';
 import {
   Avatar,
   Box,
+  Button,
   Collapse,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   Divider,
   IconButton,
   List,
@@ -52,6 +60,7 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose, handleDrawerOpen }) => {
   const { user, logout, isSuperAdmin, userTeamRoles } = useAuth();
   const { toggleColorMode, mode } = useColorMode();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
 
   const repoUrl = import.meta.env.VITE_GITHUB_REPO_URL;
@@ -61,6 +70,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose, handleDrawer
 
   const [openAdminMenu, setOpenAdminMenu] = React.useState(false);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [openLogoutDialog, setOpenLogoutDialog] = React.useState(false);
 
   const handleAdminMenuClick = () => {
     setOpenAdminMenu(!openAdminMenu);
@@ -74,11 +84,25 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose, handleDrawer
     setAnchorEl(null);
   };
 
-  const handleLogout = () => {
+  const handleLanguageSwitch = () => {
+    const newLang = i18n.language === 'fr' ? 'en' : 'fr';
+    i18n.changeLanguage(newLang);
+  };
+
+  const handleLogoutClick = () => {
     handleUserMenuClose();
+    setOpenLogoutDialog(true);
+  };
+
+  const handleConfirmLogout = () => {
+    setOpenLogoutDialog(false);
     logout();
     navigate('/login');
     window.location.reload();
+  };
+
+  const handleCancelLogout = () => {
+    setOpenLogoutDialog(false);
   };
 
   const navItems = user ? (
@@ -103,7 +127,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose, handleDrawer
             >
               <DashboardIcon />
             </ListItemIcon>
-            <ListItemText primary="Home" sx={{ opacity: open ? 1 : 0 }} />
+            <ListItemText primary={t('sidebar.home')} sx={{ opacity: open ? 1 : 0 }} />
           </ListItemButton>
         </ListItem>
 
@@ -126,7 +150,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose, handleDrawer
             >
               <HistoryIcon />
             </ListItemIcon>
-            <ListItemText primary="Past Sprints" sx={{ opacity: open ? 1 : 0 }} />
+            <ListItemText primary={t('sidebar.pastSprints')} sx={{ opacity: open ? 1 : 0 }} />
           </ListItemButton>
         </ListItem>
 
@@ -152,7 +176,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose, handleDrawer
                 >
                   <PeopleIcon />
                 </ListItemIcon>
-                <ListItemText primary="Admin" sx={{ opacity: open ? 1 : 0 }} />
+                <ListItemText primary={t('sidebar.admin')} sx={{ opacity: open ? 1 : 0 }} />
                 {openAdminMenu ? <ExpandLess /> : <ExpandMore />}
               </ListItemButton>
               <Collapse in={openAdminMenu} timeout="auto" unmountOnExit>
@@ -177,7 +201,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose, handleDrawer
                         >
                           <GroupWorkIcon />
                         </ListItemIcon>
-                        <ListItemText primary="Teams" sx={{ opacity: open ? 1 : 0 }} />
+                        <ListItemText primary={t('sidebar.teams')} sx={{ opacity: open ? 1 : 0 }} />
                       </ListItemButton>
                     </ListItem>
                   )}
@@ -201,7 +225,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose, handleDrawer
                       >
                         <PeopleIcon />
                       </ListItemIcon>
-                      <ListItemText primary="Users" sx={{ opacity: open ? 1 : 0 }} />
+                      <ListItemText primary={t('sidebar.users')} sx={{ opacity: open ? 1 : 0 }} />
                     </ListItemButton>
                   </ListItem>
 
@@ -224,7 +248,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose, handleDrawer
                       >
                         <TimelineIcon />
                       </ListItemIcon>
-                      <ListItemText primary="Sprints" sx={{ opacity: open ? 1 : 0 }} />
+                      <ListItemText primary={t('sidebar.sprints')} sx={{ opacity: open ? 1 : 0 }} />
                     </ListItemButton>
                   </ListItem>
                 </List>
@@ -255,7 +279,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose, handleDrawer
           >
             <LoginIcon />
           </ListItemIcon>
-          <ListItemText primary="Login" sx={{ opacity: open ? 1 : 0 }} />
+          <ListItemText primary={t('sidebar.login')} sx={{ opacity: open ? 1 : 0 }} />
         </ListItemButton>
       </ListItem>
     </List>
@@ -276,7 +300,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose, handleDrawer
             flexGrow: 1,
           }}
         >
-          Niko Niko
+          {t('common.appName')}
         </Typography>
         <IconButton onClick={open ? handleDrawerClose : handleDrawerOpen}>
           {open ? <ChevronLeftIcon /> : <ChevronRightIcon />}
@@ -356,7 +380,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose, handleDrawer
                 <ListItemIcon>
                   <BugReportIcon fontSize="small" />
                 </ListItemIcon>
-                Report a Bug
+                {t('sidebar.reportBug')}
               </MenuItem>
             )}
             <MenuItem
@@ -372,16 +396,47 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose, handleDrawer
                   <Brightness4Icon fontSize="small" />
                 )}
               </ListItemIcon>
-              {mode === 'dark' ? 'Light Mode' : 'Dark Mode'}
+              {t('sidebar.mode', { mode: mode === 'dark' ? 'Light' : 'Dark' })}
+            </MenuItem>
+            <MenuItem
+              onClick={(e) => {
+                e.stopPropagation();
+                handleLanguageSwitch();
+              }}
+            >
+              <ListItemIcon>
+                <LanguageIcon fontSize="small" />
+              </ListItemIcon>
+              {i18n.language === 'fr' ? 'English' : 'Français'}
             </MenuItem>
             <Divider />
-            <MenuItem onClick={handleLogout}>
+            <MenuItem onClick={handleLogoutClick}>
               <ListItemIcon>
                 <LogoutIcon fontSize="small" />
               </ListItemIcon>
-              Logout
+              {t('common.logout')}
             </MenuItem>
           </Menu>
+
+          <Dialog
+            open={openLogoutDialog}
+            onClose={handleCancelLogout}
+            aria-labelledby="logout-dialog-title"
+            aria-describedby="logout-dialog-description"
+          >
+            <DialogTitle id="logout-dialog-title">{t('common.logoutDialog.title')}</DialogTitle>
+            <DialogContent>
+              <DialogContentText id="logout-dialog-description">
+                {t('common.logoutDialog.content')}
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleCancelLogout}>{t('common.cancel')}</Button>
+              <Button onClick={handleConfirmLogout} color="error" autoFocus>
+                {t('common.logoutDialog.confirm')}
+              </Button>
+            </DialogActions>
+          </Dialog>
         </>
       )}
     </>

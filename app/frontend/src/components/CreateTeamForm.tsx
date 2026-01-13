@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 // Material UI Imports
@@ -14,6 +15,7 @@ interface CreateTeamFormProps {
 }
 
 const CreateTeamForm: React.FC<CreateTeamFormProps> = ({ onTeamCreated }) => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [name, setName] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -23,12 +25,12 @@ const CreateTeamForm: React.FC<CreateTeamFormProps> = ({ onTeamCreated }) => {
     setError(null);
 
     if (!name) {
-      setError('Please fill in the team name.');
+      setError(t('adminTeams.createForm.errorFill'));
       return;
     }
 
     if (!user) {
-      setError('You must be logged in to create a team.');
+      setError(t('adminTeams.createForm.errorLogin'));
       return;
     }
 
@@ -42,7 +44,7 @@ const CreateTeamForm: React.FC<CreateTeamFormProps> = ({ onTeamCreated }) => {
       onTeamCreated();
       setName('');
     } catch {
-      setError('Failed to create team. Please try again.');
+      setError(t('adminTeams.createForm.errorFail'));
     }
   };
 
@@ -54,7 +56,7 @@ const CreateTeamForm: React.FC<CreateTeamFormProps> = ({ onTeamCreated }) => {
         sx={{ display: 'flex', alignItems: 'center', gap: 2 }}
       >
         <TextField
-          label="New Team Name"
+          label={t('adminTeams.createForm.labelName')}
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
@@ -63,7 +65,7 @@ const CreateTeamForm: React.FC<CreateTeamFormProps> = ({ onTeamCreated }) => {
           sx={{ flexGrow: 1 }}
         />
         <Button type="submit" variant="contained" color="primary">
-          Create Team
+          {t('adminTeams.createForm.createButton')}
         </Button>
       </Box>
       {error && (

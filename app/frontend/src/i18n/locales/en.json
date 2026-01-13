@@ -1,0 +1,149 @@
+{
+  "common": {
+    "appName": "Niko Niko",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "language": "Language",
+    "logout": "Logout",
+    "success": "Success",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "save": "Save",
+    "create": "Create",
+    "actions": "Actions",
+    "copyLink": "Copy Link",
+    "date": "Date",
+    "logoutDialog": {
+      "title": "Confirm Logout",
+      "content": "Are you sure you want to log out?",
+      "confirm": "Logout"
+    }
+  },
+  "sidebar": {
+    "home": "Home",
+    "pastSprints": "Past Sprints",
+    "admin": "Administration",
+    "teams": "Teams",
+    "users": "Users",
+    "sprints": "Sprints",
+    "login": "Login",
+    "reportBug": "Report a Bug",
+    "mode": "{{mode}} Mode"
+  },
+  "login": {
+    "subtitle": "Please sign in to continue",
+    "signInGithub": "Sign in with GitHub",
+    "signInGoogle": "Sign in with Google",
+    "signInMicrosoft": "Sign in with Microsoft"
+  },
+  "dashboard": {
+    "title": "Home",
+    "failedLoadTeams": "Failed to load teams. Make sure you are logged in.",
+    "noTeams": "You don't belong to any teams yet.",
+    "currentSprint": "Current Sprint",
+    "owner": "Owner: {{name}}",
+    "noActiveSprint": "No active sprint found for this team.",
+    "editTeamName": "Edit team name",
+    "teamUpdated": "Team name updated successfully.",
+    "teamUpdateFailed": "Failed to update team name."
+  },
+  "adminTeams": {
+    "title": "Admin Teams",
+    "createNew": "Create New Team",
+    "manageAll": "Manage All Teams",
+    "noTeamsFound": "No teams found.",
+    "deleteFailed": "Failed to delete team.",
+    "createForm": {
+      "labelName": "New Team Name",
+      "createButton": "Create Team",
+      "errorFill": "Please fill in the team name.",
+      "errorLogin": "You must be logged in to create a team.",
+      "errorFail": "Failed to create team. Please try again."
+    },
+    "listItem": {
+      "membersCount": "Members ({{count}})",
+      "editNameTitle": "Edit team name"
+    },
+    "editDialog": {
+      "title": "Edit Team Name",
+      "labelName": "Team Name"
+    }
+  },
+  "pastSprints": {
+    "title": "Past Sprints",
+    "noData": "No sprints or teams data available.",
+    "failedLoad": "Failed to load data. Make sure you are logged in.",
+    "noSprintsFound": "No past sprints found.",
+    "team": "Team: {{name}}",
+    "from": "From {{start}} to {{end}}"
+  },
+  "adminUsers": {
+    "title": "Admin Users",
+    "tabs": {
+      "management": "User Management",
+      "invitations": "Invitations"
+    },
+    "table": {
+      "avatar": "Avatar",
+      "name": "Name",
+      "email": "Email",
+      "createdAt": "Created At",
+      "actions": "Actions",
+      "noUsers": "No users found."
+    },
+    "deleteDialog": {
+      "title": "Confirm Delete User",
+      "content": "Are you sure you want to delete user \"{{name}}\"? This action cannot be undone.",
+      "success": "User {{name}} deleted successfully!",
+      "fail": "Failed to delete user {{name}}."
+    },
+    "invitations": {
+      "selectTeamTitle": "Select a Team to Manage Invitations",
+      "selectTeamLabel": "Select a team",
+      "existingTitle": "Existing Team Invitations",
+      "token": "Token: {{token}}...",
+      "expires": "Expires: {{date}}",
+      "status": "Status: {{status}}",
+      "noInvitations": "No invitations found for this team.",
+      "noTeams": "No teams available to manage invitations.",
+      "createForm": {
+        "title": "Create Team Invitation",
+        "expirationLabel": "Expiration in Days",
+        "generateButton": "Generate Invitation Link",
+        "linkLabel": "Invitation Link:",
+        "success": "Invitation created successfully!",
+        "fail": "Failed to create invitation.",
+        "errorLogin": "You must be logged in to create an invitation."
+      },
+      "deleteDialog": {
+        "title": "Confirm Delete Invitation",
+        "content": "Are you sure you want to delete this invitation? This action cannot be undone.",
+        "success": "Invitation deleted successfully!",
+        "fail": "Failed to delete invitation."
+      }
+    }
+  },
+  "adminSprints": {
+    "title": "Admin Sprints Management",
+    "createNew": "Create New Sprint",
+    "manageAll": "Manage All Sprints",
+    "noSprints": "No sprints found.",
+    "deleteDialog": {
+      "title": "Delete Sprint?",
+      "content": "Are you sure you want to delete the sprint \"{{name}}\"? This action cannot be undone.",
+      "success": "Sprint deleted successfully!",
+      "fail": "Failed to delete sprint."
+    },
+    "createForm": {
+      "teamLabel": "Team",
+      "nameLabel": "Sprint Name",
+      "startDateLabel": "Start Date",
+      "endDateLabel": "End Date",
+      "createButton": "Create",
+      "success": "Sprint created successfully!",
+      "errorFill": "Please fill in all fields and select a team.",
+      "errorDate": "End date must be after start date.",
+      "errorFail": "Failed to create sprint. Please try again."
+    }
+  }
+}

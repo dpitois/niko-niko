@@ -32,7 +32,25 @@ graph TD
 
 ---
 
-## 2. Database Schema
+## 2. Frontend Architecture
+
+### Core Stack
+*   **Framework**: React 19 (TypeScript) + Vite
+*   **UI Library**: Material UI (MUI v7)
+*   **State Management**: `React.Context` (Auth, ColorMode), `SWR` (Data fetching)
+*   **Routing**: `react-router-dom`
+
+### Internationalization (i18n)
+The application supports multiple languages (currently English and French) with a centralized management system.
+*   **Library**: `i18next` / `react-i18next`.
+*   **Configuration**: `src/i18n/config.ts`.
+*   **Storage**: Translations are stored in JSON files under `src/i18n/locales/`.
+*   **Detection**: `i18next-browser-languagedetector` automatically detects user preference.
+*   **Date Formatting**: `Day.js` locales are dynamically updated based on the selected language.
+
+---
+
+## 3. Database Schema
 
 The following diagram illustrates the core data models and their relationships.
 
@@ -102,7 +120,7 @@ erDiagram
 
 ---
 
-## 3. Authentication Workflow
+## 4. Authentication Workflow
 
 Authentication is handled via OAuth 2.0 (GitHub/Google) and secured using JWT (JSON Web Tokens).
 
@@ -128,7 +146,7 @@ sequenceDiagram
 
 ---
 
-## 4. Real-time Notifications
+## 5. Real-time Notifications
 
 The application uses SignalR for real-time updates (e.g., when a team member submits their mood).
 
@@ -138,7 +156,7 @@ The application uses SignalR for real-time updates (e.g., when a team member sub
 
 ---
 
-## 5. API Standards
+## 6. API Standards
 
 The API is built following RESTful principles:
 *   **Documentation**: Automatically generated via OpenAPI/Swagger. Accessible at `/swagger` in development.

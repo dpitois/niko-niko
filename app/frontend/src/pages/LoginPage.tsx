@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import GitHubIcon from '@mui/icons-material/GitHub';
+import GoogleIcon from '@mui/icons-material/Google';
 import { Box, Button, Container, Typography } from '@mui/material';
 
 const LoginPage = () => {
@@ -30,10 +32,22 @@ const LoginPage = () => {
           Niko Niko Calendar
         </Typography>
         <Typography variant="body1">Please sign in to continue</Typography>
-        <Button fullWidth variant="contained" color="primary" href={githubLoginHref}>
+        <Button
+          fullWidth
+          variant="contained"
+          color="primary"
+          href={githubLoginHref}
+          startIcon={<GitHubIcon />}
+        >
           Sign in with GitHub
         </Button>
-        <Button fullWidth variant="contained" color="error" href={googleLoginHref}>
+        <Button
+          fullWidth
+          variant="contained"
+          color="error"
+          href={googleLoginHref}
+          startIcon={<GoogleIcon />}
+        >
           Sign in with Google
         </Button>
         {/* Microsoft is currently disabled, but we keep the placeholders */}

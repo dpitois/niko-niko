@@ -14,6 +14,11 @@ RUN npm ci
 # (Now faster thanks to .dockerignore)
 COPY . .
 
+# Accept build argument for GitHub Repo URL
+ARG VITE_GITHUB_REPO_URL
+# Set it as an environment variable so Vite can pick it up
+ENV VITE_GITHUB_REPO_URL=$VITE_GITHUB_REPO_URL
+
 # Build the application
 RUN npm run build
 

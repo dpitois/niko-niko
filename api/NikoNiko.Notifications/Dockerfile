@@ -1,28 +1,37 @@
-# Stage 1: Build the application
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+# Stage 1: Build
+FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS build
 WORKDIR /src
 
-# Copy the entire api directory content to /src
-COPY api/ .
+# Copy project files for restoration
+COPY ["api/nikoniko.slnx", "api/"]
+COPY ["api/NikoNiko.Api/NikoNiko.Api.csproj", "api/NikoNiko.Api/"]
+COPY ["api/NikoNiko.Core/NikoNiko.Core.csproj", "api/NikoNiko.Core/"]
+COPY ["api/NikoNiko.Data/NikoNiko.Data.csproj", "api/NikoNiko.Data/"]
+COPY ["api/NikoNiko.Services/NikoNiko.Services.csproj", "api/NikoNiko.Services/"]
+COPY ["api/NikoNiko.Data.PostgreSql/NikoNiko.Data.PostgreSql.csproj", "api/NikoNiko.Data.PostgreSql/"]
+COPY ["api/NikoNiko.Data.Sqlite/NikoNiko.Data.Sqlite.csproj", "api/NikoNiko.Data.Sqlite/"]
+COPY ["api/NikoNiko.Notifications/NikoNiko.Notifications.csproj", "api/NikoNiko.Notifications/"]
+COPY ["api/NikoNiko.Api.IntegrationTests/NikoNiko.Api.IntegrationTests.csproj", "api/NikoNiko.Api.IntegrationTests/"]
+COPY ["api/NikoNiko.Notifications.IntegrationTests/NikoNiko.Notifications.IntegrationTests.csproj", "api/NikoNiko.Notifications.IntegrationTests/"]
 
-# Restore dependencies using the solution file now at /src/nikoniko.slnx
-RUN dotnet restore "nikoniko.slnx"
+# Restore dependencies
+RUN dotnet restore "api/nikoniko.slnx"
 
-# Build the specific application
-RUN dotnet build "NikoNiko.Notifications/NikoNiko.Notifications.csproj" -c Release -o /app/build
+# Copy the rest of the source code
+COPY api/ api/
 
-# Stage 2: Publish the application
-FROM build AS publish
-RUN dotnet publish "NikoNiko.Notifications/NikoNiko.Notifications.csproj" -c Release -o /app/publish
+# Build and publish the Notifications service
+WORKDIR "/src/api/NikoNiko.Notifications"
+RUN dotnet publish "NikoNiko.Notifications.csproj" -c Release -o /app/publish --no-restore
 
-# Stage 3: Final
-FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
+# Stage 2: Final
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS final
 WORKDIR /app
 
-# Install curl for healthcheck
-RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+# Install icu-libs for globalization support
+RUN apk add --no-cache icu-libs curl
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 
-COPY --from=publish /app/publish .
+COPY --from=build /app/publish .
 
-# The entry point to start the application.
 ENTRYPOINT ["dotnet", "NikoNiko.Notifications.dll"]

@@ -1,2 +1,27 @@
+# Docker context exclusions
+.git
+.github
+.vscode
+.idea
+*.swp
+*.log
+
+# .NET exclusions
+**/bin/
+**/obj/
+**/TestResults/
+
+# Node.js exclusions
+**/node_modules/
+app/frontend/dist/
+
+# Database / Storage
 postgres_data/
-docker-compose.prod.yml
+data/
+*.db
+*.db-shm
+*.db-wal
+
+# Docker specifics
+docker-compose*.override.yml
+.env

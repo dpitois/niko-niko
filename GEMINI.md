@@ -57,6 +57,7 @@ This directory contains the React web application developed with TypeScript.
     *   `components/`: Reusable React components, including generic UI elements and specific components (e.g., `Header`, `MoodEntryForm`, `CreateTeamForm`, `layout/Sidebar`).
     *   `context/`: React contexts (e.g., `AuthContext`) for global state management.
     *   `hooks/`: Custom React hooks (e.g., `useAuth`) for encapsulating reusable logic.
+    *   `i18n/`: Internationalization configuration and translation files.
     *   `models/`: TypeScript interface definitions for data consumed by the frontend, often reflecting backend DTOs.
     *   `pages/`: Page components representing different application views (e.g., Login, Dashboard, Admin/Teams, Admin/Users, Admin/Sprints, MyTeams, PastSprints).
     *   `services/`: Functions and modules for interacting with backend APIs (using Axios and SWR for data management).
@@ -75,6 +76,7 @@ This directory contains the React web application developed with TypeScript.
 *   **Gamification**: Planned badge attribution.
 *   **Dashboard**: Centralized view of teams, sprints, and calendars. Includes navigation, administration dashboard, and "My Teams" page.
 *   **User Logout**: Fully implemented frontend logout functionality.
+*   **Internationalization (i18n)**: Support for English and French, with dynamic language switching and centralized translation files.
 
 ## Main Data Models
 
@@ -222,6 +224,7 @@ If you wish to run frontend and/or backend locally without Docker Compose, follo
 *   **Frontend Styling**: Material UI (MUI v7) is used for all UI components and styling. Direct CSS modules are deprecated.
 *   **Authentication**: Managed via `AuthContext` and `useAuth` hook for centralized state, using `react-router-dom` for routing and `axios`/`swr` for data fetching.
 *   **API Calls**: Frontend uses `axios` and `swr` for data fetching.
+*   **Internationalization**: Used `i18next` with centralized JSON files in `src/i18n/locales`. Always use the `useTranslation` hook for text.
 
 ---
 ## Gemini Added Memories

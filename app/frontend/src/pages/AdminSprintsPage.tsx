@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import DeleteIcon from '@mui/icons-material/Delete';
 import TimelineIcon from '@mui/icons-material/Timeline';
 import {
@@ -28,6 +29,7 @@ import AdminCreateSprintForm from '@/components/AdminCreateSprintForm';
 import PageContainer from '@/components/layout/PageContainer';
 
 const AdminSprintsPage: React.FC = () => {
+  const { t } = useTranslation();
   const { teams, isLoading: isLoadingTeams } = useTeams();
   const { sprints, isLoading: isLoadingSprints, mutate: mutateSprints } = useSprints();
   const { enqueueSnackbar } = useSnackbar();
@@ -35,7 +37,7 @@ const AdminSprintsPage: React.FC = () => {
   const [sprintToDelete, setSprintToDelete] = useState<Sprint | null>(null);
 
   const handleSprintCreated = () => {
-    enqueueSnackbar('Sprint created successfully!', { variant: 'success' });
+    enqueueSnackbar(t('adminSprints.createForm.success'), { variant: 'success' });
     mutateSprints();
   };
 
@@ -52,10 +54,10 @@ const AdminSprintsPage: React.FC = () => {
 
     try {
       await deleteSprint(sprintToDelete.id);
-      enqueueSnackbar('Sprint deleted successfully!', { variant: 'success' });
+      enqueueSnackbar(t('adminSprints.deleteDialog.success'), { variant: 'success' });
       mutateSprints();
     } catch {
-      enqueueSnackbar('Failed to delete sprint.', { variant: 'error' });
+      enqueueSnackbar(t('adminSprints.deleteDialog.fail'), { variant: 'error' });
     } finally {
       handleCloseDeleteDialog();
     }
@@ -66,10 +68,10 @@ const AdminSprintsPage: React.FC = () => {
   };
 
   return (
-    <PageContainer title="Admin Sprints Management" icon={<TimelineIcon />}>
+    <PageContainer title={t('adminSprints.title')} icon={<TimelineIcon />}>
       <Box sx={{ mb: 4 }}>
         <Typography variant="h5" component="h2" gutterBottom>
-          Create New Sprint
+          {t('adminSprints.createNew')}
         </Typography>
         {isLoadingTeams || !teams ? (
           <CircularProgress />
@@ -81,7 +83,7 @@ const AdminSprintsPage: React.FC = () => {
       <Divider sx={{ my: 4 }} />
 
       <Typography variant="h5" component="h2" gutterBottom>
-        Manage All Sprints
+        {t('adminSprints.manageAll')}
       </Typography>
 
       {isLoadingSprints ? (
@@ -130,24 +132,23 @@ const AdminSprintsPage: React.FC = () => {
               </ListItem>
             ))
           ) : (
-            <Typography variant="body1">No sprints found.</Typography>
+            <Typography variant="body1">{t('adminSprints.noSprints')}</Typography>
           )}
         </List>
       )}
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={sprintToDelete !== null} onClose={handleCloseDeleteDialog}>
-        <DialogTitle>Delete Sprint?</DialogTitle>
+        <DialogTitle>{t('adminSprints.deleteDialog.title')}</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete the sprint "<strong>{sprintToDelete?.name}</strong>"?
-            This action cannot be undone.
+            {t('adminSprints.deleteDialog.content', { name: sprintToDelete?.name })}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDeleteDialog}>Cancel</Button>
+          <Button onClick={handleCloseDeleteDialog}>{t('common.cancel')}</Button>
           <Button onClick={handleConfirmDelete} color="error">
-            Delete
+            {t('common.delete')}
           </Button>
         </DialogActions>
       </Dialog>

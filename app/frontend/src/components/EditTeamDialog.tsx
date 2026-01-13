@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Button,
   Dialog,
@@ -21,6 +22,7 @@ const EditTeamDialog: React.FC<EditTeamDialogProps> = ({
   onUpdate,
   currentName,
 }) => {
+  const { t } = useTranslation();
   const [name, setName] = useState(currentName);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -44,13 +46,13 @@ const EditTeamDialog: React.FC<EditTeamDialogProps> = ({
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle>Edit Team Name</DialogTitle>
+      <DialogTitle>{t('adminTeams.editDialog.title')}</DialogTitle>
       <form onSubmit={handleSubmit}>
         <DialogContent>
           <TextField
             autoFocus
             margin="dense"
-            label="Team Name"
+            label={t('adminTeams.editDialog.labelName')}
             type="text"
             fullWidth
             variant="outlined"
@@ -62,7 +64,7 @@ const EditTeamDialog: React.FC<EditTeamDialogProps> = ({
         </DialogContent>
         <DialogActions>
           <Button onClick={onClose} disabled={isSubmitting}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button
             type="submit"
@@ -70,7 +72,7 @@ const EditTeamDialog: React.FC<EditTeamDialogProps> = ({
             variant="contained"
             disabled={isSubmitting || !name.trim() || name === currentName}
           >
-            Save
+            {t('common.save')}
           </Button>
         </DialogActions>
       </form>

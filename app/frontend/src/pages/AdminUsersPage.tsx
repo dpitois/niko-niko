@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PeopleIcon from '@mui/icons-material/People';
 import {
@@ -77,6 +78,7 @@ function a11yProps(index: number) {
 }
 
 const AdminUsersPage: React.FC = () => {
+  const { t } = useTranslation();
   const [value, setValue] = useState(0);
   const { user: currentUser } = useAuth();
   const { users, isLoading: isLoadingUsers, isError: isErrorUsers, mutate } = useUsers();
@@ -125,10 +127,14 @@ const AdminUsersPage: React.FC = () => {
     if (userToDeleteId) {
       try {
         await deleteUser(userToDeleteId);
-        enqueueSnackbar(`User ${userToDeleteName} deleted successfully!`, { variant: 'success' });
+        enqueueSnackbar(t('adminUsers.deleteDialog.success', { name: userToDeleteName }), {
+          variant: 'success',
+        });
         mutate();
       } catch {
-        enqueueSnackbar(`Failed to delete user ${userToDeleteName}.`, { variant: 'error' });
+        enqueueSnackbar(t('adminUsers.deleteDialog.fail', { name: userToDeleteName }), {
+          variant: 'error',
+        });
       } finally {
         setOpenConfirmUserDialog(false);
         setUserToDeleteId(null);
@@ -146,7 +152,7 @@ const AdminUsersPage: React.FC = () => {
   // --- Invitation Management Handlers ---
   const handleInvitationCreated = () => {
     mutateTeamInvitations();
-    enqueueSnackbar('Invitation created successfully!', { variant: 'success' });
+    enqueueSnackbar(t('adminUsers.invitations.createForm.success'), { variant: 'success' });
   };
 
   const handleDeleteInvitationClick = (invitationId: string) => {
@@ -158,10 +164,10 @@ const AdminUsersPage: React.FC = () => {
     if (invitationToDeleteId) {
       try {
         await teamInvitationService.deleteTeamInvitation(invitationToDeleteId);
-        enqueueSnackbar('Invitation deleted successfully!', { variant: 'success' });
+        enqueueSnackbar(t('adminUsers.invitations.deleteDialog.success'), { variant: 'success' });
         mutateTeamInvitations();
       } catch (error: unknown) {
-        let errorMessage = 'Failed to delete invitation.';
+        let errorMessage = t('adminUsers.invitations.deleteDialog.fail');
         if (axios.isAxiosError(error) && error.response?.data?.message) {
           errorMessage = error.response.data.message;
         } else if (error instanceof Error) {
@@ -181,27 +187,27 @@ const AdminUsersPage: React.FC = () => {
   };
 
   return (
-    <PageContainer title="Admin Users" icon={<PeopleIcon />}>
+    <PageContainer title={t('adminUsers.title')} icon={<PeopleIcon />}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={value} onChange={handleChange} aria-label="admin users tabs">
-          <Tab label="User Management" {...a11yProps(0)} />
-          <Tab label="Invitations" {...a11yProps(1)} />
+          <Tab label={t('adminUsers.tabs.management')} {...a11yProps(0)} />
+          <Tab label={t('adminUsers.tabs.invitations')} {...a11yProps(1)} />
         </Tabs>
       </Box>
       <TabPanel value={value} index={0}>
         {isLoadingUsers && <CircularProgress />}
-        {isErrorUsers && <Alert severity="error">Failed to load users.</Alert>}
+        {isErrorUsers && <Alert severity="error">{t('common.error')}</Alert>}
 
         {users && users.length > 0 ? (
           <TableContainer component={Paper}>
             <Table sx={{ minWidth: 650 }} aria-label="users table">
               <TableHead>
                 <TableRow>
-                  <TableCell>Avatar</TableCell>
-                  <TableCell>Name</TableCell>
-                  <TableCell>Email</TableCell>
-                  <TableCell>Created At</TableCell>
-                  <TableCell>Actions</TableCell>
+                  <TableCell>{t('adminUsers.table.avatar')}</TableCell>
+                  <TableCell>{t('adminUsers.table.name')}</TableCell>
+                  <TableCell>{t('adminUsers.table.email')}</TableCell>
+                  <TableCell>{t('adminUsers.table.createdAt')}</TableCell>
+                  <TableCell>{t('adminUsers.table.actions')}</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -231,26 +237,29 @@ const AdminUsersPage: React.FC = () => {
             </Table>
           </TableContainer>
         ) : (
-          !isLoadingUsers && !isErrorUsers && <Typography>No users found.</Typography>
+          !isLoadingUsers &&
+          !isErrorUsers && <Typography>{t('adminUsers.table.noUsers')}</Typography>
         )}
       </TabPanel>
       <TabPanel value={value} index={1}>
         {isLoadingTeams && <CircularProgress />}
-        {isErrorTeams && <Alert severity="error">Failed to load teams for invitations.</Alert>}
+        {isErrorTeams && <Alert severity="error">{t('common.error')}</Alert>}
 
         {teams && teams.length > 0 ? (
           <>
             <Box sx={{ mb: 3 }}>
               <Typography variant="h6" component="h2" gutterBottom>
-                Select a Team to Manage Invitations
+                {t('adminUsers.invitations.selectTeamTitle')}
               </Typography>
               <FormControl fullWidth sx={{ mb: 2 }}>
-                <InputLabel id="team-select-label">Select a team</InputLabel>
+                <InputLabel id="team-select-label">
+                  {t('adminUsers.invitations.selectTeamLabel')}
+                </InputLabel>
                 <Select
                   labelId="team-select-label"
                   id="team-select"
                   value={selectedTeamId || ''}
-                  label="Select a team"
+                  label={t('adminUsers.invitations.selectTeamLabel')}
                   onChange={(e) => setSelectedTeamId(e.target.value)}
                 >
                   {teams.map((team: TeamWithMembersAndSprints) => (
@@ -272,13 +281,11 @@ const AdminUsersPage: React.FC = () => {
                 </Box>
                 <Divider sx={{ my: 3 }} />
                 <Typography variant="h6" gutterBottom>
-                  Existing Team Invitations
+                  {t('adminUsers.invitations.existingTitle')}
                 </Typography>
                 {isLoadingInvitations && <CircularProgress />}
                 {invitationsError && (
-                  <Alert severity="error">
-                    {invitationsError?.message || 'Failed to load invitations.'}
-                  </Alert>
+                  <Alert severity="error">{invitationsError?.message || t('common.error')}</Alert>
                 )}
                 {!isLoadingInvitations && invitations && invitations.length > 0 ? (
                   <List>
@@ -298,10 +305,14 @@ const AdminUsersPage: React.FC = () => {
                         <Grid container spacing={2} alignItems="center">
                           <Grid size={{ xs: 12, sm: 6 }}>
                             <Typography variant="body1">
-                              Token: {invitation.token.substring(0, 10)}...
+                              {t('adminUsers.invitations.token', {
+                                token: invitation.token.substring(0, 10),
+                              })}
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
-                              Expires: {new Date(invitation.expirationDate).toLocaleDateString()}
+                              {t('adminUsers.invitations.expires', {
+                                date: new Date(invitation.expirationDate).toLocaleDateString(),
+                              })}
                             </Typography>
                           </Grid>
                           <Grid size={{ xs: 12, sm: 6 }}>
@@ -315,7 +326,7 @@ const AdminUsersPage: React.FC = () => {
                                     : 'info.main'
                               }
                             >
-                              Status: {invitation.status}
+                              {t('adminUsers.invitations.status', { status: invitation.status })}
                             </Typography>
                             <Button
                               variant="outlined"
@@ -327,7 +338,7 @@ const AdminUsersPage: React.FC = () => {
                               }
                               sx={{ mt: 1 }}
                             >
-                              Copy Link
+                              {t('adminUsers.invitations.copyLink')}
                             </Button>
                           </Grid>
                         </Grid>
@@ -336,14 +347,16 @@ const AdminUsersPage: React.FC = () => {
                   </List>
                 ) : (
                   !isLoadingInvitations &&
-                  !invitationsError && <Typography>No invitations found for this team.</Typography>
+                  !invitationsError && (
+                    <Typography>{t('adminUsers.invitations.noInvitations')}</Typography>
+                  )
                 )}
               </>
             )}
           </>
         ) : (
           !isLoadingTeams &&
-          !isErrorTeams && <Typography>No teams available to manage invitations.</Typography>
+          !isErrorTeams && <Typography>{t('adminUsers.invitations.noTeams')}</Typography>
         )}
       </TabPanel>
 
@@ -353,16 +366,18 @@ const AdminUsersPage: React.FC = () => {
         aria-labelledby="confirm-delete-user-dialog-title"
         aria-describedby="confirm-delete-user-dialog-description"
       >
-        <DialogTitle id="confirm-delete-user-dialog-title">{'Confirm Delete User'}</DialogTitle>
+        <DialogTitle id="confirm-delete-user-dialog-title">
+          {t('adminUsers.deleteDialog.title')}
+        </DialogTitle>
         <DialogContent>
           <DialogContentText id="confirm-delete-user-dialog-description">
-            Are you sure you want to delete user "{userToDeleteName}"? This action cannot be undone.
+            {t('adminUsers.deleteDialog.content', { name: userToDeleteName })}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCancelDeleteUser}>Cancel</Button>
+          <Button onClick={handleCancelDeleteUser}>{t('common.cancel')}</Button>
           <Button onClick={handleConfirmDeleteUser} color="error" autoFocus>
-            Delete
+            {t('common.delete')}
           </Button>
         </DialogActions>
       </Dialog>
@@ -374,17 +389,17 @@ const AdminUsersPage: React.FC = () => {
         aria-describedby="confirm-delete-invitation-dialog-description"
       >
         <DialogTitle id="confirm-delete-invitation-dialog-title">
-          {'Confirm Delete Invitation'}
+          {t('adminUsers.invitations.deleteDialog.title')}
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="confirm-delete-invitation-dialog-description">
-            Are you sure you want to delete this invitation? This action cannot be undone.
+            {t('adminUsers.invitations.deleteDialog.content')}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCancelDeleteInvitation}>Cancel</Button>
+          <Button onClick={handleCancelDeleteInvitation}>{t('common.cancel')}</Button>
           <Button onClick={handleConfirmDeleteInvitation} color="error" autoFocus>
-            Delete
+            {t('common.delete')}
           </Button>
         </DialogActions>
       </Dialog>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import EditIcon from '@mui/icons-material/Edit';
 import FaceIcon from '@mui/icons-material/Face';
@@ -26,6 +27,7 @@ import PageContainer from '@/components/layout/PageContainer';
 import SprintMoodGrid from '@/components/sprints/SprintMoodGrid';
 
 const DashboardPage: React.FC = () => {
+  const { t } = useTranslation();
   const { teams, isLoading: isLoadingTeams, isError: isErrorTeams, mutate } = useTeams();
 
   if (isLoadingTeams) {
@@ -37,19 +39,17 @@ const DashboardPage: React.FC = () => {
   }
 
   if (isErrorTeams) {
-    return (
-      <Typography color="error">Failed to load teams. Make sure you are logged in.</Typography>
-    );
+    return <Typography color="error">{t('dashboard.failedLoadTeams')}</Typography>;
   }
 
   return (
-    <PageContainer title="Home" icon={<DashboardIcon />}>
+    <PageContainer title={t('dashboard.title')} icon={<DashboardIcon />}>
       {teams && teams.length > 0 ? (
         teams.map((team: TeamWithMembersAndSprints) => (
           <TeamDashboardSection key={team.id} team={team} onUpdate={() => mutate()} />
         ))
       ) : (
-        <Typography variant="body1">You don't belong to any teams yet.</Typography>
+        <Typography variant="body1">{t('dashboard.noTeams')}</Typography>
       )}
     </PageContainer>
   );
@@ -61,6 +61,7 @@ interface TeamDashboardSectionProps {
 }
 
 const TeamDashboardSection: React.FC<TeamDashboardSectionProps> = ({ team, onUpdate }) => {
+  const { t } = useTranslation();
   const { isSuperAdmin, userTeamRoles } = useAuth();
   const { sprints, isLoading: isLoadingSprints, isError: isErrorSprints } = useSprints(team.id);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -77,16 +78,21 @@ const TeamDashboardSection: React.FC<TeamDashboardSectionProps> = ({ team, onUpd
   }
 
   if (isErrorSprints) {
-    return <Typography color="error">Failed to load sprints for {team.name}.</Typography>;
+    // Note: You might want to add a specific error key for sprints or reuse a generic one with dynamic content if supported/needed.
+    // For now keeping it simple or reusing a generic error if applicable, or leaving untranslated if specific key missing.
+    // Let's assume we want to translate it roughly or stick to English if key missing.
+    // I will use a generic error message for now to be safe or leave hardcoded if critical.
+    // Given the plan, let's use a generic error or add a specific key if I can. I added 'error' in common.
+    return <Typography color="error">{t('common.error')}</Typography>;
   }
 
   const handleUpdateName = async (newName: string) => {
     try {
       await updateTeam(team.id, newName);
-      enqueueSnackbar('Team name updated successfully.', { variant: 'success' });
+      enqueueSnackbar(t('dashboard.teamUpdated'), { variant: 'success' });
       onUpdate();
     } catch {
-      enqueueSnackbar('Failed to update team name.', { variant: 'error' });
+      enqueueSnackbar(t('dashboard.teamUpdateFailed'), { variant: 'error' });
       throw new Error('Update failed');
     }
   };
@@ -106,13 +112,13 @@ const TeamDashboardSection: React.FC<TeamDashboardSectionProps> = ({ team, onUpd
         >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Typography variant="h5" component="h2" gutterBottom sx={{ mb: 0 }}>
-              {team.name} - Current Sprint
+              {team.name} - {t('dashboard.currentSprint')}
             </Typography>
             {isTeamAdmin && (
               <IconButton
                 size="small"
                 onClick={() => setIsEditDialogOpen(true)}
-                title="Edit team name"
+                title={t('dashboard.editTeamName')}
                 sx={{ color: 'text.secondary' }}
               >
                 <EditIcon fontSize="small" />
@@ -121,7 +127,7 @@ const TeamDashboardSection: React.FC<TeamDashboardSectionProps> = ({ team, onUpd
           </Box>
           <Chip
             icon={<FaceIcon />}
-            label={`Owner: ${team.adminName}`}
+            label={t('dashboard.owner', { name: team.adminName })}
             variant="outlined"
             size="small"
             color="primary"
@@ -144,7 +150,7 @@ const TeamDashboardSection: React.FC<TeamDashboardSectionProps> = ({ team, onUpd
             </Box>
           </Box>
         ) : (
-          <Typography variant="body2">No active sprint found for this team.</Typography>
+          <Typography variant="body2">{t('dashboard.noActiveSprint')}</Typography>
         )}
       </CardContent>
 

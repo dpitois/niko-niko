@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import GroupWorkIcon from '@mui/icons-material/GroupWork';
 import { Box, CircularProgress, Divider, Typography } from '@mui/material';
 import { useSnackbar } from 'notistack';
@@ -13,6 +14,7 @@ import CreateTeamForm from '@/components/CreateTeamForm';
 import PageContainer from '@/components/layout/PageContainer';
 
 const AdminTeamsPage: React.FC = () => {
+  const { t } = useTranslation();
   const { isSuperAdmin } = useAuth();
   const { teams, isLoading, isError, mutate } = useTeams();
   const { enqueueSnackbar } = useSnackbar();
@@ -26,16 +28,16 @@ const AdminTeamsPage: React.FC = () => {
       await deleteTeam(teamId);
       mutate(); // Refresh the list of teams
     } catch {
-      enqueueSnackbar('Failed to delete team.', { variant: 'error' });
+      enqueueSnackbar(t('adminTeams.deleteFailed'), { variant: 'error' });
     }
   };
 
   return (
-    <PageContainer title="Admin Teams" icon={<GroupWorkIcon />}>
+    <PageContainer title={t('adminTeams.title')} icon={<GroupWorkIcon />}>
       {isSuperAdmin && (
         <Box sx={{ mb: 4 }}>
           <Typography variant="h5" component="h2" gutterBottom>
-            Create New Team
+            {t('adminTeams.createNew')}
           </Typography>
           <CreateTeamForm onTeamCreated={handleTeamUpdated} />
         </Box>
@@ -44,11 +46,11 @@ const AdminTeamsPage: React.FC = () => {
       <Divider sx={{ my: 4 }} />
 
       <Typography variant="h5" component="h2" gutterBottom>
-        Manage All Teams
+        {t('adminTeams.manageAll')}
       </Typography>
 
       {isLoading && <CircularProgress />}
-      {isError && <Typography color="error">Error loading teams.</Typography>}
+      {isError && <Typography color="error">{t('common.error')}</Typography>}
 
       {teams && teams.length > 0 ? (
         teams.map((team: TeamWithMembersAndSprints) => (
@@ -60,7 +62,7 @@ const AdminTeamsPage: React.FC = () => {
           />
         ))
       ) : (
-        <Typography variant="body1">No teams found.</Typography>
+        <Typography variant="body1">{t('adminTeams.noTeamsFound')}</Typography>
       )}
     </PageContainer>
   );

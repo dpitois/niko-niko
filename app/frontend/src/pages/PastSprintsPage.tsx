@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import HistoryIcon from '@mui/icons-material/History';
 import {
   Alert,
@@ -19,6 +20,7 @@ import type { Sprint } from '@/models/Sprint';
 import PageContainer from '@/components/layout/PageContainer';
 
 const PastSprintsPage: React.FC = () => {
+  const { t } = useTranslation();
   const { sprints, isLoading: isLoadingSprints, isError: isErrorSprints } = useSprints();
   const { teams, isLoading: isLoadingTeams, isError: isErrorTeams } = useTeams();
 
@@ -31,11 +33,11 @@ const PastSprintsPage: React.FC = () => {
   }
 
   if (isErrorSprints || isErrorTeams) {
-    return <Alert severity="error">Failed to load data. Make sure you are logged in.</Alert>;
+    return <Alert severity="error">{t('pastSprints.failedLoad')}</Alert>;
   }
 
   if (!sprints || !teams) {
-    return <Alert severity="info">No sprints or teams data available.</Alert>;
+    return <Alert severity="info">{t('pastSprints.noData')}</Alert>;
   }
 
   const today = new Date();
@@ -47,7 +49,7 @@ const PastSprintsPage: React.FC = () => {
   };
 
   return (
-    <PageContainer title="Past Sprints" icon={<HistoryIcon />}>
+    <PageContainer title={t('pastSprints.title')} icon={<HistoryIcon />}>
       {pastSprints.length > 0 ? (
         <List>
           {pastSprints.map((sprint: Sprint) => (
@@ -64,9 +66,9 @@ const PastSprintsPage: React.FC = () => {
                           variant="body2"
                           color="text.primary"
                         >
-                          Team: {getTeamName(sprint.teamId)}
+                          {t('pastSprints.team', { name: getTeamName(sprint.teamId) })}
                         </Typography>
-                        {` — From ${new Date(sprint.startDate).toLocaleDateString()} to ${new Date(sprint.endDate).toLocaleDateString()}`}
+                        {` — ${t('pastSprints.from', { start: new Date(sprint.startDate).toLocaleDateString(), end: new Date(sprint.endDate).toLocaleDateString() })}`}
                       </React.Fragment>
                     }
                   />
@@ -76,7 +78,7 @@ const PastSprintsPage: React.FC = () => {
           ))}
         </List>
       ) : (
-        <Typography variant="body1">No past sprints found.</Typography>
+        <Typography variant="body1">{t('pastSprints.noSprintsFound')}</Typography>
       )}
     </PageContainer>
   );

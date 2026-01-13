@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import GoogleIcon from '@mui/icons-material/Google';
 import { Box, Button, Container, Typography } from '@mui/material';
 
 const LoginPage = () => {
+  const { t } = useTranslation();
   const [githubLoginHref] = useState(() => {
     const invitationToken = localStorage.getItem('invitationToken');
     return invitationToken
@@ -29,9 +31,9 @@ const LoginPage = () => {
         }}
       >
         <Typography component="h1" variant="h5">
-          Niko Niko Calendar
+          {t('common.appName')}
         </Typography>
-        <Typography variant="body1">Please sign in to continue</Typography>
+        <Typography variant="body1">{t('login.subtitle')}</Typography>
         <Button
           fullWidth
           variant="contained"
@@ -39,7 +41,7 @@ const LoginPage = () => {
           href={githubLoginHref}
           startIcon={<GitHubIcon />}
         >
-          Sign in with GitHub
+          {t('login.signInGithub')}
         </Button>
         <Button
           fullWidth
@@ -48,7 +50,7 @@ const LoginPage = () => {
           href={googleLoginHref}
           startIcon={<GoogleIcon />}
         >
-          Sign in with Google
+          {t('login.signInGoogle')}
         </Button>
         {/* Microsoft is currently disabled, but we keep the placeholders */}
         <Button
@@ -58,7 +60,7 @@ const LoginPage = () => {
           disabled // Disable Microsoft button
           // href="/api/auth/login-microsoft"
         >
-          Sign in with Microsoft
+          {t('login.signInMicrosoft')}
         </Button>
       </Box>
     </Container>

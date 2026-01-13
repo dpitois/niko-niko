@@ -1,0 +1,149 @@
+{
+  "common": {
+    "appName": "Niko Niko",
+    "loading": "Chargement...",
+    "error": "Une erreur est survenue",
+    "language": "Langue",
+    "logout": "Déconnexion",
+    "success": "Succès",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "save": "Enregistrer",
+    "create": "Créer",
+    "actions": "Actions",
+    "copyLink": "Copier le lien",
+    "date": "Date",
+    "logoutDialog": {
+      "title": "Confirmer la déconnexion",
+      "content": "Êtes-vous sûr de vouloir vous déconnecter ?",
+      "confirm": "Se déconnecter"
+    }
+  },
+  "sidebar": {
+    "home": "Accueil",
+    "pastSprints": "Sprints Passés",
+    "admin": "Administration",
+    "teams": "Équipes",
+    "users": "Utilisateurs",
+    "sprints": "Sprints",
+    "login": "Connexion",
+    "reportBug": "Signaler un bug",
+    "mode": "Mode {{mode}}"
+  },
+  "login": {
+    "subtitle": "Veuillez vous connecter pour continuer",
+    "signInGithub": "Se connecter avec GitHub",
+    "signInGoogle": "Se connecter avec Google",
+    "signInMicrosoft": "Se connecter avec Microsoft"
+  },
+  "dashboard": {
+    "title": "Accueil",
+    "failedLoadTeams": "Échec du chargement des équipes. Assurez-vous d'être connecté.",
+    "noTeams": "Vous n'appartenez à aucune équipe pour le moment.",
+    "currentSprint": "Sprint en cours",
+    "owner": "Propriétaire : {{name}}",
+    "noActiveSprint": "Aucun sprint actif trouvé pour cette équipe.",
+    "editTeamName": "Modifier le nom de l'équipe",
+    "teamUpdated": "Nom de l'équipe mis à jour avec succès.",
+    "teamUpdateFailed": "Échec de la mise à jour du nom de l'équipe."
+  },
+  "adminTeams": {
+    "title": "Administration des Équipes",
+    "createNew": "Créer une nouvelle équipe",
+    "manageAll": "Gérer toutes les équipes",
+    "noTeamsFound": "Aucune équipe trouvée.",
+    "deleteFailed": "Échec de la suppression de l'équipe.",
+    "createForm": {
+      "labelName": "Nom de la nouvelle équipe",
+      "createButton": "Créer l'équipe",
+      "errorFill": "Veuillez remplir le nom de l'équipe.",
+      "errorLogin": "Vous devez être connecté pour créer une équipe.",
+      "errorFail": "Échec de la création de l'équipe. Veuillez réessayer."
+    },
+    "listItem": {
+      "membersCount": "Membres ({{count}})",
+      "editNameTitle": "Modifier le nom de l'équipe"
+    },
+    "editDialog": {
+      "title": "Modifier le nom de l'équipe",
+      "labelName": "Nom de l'équipe"
+    }
+  },
+  "pastSprints": {
+    "title": "Sprints Passés",
+    "noData": "Aucune donnée de sprints ou d'équipes disponible.",
+    "failedLoad": "Échec du chargement des données. Assurez-vous d'être connecté.",
+    "noSprintsFound": "Aucun sprint passé trouvé.",
+    "team": "Équipe : {{name}}",
+    "from": "Du {{start}} au {{end}}"
+  },
+  "adminUsers": {
+    "title": "Administration des Utilisateurs",
+    "tabs": {
+      "management": "Gestion Utilisateurs",
+      "invitations": "Invitations"
+    },
+    "table": {
+      "avatar": "Avatar",
+      "name": "Nom",
+      "email": "Email",
+      "createdAt": "Créé le",
+      "actions": "Actions",
+      "noUsers": "Aucun utilisateur trouvé."
+    },
+    "deleteDialog": {
+      "title": "Confirmer la suppression",
+      "content": "Êtes-vous sûr de vouloir supprimer l'utilisateur \"{{name}}\" ? Cette action est irréversible.",
+      "success": "Utilisateur {{name}} supprimé avec succès !",
+      "fail": "Échec de la suppression de l'utilisateur {{name}}."
+    },
+    "invitations": {
+      "selectTeamTitle": "Sélectionner une équipe pour gérer les invitations",
+      "selectTeamLabel": "Sélectionner une équipe",
+      "existingTitle": "Invitations d'équipe existantes",
+      "token": "Jeton : {{token}}...",
+      "expires": "Expire le : {{date}}",
+      "status": "Statut : {{status}}",
+      "noInvitations": "Aucune invitation trouvée pour cette équipe.",
+      "noTeams": "Aucune équipe disponible pour gérer les invitations.",
+      "createForm": {
+        "title": "Créer une invitation d'équipe",
+        "expirationLabel": "Expiration en jours",
+        "generateButton": "Générer le lien d'invitation",
+        "linkLabel": "Lien d'invitation :",
+        "success": "Invitation créée avec succès !",
+        "fail": "Échec de la création de l'invitation.",
+        "errorLogin": "Vous devez être connecté pour créer une invitation."
+      },
+      "deleteDialog": {
+        "title": "Confirmer la suppression de l'invitation",
+        "content": "Êtes-vous sûr de vouloir supprimer cette invitation ? Cette action est irréversible.",
+        "success": "Invitation supprimée avec succès !",
+        "fail": "Échec de la suppression de l'invitation."
+      }
+    }
+  },
+  "adminSprints": {
+    "title": "Gestion des Sprints",
+    "createNew": "Créer un nouveau sprint",
+    "manageAll": "Gérer tous les sprints",
+    "noSprints": "Aucun sprint trouvé.",
+    "deleteDialog": {
+      "title": "Supprimer le sprint ?",
+      "content": "Êtes-vous sûr de vouloir supprimer le sprint \"{{name}}\" ? Cette action est irréversible.",
+      "success": "Sprint supprimé avec succès !",
+      "fail": "Échec de la suppression du sprint."
+    },
+    "createForm": {
+      "teamLabel": "Équipe",
+      "nameLabel": "Nom du Sprint",
+      "startDateLabel": "Date de début",
+      "endDateLabel": "Date de fin",
+      "createButton": "Créer",
+      "success": "Sprint créé avec succès !",
+      "errorFill": "Veuillez remplir tous les champs et sélectionner une équipe.",
+      "errorDate": "La date de fin doit être postérieure à la date de début.",
+      "errorFail": "Échec de la création du sprint. Veuillez réessayer."
+    }
+  }
+}

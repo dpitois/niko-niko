@@ -7,6 +7,7 @@ using NikoNiko.Core.DTOs.Team;
 using NikoNiko.Core.DTOs.User;
 using NikoNiko.Data;
 using NikoNiko.Core.Models; // Ensure this is explicitly used
+using NikoNiko.Services;
 
 namespace NikoNiko.Api.Controllers;
 
@@ -19,10 +20,12 @@ namespace NikoNiko.Api.Controllers;
 public class TeamsController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
+    private readonly INotificationService _notificationService;
 
-    public TeamsController(ApplicationDbContext context)
+    public TeamsController(ApplicationDbContext context, INotificationService notificationService)
     {
         _context = context;
+        _notificationService = notificationService;
     }
 
     /// <summary>
@@ -137,6 +140,41 @@ public class TeamsController : ControllerBase
         return Ok(team);
     }
     
+    /// <summary>
+    /// Updates the details of a team.
+    /// Only the team's admin or a super-admin can update a team.
+    /// </summary>
+    /// <param name="teamId">The ID of the team to update.</param>
+    /// <param name="updateTeamDto">The updated team data.</param>
+    /// <returns>NoContent if successful, or an error response.</returns>
+    [HttpPut("{teamId}")]
+    [Authorize(Policy = "IsTeamAdmin")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateTeam(Guid teamId, UpdateTeamDto updateTeamDto)
+    {
+        var team = await _context.Teams.FindAsync(teamId);
+
+        if (team == null)
+        {
+            return NotFound();
+        }
+
+        if (string.IsNullOrWhiteSpace(updateTeamDto.Name))
+        {
+            return BadRequest("Team name cannot be empty.");
+        }
+
+        team.Name = updateTeamDto.Name;
+        await _context.SaveChangesAsync();
+
+        await _notificationService.NotifyTeamRenamedAsync(team.Id, team.Name);
+
+        return NoContent();
+    }
+
     /// <summary>
     /// Deletes a team.
     /// Only the team's admin or a super-admin can delete a team.

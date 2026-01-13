@@ -1,9 +1,11 @@
 import React, { useEffect } from 'react';
 import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
 import { useSnackbar } from 'notistack';
+import { useSWRConfig } from 'swr';
 
 const NotificationListener: React.FC = () => {
   const { enqueueSnackbar } = useSnackbar();
+  const { mutate } = useSWRConfig();
 
   useEffect(() => {
     const connection = new HubConnectionBuilder()
@@ -21,6 +23,13 @@ const NotificationListener: React.FC = () => {
       enqueueSnackbar(`${user} - ${message}`, { variant: 'info' });
     });
 
+    connection.on('ReceiveTeamRenamed', (teamId: string, newName: string) => {
+      console.log(`Team ${teamId} renamed to ${newName}`);
+      // Refresh teams data globally
+      mutate('/teams');
+      enqueueSnackbar(`A team has been renamed to "${newName}"`, { variant: 'info' });
+    });
+
     connection
       .start()
       .then(() => console.log('SignalR Connected!'))
@@ -32,7 +41,7 @@ const NotificationListener: React.FC = () => {
         .then(() => console.log('SignalR Disconnected.'))
         .catch((err) => console.error('SignalR Disconnection Error: ', err));
     };
-  }, [enqueueSnackbar]);
+  }, [enqueueSnackbar, mutate]);
 
   return null; // This component doesn't render anything itself
 };

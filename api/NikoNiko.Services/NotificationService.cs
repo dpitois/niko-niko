@@ -39,5 +39,27 @@ namespace NikoNiko.Services
                 _logger.LogError(ex, "Error sending mood notification to SignalR service.");
             }
         }
+
+        public async Task NotifyTeamRenamedAsync(Guid teamId, string newName)
+        {
+            try
+            {
+                var payload = new
+                {
+                    Type = "TeamRenamed",
+                    TeamId = teamId,
+                    NewName = newName
+                };
+                var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
+                var response = await _httpClient.PostAsync("api/notifications/dispatch", content);
+
+                response.EnsureSuccessStatusCode();
+                _logger.LogInformation("Team renamed notification sent to SignalR service successfully.");
+            }
+            catch (HttpRequestException ex)
+            {
+                _logger.LogError(ex, "Error sending team renamed notification to SignalR service.");
+            }
+        }
     }
 }

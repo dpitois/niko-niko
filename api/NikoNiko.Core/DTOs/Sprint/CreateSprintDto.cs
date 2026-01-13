@@ -5,30 +5,30 @@ namespace NikoNiko.Core.DTOs.Sprint;
 /// <summary>
 /// Represents the data needed to create a new sprint.
 /// </summary>
-public class CreateSprintDto
+public record CreateSprintDto
 {
     /// <summary>
     /// The name of the sprint.
     /// </summary>
     [Required]
     [MaxLength(100)]
-    public string Name { get; set; } = null!;
+    public string Name { get; init; } = null!;
 
     /// <summary>
     /// The start date of the sprint.
     /// </summary>
     [Required]
-    public DateTime StartDate { get; set; }
+    public DateTime StartDate { get; init; }
 
     /// <summary>
     /// The end date of the sprint.
     /// </summary>
     [Required]
-    public DateTime EndDate { get; set; }
+    public DateTime EndDate { get; init; }
 
     /// <summary>
     /// The ID of the team this sprint belongs to.
     /// </summary>
     [Required]
-    public Guid TeamId { get; set; }
+    public Guid TeamId { get; init; }
 }

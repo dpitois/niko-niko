@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 import FaceIcon from '@mui/icons-material/Face';
 import GroupIcon from '@mui/icons-material/Group';
 import {
@@ -7,6 +8,7 @@ import {
   Box,
   Button,
   Chip,
+  IconButton,
   List,
   ListItem,
   ListItemAvatar,
@@ -14,15 +16,34 @@ import {
   Paper,
   Typography,
 } from '@mui/material';
+import { useSnackbar } from 'notistack';
 
 import type { TeamWithMembersAndSprints } from '@/models/Team/TeamWithMembersAndSprints';
+import { updateTeam } from '@/services/teamService';
+
+import EditTeamDialog from './EditTeamDialog';
 
 interface AdminTeamListItemProps {
   team: TeamWithMembersAndSprints;
   onDelete: (teamId: string) => void;
+  onUpdate?: () => void;
 }
 
-const AdminTeamListItem: React.FC<AdminTeamListItemProps> = ({ team, onDelete }) => {
+const AdminTeamListItem: React.FC<AdminTeamListItemProps> = ({ team, onDelete, onUpdate }) => {
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const { enqueueSnackbar } = useSnackbar();
+
+  const handleUpdateName = async (newName: string) => {
+    try {
+      await updateTeam(team.id, newName);
+      enqueueSnackbar('Team name updated successfully.', { variant: 'success' });
+      if (onUpdate) onUpdate();
+    } catch {
+      enqueueSnackbar('Failed to update team name.', { variant: 'error' });
+      throw new Error('Update failed');
+    }
+  };
+
   return (
     <Paper elevation={2} sx={{ p: 2, mb: 3, display: 'flex', flexDirection: 'column' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
@@ -30,6 +51,14 @@ const AdminTeamListItem: React.FC<AdminTeamListItemProps> = ({ team, onDelete })
           <Typography variant="h6" component="div">
             {team.name}
           </Typography>
+          <IconButton
+            size="small"
+            onClick={() => setIsEditDialogOpen(true)}
+            title="Edit team name"
+            sx={{ color: 'text.secondary' }}
+          >
+            <EditIcon fontSize="small" />
+          </IconButton>
           <Chip
             icon={<FaceIcon />}
             label={`Owner: ${team.adminName}`}
@@ -48,6 +77,13 @@ const AdminTeamListItem: React.FC<AdminTeamListItemProps> = ({ team, onDelete })
           Delete
         </Button>
       </Box>
+
+      <EditTeamDialog
+        open={isEditDialogOpen}
+        onClose={() => setIsEditDialogOpen(false)}
+        onUpdate={handleUpdateName}
+        currentName={team.name}
+      />
       <Box>
         <Typography variant="subtitle2" sx={{ mb: 1, display: 'flex', alignItems: 'center' }}>
           <GroupIcon sx={{ mr: 0.5 }} fontSize="small" /> Members ({team.members.length})

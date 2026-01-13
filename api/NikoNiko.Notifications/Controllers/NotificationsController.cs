@@ -25,6 +25,12 @@ namespace NikoNiko.Notifications.Controllers
         [HttpPost("dispatch")]
         public async Task<IActionResult> Dispatch([FromBody] NotificationPayload payload)
         {
+            if (payload.Type == "TeamRenamed")
+            {
+                await _hubContext.Clients.All.SendAsync("ReceiveTeamRenamed", payload.TeamId, payload.NewName);
+                return Ok();
+            }
+
             if (string.IsNullOrEmpty(payload.User) || string.IsNullOrEmpty(payload.Message) || string.IsNullOrEmpty(payload.UserId))
             {
                 return BadRequest("User, Message, and UserId cannot be empty.");
@@ -38,6 +44,9 @@ namespace NikoNiko.Notifications.Controllers
 
     public class NotificationPayload
     {
+        public string? Type { get; set; }
+        public Guid? TeamId { get; set; }
+        public string? NewName { get; set; }
         public string? User { get; set; }
         public string? Message { get; set; }
         public string? UserId { get; set; }

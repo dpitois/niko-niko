@@ -15,7 +15,7 @@ const AdminTeamsPage: React.FC = () => {
   const { teams, isLoading, isError, mutate } = useTeams();
   const { enqueueSnackbar } = useSnackbar();
 
-  const handleTeamCreated = () => {
+  const handleTeamUpdated = () => {
     mutate();
   };
 
@@ -39,7 +39,7 @@ const AdminTeamsPage: React.FC = () => {
           <Typography variant="h5" component="h2" gutterBottom>
             Create New Team
           </Typography>
-          <CreateTeamForm onTeamCreated={handleTeamCreated} />
+          <CreateTeamForm onTeamCreated={handleTeamUpdated} />
         </Box>
       )}
 
@@ -54,7 +54,12 @@ const AdminTeamsPage: React.FC = () => {
 
       {teams && teams.length > 0 ? (
         teams.map((team: TeamWithMembersAndSprints) => (
-          <AdminTeamListItem key={team.id} team={team} onDelete={handleDeleteTeam} />
+          <AdminTeamListItem
+            key={team.id}
+            team={team}
+            onDelete={handleDeleteTeam}
+            onUpdate={handleTeamUpdated}
+          />
         ))
       ) : (
         <Typography variant="body1">No teams found.</Typography>

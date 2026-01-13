@@ -18,3 +18,7 @@ export const createTeam = async (team: CreateTeam): Promise<TeamDto> => {
 export const deleteTeam = async (teamId: string): Promise<void> => {
   await api.delete(`/teams/${teamId}`);
 };
+
+export const updateTeam = async (teamId: string, name: string): Promise<void> => {
+  await api.put(`/teams/${teamId}`, { name });
+};

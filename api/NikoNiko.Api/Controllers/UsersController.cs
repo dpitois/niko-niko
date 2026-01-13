@@ -100,8 +100,18 @@ public class UsersController : ControllerBase
         return Ok(user);
     }
     
+    /// <summary>
+    /// Deletes a specific user account. Accessible only by super-admins.
+    /// A user cannot delete their own account.
+    /// </summary>
+    /// <param name="id">The ID of the user to delete.</param>
+    /// <returns>NoContent if successful, or an error response.</returns>
     [HttpDelete("{id}")]
     [Authorize(Policy = "SuperAdmin")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteUser(Guid id)
     {
         var currentUserIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);

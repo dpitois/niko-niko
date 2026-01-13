@@ -139,6 +139,14 @@ builder.Services.AddSwaggerGen(options =>
 {
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+    
+    // Also include XML comments from Core project if they exist
+    var coreXmlFilename = "NikoNiko.Core.xml";
+    var coreXmlPath = Path.Combine(AppContext.BaseDirectory, coreXmlFilename);
+    if (File.Exists(coreXmlPath))
+    {
+        options.IncludeXmlComments(coreXmlPath);
+    }
 });
 
 builder.Services.AddHealthChecks();

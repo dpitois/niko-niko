@@ -1,4 +1,5 @@
 using HotChocolate.Authorization;
+
 using NikoNiko.Core.Models;
 
 namespace NikoNiko.Api.GraphQL.Types;

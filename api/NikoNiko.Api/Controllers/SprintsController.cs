@@ -1,7 +1,9 @@
 using System.Security.Claims;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
 using NikoNiko.Core.DTOs.Sprint;
 using NikoNiko.Core.Models;
 using NikoNiko.Data;
@@ -136,7 +138,7 @@ public class SprintsController : ControllerBase
             return Forbid();
         }
 
-        
+
         if (createSprintDto.EndDate <= createSprintDto.StartDate)
         {
             ModelState.AddModelError(nameof(createSprintDto.EndDate), "End date must be after start date.");
@@ -165,7 +167,7 @@ public class SprintsController : ControllerBase
 
         return CreatedAtAction(nameof(GetSprint), new { sprintId = sprint.Id }, sprintDto);
     }
-    
+
     /// <summary>
     /// Deletes a sprint.
     /// Only the team's admin or a super-admin can delete a sprint.
@@ -185,7 +187,7 @@ public class SprintsController : ControllerBase
         {
             return NotFound();
         }
-        
+
         _context.Sprints.Remove(sprint);
         await _context.SaveChangesAsync();
 

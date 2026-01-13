@@ -1,12 +1,14 @@
 using System.Collections.Generic;
 using System.Security.Claims;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
+using NikoNiko.Api.Authorization; // Add for policies
 using NikoNiko.Core.DTOs.Team.Invitation;
 using NikoNiko.Data;
 using NikoNiko.Services;
-using NikoNiko.Api.Authorization; // Add for policies
 
 namespace NikoNiko.Api.Controllers
 {
@@ -66,7 +68,7 @@ namespace NikoNiko.Api.Controllers
         /// </summary>
         /// <param name="token">The invitation token.</param>
         /// <returns>The TeamInvitationDto object of the accepted invitation.</returns>
-        [AllowAnonymous] 
+        [AllowAnonymous]
         [HttpPost("{token}/accept")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -178,8 +180,8 @@ namespace NikoNiko.Api.Controllers
             }
             catch (UnauthorizedAccessException ex)
             {
-                 // This can happen if the service has a stricter check than the controller.
-                 // In this case, we respect the service's final decision.
+                // This can happen if the service has a stricter check than the controller.
+                // In this case, we respect the service's final decision.
                 return Forbid(ex.Message);
             }
             catch (Exception ex)

@@ -1,8 +1,10 @@
 using System.Security.Claims;
 using System.Threading.Tasks;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+
 using NikoNiko.Data;
 
 namespace NikoNiko.Api.Authorization;

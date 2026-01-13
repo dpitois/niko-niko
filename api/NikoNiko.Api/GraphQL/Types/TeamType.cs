@@ -12,7 +12,7 @@ public class TeamType : ObjectType<Team>
         descriptor.Field(t => t.Name).Type<NonNullType<StringType>>();
         descriptor.Field(t => t.CreatedAt).Type<NonNullType<DateTimeType>>();
         descriptor.Field(t => t.AdminId).Type<NonNullType<IdType>>();
-        
+
         descriptor.Field(t => t.Admin)
             .Type<NonNullType<UserType>>()
             .Description("The administrator of the team.");
@@ -21,7 +21,7 @@ public class TeamType : ObjectType<Team>
             .Type<NonNullType<ListType<NonNullType<SprintType>>>>()
             .UseFiltering()
             .UseSorting();
-            
+
         // TODO: Resolver for Members via TeamUsers
     }
 }

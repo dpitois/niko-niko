@@ -111,7 +111,7 @@ namespace NikoNiko.Services
             }
             // If user is already a member, do nothing to TeamUsers, just proceed with invitation invalidation.
             // This prevents throwing an error if they are already a member, which is fine for the invitation's purpose.
-            
+
             // Invalidate the invitation after acceptance, regardless if they were already a member or just added.
             invitation.Status = "Accepted";
             invitation.AcceptedByUserId = acceptedByUserId;

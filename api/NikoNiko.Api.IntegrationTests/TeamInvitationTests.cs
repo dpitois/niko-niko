@@ -4,12 +4,15 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Threading.Tasks;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+
 using NikoNiko.Core.DTOs.Team.Invitation;
 using NikoNiko.Core.Models;
 using NikoNiko.Data;
 using NikoNiko.Services;
+
 using Xunit;
 
 namespace NikoNiko.Api.IntegrationTests;
@@ -82,7 +85,7 @@ public class TeamInvitationTests
             // This is the key assertion for the bug fix
             Assert.True(invitation.IsDeleted, "Invitation should be marked as soft-deleted (IsDeleted = true).");
         }
-    } 
+    }
     [Fact]
     public async Task AcceptInvitation_WhenUserIsAlreadyMember_ShouldNotAddDuplicateAndInvalidateInvitation()
     {
@@ -150,7 +153,7 @@ public class TeamInvitationTests
             Assert.Equal("Accepted", invitation.Status);
             Assert.True(invitation.IsDeleted, "Invitation should be marked as soft-deleted (IsDeleted = true).");
         }
-    } 
+    }
     [Fact]
     public async Task AcceptInvitation_WhenNewUserRegistersViaOAuthWithToken_ShouldCreateUserAndAddThemToTeam()
     {
@@ -183,14 +186,14 @@ public class TeamInvitationTests
 
         // 3. Act: Simulate a new user logging in via GitHub with the invitation token
         // This will go through AuthController.LoginGitHub, TestAuthenticationHandler, AuthController.SigninGitHub, and AuthController.HandleSignIn
-        var client = application.CreateClient(new Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactoryClientOptions 
-        { 
-            AllowAutoRedirect = false 
+        var client = application.CreateClient(new Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false
         });
 
         // Simulate the client hitting /api/auth/login-github with the invitation token
         var loginResponse = await client.GetAsync($"/api/auth/login-github?invitationToken={invitationToken}");
-        
+
         // Ensure the initial login request was redirected
         Assert.Equal(System.Net.HttpStatusCode.Redirect, loginResponse.StatusCode);
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, CircularProgress,Divider, Typography } from '@mui/material';
+import { Box, CircularProgress, Divider, Typography } from '@mui/material';
 import { useSnackbar } from 'notistack';
 
 import { useAuth } from '@/context/AuthContext';

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Button, Stack,TextField, Typography } from '@mui/material';
+import { Box, Button, Stack, TextField, Typography } from '@mui/material';
 
 import type { CreateSprint } from '@/models/CreateSprint';
 import { createSprint } from '@/services/sprintService';

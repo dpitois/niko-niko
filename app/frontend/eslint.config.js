@@ -33,7 +33,7 @@ export default tseslint.config(
             // 1. Packages
             ['^react', '^@mui', '^dayjs', '^@\\w', '^\\w'],
             // 2. Utils
-            ['^(@|\\.)+/(services|hooks|context|models|utils|theme)(/.*|$)', ],
+            ['^(@|\\.)+/(services|hooks|context|models|utils|theme)(/.*|$)'],
             // 3. Others
             ['^@/', '^\\.'],
             // 4. Styles

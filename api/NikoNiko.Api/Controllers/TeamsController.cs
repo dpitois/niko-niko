@@ -11,7 +11,7 @@ using NikoNiko.Core.Models; // Ensure this is explicitly used
 namespace NikoNiko.Api.Controllers;
 
 /// <summary>
-/// Contrôleur pour la gestion des équipes.
+/// Controller for managing teams.
 /// </summary>
 [Authorize]
 [ApiController]
@@ -26,11 +26,11 @@ public class TeamsController : ControllerBase
     }
 
     /// <summary>
-    /// Récupère la liste de toutes les équipes.
-    /// Pour les utilisateurs normaux, ne retourne que les équipes dont ils sont membres ou administrateurs.
-    /// Pour les super-admins, retourne toutes les équipes.
+    /// Retrieves a list of all teams.
+    /// For regular users, returns only teams where they are members or administrators.
+    /// For super-admins, returns all teams.
     /// </summary>
-    /// <returns>Une liste d'objets TeamDto.</returns>
+    /// <returns>A list of TeamWithSprintsDto objects.</returns>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -86,11 +86,11 @@ public class TeamsController : ControllerBase
     }
 
     /// <summary>
-    /// Récupère une équipe spécifique par son ID.
-    /// Un utilisateur doit être membre de l'équipe ou super-admin pour y accéder.
+    /// Retrieves a specific team by its ID.
+    /// A user must be a team member or a super-admin to access it.
     /// </summary>
-    /// <param name="teamId">L'ID de l'équipe.</param>
-    /// <returns>L'objet TeamDto correspondant à l'ID, ou NotFound si l'équipe n'existe pas.</returns>
+    /// <param name="teamId">The ID of the team.</param>
+    /// <returns>The TeamWithSprintsDto object corresponding to the ID, or NotFound if the team does not exist.</returns>
     [HttpGet("{teamId}")]
     [Authorize(Policy = "IsTeamMember")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -164,11 +164,11 @@ public class TeamsController : ControllerBase
     }
 
     /// <summary>
-    /// Crée une nouvelle équipe.
-    /// Accessible uniquement par un Super-admin.
+    /// Creates a new team.
+    /// Accessible only by a Super-admin.
     /// </summary>
-    /// <param name="createTeamDto">Les données nécessaires pour créer une équipe.</param>
-    /// <returns>L'objet TeamDto de l'équipe créée.</returns>
+    /// <param name="createTeamDto">The data needed to create a team.</param>
+    /// <returns>The TeamDto object of the created team.</returns>
     [HttpPost]
     [Authorize(Policy = "SuperAdmin")]
     [ProducesResponseType(StatusCodes.Status201Created)]

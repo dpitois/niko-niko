@@ -3,12 +3,12 @@ using System.ComponentModel.DataAnnotations;
 namespace NikoNiko.Core.DTOs.Team;
 
 /// <summary>
-/// Représente les données nécessaires pour créer une nouvelle équipe.
+/// Represents the data needed to create a new team.
 /// </summary>
 public class CreateTeamDto
 {
     /// <summary>
-    /// Le nom de l'équipe.
+    /// The name of the team.
     /// </summary>
     [Required]
     [MaxLength(100)]

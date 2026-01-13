@@ -1,28 +1,28 @@
 namespace NikoNiko.Core.DTOs.Team;
 
 /// <summary>
-/// Représente les données d'une équipe pour l'affichage.
+/// Represents the data of a team for display.
 /// </summary>
 public class TeamDto
 {
     /// <summary>
-    /// L'identifiant unique de l'équipe.
+    /// The unique identifier of the team.
     /// </summary>
     public Guid Id { get; set; }
     /// <summary>
-    /// Le nom de l'équipe.
+    /// The name of the team.
     /// </summary>
     public string Name { get; set; } = null!;
     /// <summary>
-    /// L'identifiant de l'administrateur de l'équipe.
+    /// The ID of the team's administrator.
     /// </summary>
     public Guid AdminId { get; set; }
     /// <summary>
-    /// Le nom de l'administrateur de l'équipe.
+    /// The name of the team's administrator.
     /// </summary>
     public string AdminName { get; set; } = null!;
     /// <summary>
-    /// La date de création de l'équipe.
+    /// The date and time when the team was created.
     /// </summary>
     public DateTime CreatedAt { get; set; }
 }

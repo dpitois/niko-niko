@@ -25,10 +25,10 @@ namespace NikoNiko.Api.Controllers
         }
 
         /// <summary>
-        /// Crée une nouvelle invitation d'équipe. Accessible uniquement par les administrateurs d'équipe.
+        /// Creates a new team invitation. Accessible only by team administrators.
         /// </summary>
-        /// <param name="createDto">Les données nécessaires pour créer une invitation.</param>
-        /// <returns>L'objet TeamInvitationDto de l'invitation créée.</returns>
+        /// <param name="createDto">The data needed to create an invitation.</param>
+        /// <returns>The TeamInvitationDto object of the created invitation.</returns>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -62,10 +62,10 @@ namespace NikoNiko.Api.Controllers
         }
 
         /// <summary>
-        /// Accepte une invitation d'équipe. Accessible par tout utilisateur authentifié.
+        /// Accepts a team invitation. Accessible by any authenticated user.
         /// </summary>
-        /// <param name="token">Le jeton d'invitation.</param>
-        /// <returns>L'objet TeamInvitationDto de l'invitation acceptée.</returns>
+        /// <param name="token">The invitation token.</param>
+        /// <returns>The TeamInvitationDto object of the accepted invitation.</returns>
         [AllowAnonymous] 
         [HttpPost("{token}/accept")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -100,10 +100,10 @@ namespace NikoNiko.Api.Controllers
         }
 
         /// <summary>
-        /// Récupère toutes les invitations pour une équipe spécifique. Accessible par les membres de l'équipe ou un super-admin.
+        /// Retrieves all invitations for a specific team. Accessible by team members or a super-admin.
         /// </summary>
-        /// <param name="teamId">L'ID de l'équipe.</param>
-        /// <returns>Une liste d'objets TeamInvitationDto.</returns>
+        /// <param name="teamId">The ID of the team.</param>
+        /// <returns>A list of TeamInvitationDto objects.</returns>
         [HttpGet("/api/teams/{teamId}/invitations")] // This route is absolute and not ideal, but matches existing front-end calls.
         [Authorize(Policy = "IsTeamMember")] // Policy will check if user is member of this team
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -151,9 +151,9 @@ namespace NikoNiko.Api.Controllers
         }
 
         /// <summary>
-        /// Supprime une invitation d'équipe spécifique. Accessible uniquement par les administrateurs d'équipe ou super-admin.
+        /// Deletes a specific team invitation. Accessible only by team administrators or super-admin.
         /// </summary>
-        /// <param name="invitationId">L'ID de l'invitation à supprimer.</param>
+        /// <param name="invitationId">The ID of the invitation to delete.</param>
         [HttpDelete("{invitationId}")]
         [Authorize(Policy = "IsTeamAdmin")] // Policy will check if user is admin of the team for this invitation
         [ProducesResponseType(StatusCodes.Status204NoContent)]

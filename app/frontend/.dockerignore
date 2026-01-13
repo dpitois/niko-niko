@@ -1,0 +1,10 @@
+node_modules
+dist
+.git
+.gitignore
+.dockerignore
+README.md
+npm-debug.log
+# Ignorer les fichiers de build locaux
+build
+*.local

@@ -7,18 +7,16 @@ import { Avatar, Box, Paper, Typography, useTheme } from '@mui/material';
 import dayjs from 'dayjs';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import { useSnackbar } from 'notistack';
-import { useSWRConfig } from 'swr';
 
 import { useAuth } from '@/context/AuthContext';
+import { useMoodMutation } from '@/hooks/useMoodMutation';
 import { useMoods } from '@/hooks/useMoods';
 import type { MoodType } from '@/models/MoodType';
 import { MoodValues } from '@/models/MoodType';
-import { createMoodEntry, updateMoodEntry } from '@/services/moodService';
 
 dayjs.extend(isSameOrAfter);
 
 interface SprintMoodGridProps {
-  teamId: string;
   sprintId: string;
   sprintStartDate: Date;
   sprintEndDate: Date;
@@ -52,23 +50,17 @@ const getMoodIcon = (moodType: MoodType) => {
 };
 
 const SprintMoodGrid: React.FC<SprintMoodGridProps> = ({
-  teamId,
   sprintId,
   sprintStartDate,
   sprintEndDate,
   teamMembers,
 }) => {
   const { user } = useAuth(); // Current logged-in user
-  const { moods, mutateMoods } = useMoods(sprintId); // Fetch moods for this sprint
-  const { mutate } = useSWRConfig();
+  const { moods } = useMoods(sprintId); // Fetch moods for this sprint
+  const { saveMood } = useMoodMutation(sprintId);
   const theme = useTheme();
   const { enqueueSnackbar } = useSnackbar();
   const today = dayjs().startOf('day');
-
-  // Local state for optimistic updates (debouncing)
-  // Key: `${userId}_${dateString}`
-  const [pendingMoods, setPendingMoods] = React.useState<Record<string, MoodType>>({});
-  const timeoutsRef = React.useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
   // Generate an array of dates for the sprint
   const sprintDates: Date[] = [];
@@ -79,70 +71,13 @@ const SprintMoodGrid: React.FC<SprintMoodGridProps> = ({
     day.setDate(day.getDate() + 1);
   }
 
-  const handleMoodClick = async (date: Date, moodType: MoodType) => {
+  const handleMoodClick = async (date: Date, nextMood: MoodType) => {
     if (!user) return;
-
-    const dateStr = date.toDateString();
-    const cellKey = `${user.sub}_${dateStr}`;
-    const utcDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-
-    // 1. Optimistic Update
-    setPendingMoods((prev) => ({ ...prev, [cellKey]: moodType }));
-
-    // 2. Clear existing timeout for this cell
-    if (timeoutsRef.current[cellKey]) {
-      clearTimeout(timeoutsRef.current[cellKey]);
+    try {
+      await saveMood(dayjs(date), nextMood, user.sub);
+    } catch {
+      enqueueSnackbar('Failed to save mood entry.', { variant: 'error' });
     }
-
-    // 3. Set new timeout for API call
-    timeoutsRef.current[cellKey] = setTimeout(async () => {
-      try {
-        // Check if there was an ORIGINAL entry before we started messing with it locally
-        // We look at the 'moods' from SWR (server state) to decide Create vs Update
-        const existingMood = moods?.find(
-          (m) => m.userId === user.sub && new Date(m.date).toDateString() === dateStr,
-        );
-
-        if (existingMood) {
-          // Update existing mood
-          await updateMoodEntry({
-            mood: moodType,
-            date: utcDate.toISOString(),
-            sprintId: sprintId,
-            userId: user.sub,
-          });
-        } else {
-          // Create new mood
-          await createMoodEntry({
-            mood: moodType,
-            date: utcDate.toISOString(),
-            sprintId: sprintId,
-            userId: user.sub,
-          });
-        }
-
-        // On success:
-        mutateMoods(); // Revalidate SWR
-        mutate(`/teams/${teamId}/sprints`); // Revalidate sprints stats
-
-        // Remove from pending state (UI will now reflect SWR data)
-        setPendingMoods((prev) => {
-          const newState = { ...prev };
-          delete newState[cellKey];
-          return newState;
-        });
-      } catch {
-        enqueueSnackbar('Failed to save mood entry.', { variant: 'error' });
-        // Remove from pending state to revert UI to server state
-        setPendingMoods((prev) => {
-          const newState = { ...prev };
-          delete newState[cellKey];
-          return newState;
-        });
-      } finally {
-        delete timeoutsRef.current[cellKey];
-      }
-    }, 1000); // 1 second debounce
   };
 
   return (
@@ -234,23 +169,16 @@ const SprintMoodGrid: React.FC<SprintMoodGridProps> = ({
               </Typography>
             </Box>
             {sprintDates.map((date, dateIndex) => {
-              // Determine display data: Pending > Server > Null
-              const dateStr = date.toDateString();
-              const cellKey = `${member.id}_${dateStr}`;
-              const pendingMood = pendingMoods[cellKey];
-
-              const serverMoodEntry = moods?.find(
-                (m) => m.userId === member.id && new Date(m.date).toDateString() === dateStr,
+              // Determine display data: Using SWR cache (which is optimistically updated by the hook)
+              // We need to match the date logic used in the hook (startOf('day'))
+              const cellDate = dayjs(date);
+              
+              const displayMoodEntry = moods?.find(
+                (m) => m.userId === member.id && dayjs(m.date).startOf('day').isSame(cellDate.startOf('day'))
               );
 
-              // Construct a virtual mood object for display
-              const displayMoodEntry =
-                pendingMood !== undefined
-                  ? { mood: pendingMood, date: date.toISOString(), userId: member.id } // Virtual entry from pending state
-                  : serverMoodEntry;
-
-              const isFuture = dayjs(date).isAfter(today);
-              const isToday = dayjs(date).isSame(today);
+              const isFuture = cellDate.isAfter(today);
+              const isToday = cellDate.isSame(today, 'day');
               const canEdit = user && user.sub === member.id && !isFuture;
 
               return (

@@ -22,10 +22,12 @@ import AdminSprintsPage from '@/pages/AdminSprintsPage';
 import AdminTeamsPage from '@/pages/AdminTeamsPage';
 import AdminUsersPage from '@/pages/AdminUsersPage';
 import AuthCallbackPage from '@/pages/AuthCallbackPage';
+// New placeholder pages
+import CurrentSprintsPage from '@/pages/CurrentSprintsPage';
 import DashboardPage from '@/pages/DashboardPage';
 import LoginPage from '@/pages/LoginPage';
-// New placeholder pages
 import PastSprintsPage from '@/pages/PastSprintsPage';
+import SprintDetailsPage from '@/pages/SprintDetailsPage';
 
 import './App.css';
 import 'dayjs/locale/fr';
@@ -80,6 +82,22 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <DashboardPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/teams/:teamId/sprints/:sprintId"
+                element={
+                  <ProtectedRoute>
+                    <SprintDetailsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/current-sprints"
+                element={
+                  <ProtectedRoute>
+                    <CurrentSprintsPage />
                   </ProtectedRoute>
                 }
               />

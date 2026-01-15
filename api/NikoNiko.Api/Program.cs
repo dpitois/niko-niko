@@ -1,17 +1,20 @@
 using System.Net;
 using System.Reflection;
 using System.Text;
+
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+
 using NikoNiko.Api.Authorization;
 using NikoNiko.Data;
 using NikoNiko.Data.PostgreSql;
 using NikoNiko.Data.Sqlite;
 using NikoNiko.Services;
+
 using IAuthorizationHandler = Microsoft.AspNetCore.Authorization.IAuthorizationHandler;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -105,19 +108,19 @@ builder.Services.AddAuthentication(options =>
         options.ClaimActions.MapJsonKey("urn:github:avatar_url", "avatar_url");
     });
 
-    var googleClientId = config["Authentication:Google:ClientId"];
-    var googleClientSecret = config["Authentication:Google:ClientSecret"];
-    
-    if (!string.IsNullOrEmpty(googleClientId) && !string.IsNullOrEmpty(googleClientSecret))
+var googleClientId = config["Authentication:Google:ClientId"];
+var googleClientSecret = config["Authentication:Google:ClientSecret"];
+
+if (!string.IsNullOrEmpty(googleClientId) && !string.IsNullOrEmpty(googleClientSecret))
+{
+    builder.Services.AddAuthentication().AddGoogle(options =>
     {
-        builder.Services.AddAuthentication().AddGoogle(options =>
-        {
-            options.SignInScheme = "ExternalCookie";
-            options.ClientId = googleClientId;
-            options.ClientSecret = googleClientSecret;
-            options.CallbackPath = "/signin-google";
-        });
-    }
+        options.SignInScheme = "ExternalCookie";
+        options.ClientId = googleClientId;
+        options.ClientSecret = googleClientSecret;
+        options.CallbackPath = "/signin-google";
+    });
+}
 
 // Configure Authorization
 builder.Services.AddAuthorization(options =>
@@ -125,7 +128,7 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("SuperAdmin", policy =>
         policy.RequireAuthenticatedUser()
               .RequireClaim("is_super_admin", "true"));
-    
+
     options.AddPolicy("IsTeamAdmin", policy =>
         policy.Requirements.Add(new IsTeamAdminRequirement()));
 
@@ -139,7 +142,7 @@ builder.Services.AddSwaggerGen(options =>
 {
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
-    
+
     // Also include XML comments from Core project if they exist
     var coreXmlFilename = "NikoNiko.Core.xml";
     var coreXmlPath = Path.Combine(AppContext.BaseDirectory, coreXmlFilename);
@@ -206,7 +209,7 @@ async Task SeedAndSyncSuperAdminRoles(WebApplication webApp)
 
     var dbContext = serviceProvider.GetRequiredService<ApplicationDbContext>();
     var configuration = serviceProvider.GetRequiredService<IConfiguration>();
-    
+
     var superAdminEmailsConfig = configuration["SUPER_ADMINS"];
     var superAdminEmails = !string.IsNullOrWhiteSpace(superAdminEmailsConfig)
         ? superAdminEmailsConfig.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList()
@@ -216,7 +219,7 @@ async Task SeedAndSyncSuperAdminRoles(WebApplication webApp)
     {
         // Env var method: Sync roles based on the email list
         var allUsers = await dbContext.Users.ToListAsync();
-        
+
         // First, demote all current super admins to handle removals
         foreach (var user in allUsers.Where(u => u.IsSuperAdmin))
         {

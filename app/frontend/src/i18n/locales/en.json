@@ -64,9 +64,17 @@
       "membersCount": "Members ({{count}})",
       "editNameTitle": "Edit team name"
     },
+    "teamAdminTransferred": "Team administration transferred successfully.",
+    "teamAdminTransferFailed": "Failed to transfer team administration.",
     "editDialog": {
       "title": "Edit Team Name",
-      "labelName": "Team Name"
+      "labelName": "Team Name",
+      "transferError": "Error transferring administration.",
+      "transferWarning": "Warning: Transferring administration is irreversible. You will lose administrative rights to this team.",
+      "transferButton": "Transfer Administration",
+      "noMembersToTransfer": "You cannot transfer administration because there are no other members in this team. Invite members first.",
+      "dangerZone": "Danger Zone",
+      "selectNewAdmin": "Select New Admin"
     }
   },
   "pastSprints": {

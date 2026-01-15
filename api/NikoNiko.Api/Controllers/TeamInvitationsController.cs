@@ -1,12 +1,14 @@
 using System.Collections.Generic;
 using System.Security.Claims;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
+using NikoNiko.Api.Authorization; // Add for policies
 using NikoNiko.Core.DTOs.Team.Invitation;
 using NikoNiko.Data;
 using NikoNiko.Services;
-using NikoNiko.Api.Authorization; // Add for policies
 
 namespace NikoNiko.Api.Controllers
 {
@@ -27,16 +29,17 @@ namespace NikoNiko.Api.Controllers
         /// <summary>
         /// Creates a new team invitation. Accessible only by team administrators.
         /// </summary>
+        /// <param name="teamId">The ID of the team.</param>
         /// <param name="createDto">The data needed to create an invitation.</param>
         /// <returns>The TeamInvitationDto object of the created invitation.</returns>
-        [HttpPost]
+        [HttpPost("/api/teams/{teamId}/invitations")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [Authorize(Policy = "IsTeamAdmin")] // Policy will check if user is admin of createDto.TeamId
-        public async Task<IActionResult> CreateTeamInvitation([FromBody] CreateTeamInvitationDto createDto)
+        [Authorize(Policy = "IsTeamAdmin")] // Policy will check if user is admin of teamId
+        public async Task<IActionResult> CreateTeamInvitation(Guid teamId, [FromBody] CreateTeamInvitationDto createDto)
         {
             var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (!Guid.TryParse(userIdString, out var userId))
@@ -44,15 +47,24 @@ namespace NikoNiko.Api.Controllers
                 return Unauthorized();
             }
 
-            var team = await _context.Teams.FindAsync(createDto.TeamId);
+            // Ensure the DTO matches the route
+            if (createDto.TeamId != Guid.Empty && createDto.TeamId != teamId)
+            {
+                return BadRequest("TeamId in URL and body do not match.");
+            }
+            createDto = createDto with { TeamId = teamId };
+
+            var team = await _context.Teams.FindAsync(teamId);
             if (team == null)
             {
                 return NotFound("Team not found.");
             }
 
+            var isSuperAdmin = User.HasClaim("is_super_admin", "true");
+
             try
             {
-                var invitation = await _teamInvitationService.CreateTeamInvitationAsync(createDto.TeamId, userId, createDto);
+                var invitation = await _teamInvitationService.CreateTeamInvitationAsync(teamId, userId, createDto, isSuperAdmin);
                 return CreatedAtAction(nameof(GetTeamInvitations), new { teamId = invitation.TeamId }, invitation);
             }
             catch (Exception ex)
@@ -66,7 +78,7 @@ namespace NikoNiko.Api.Controllers
         /// </summary>
         /// <param name="token">The invitation token.</param>
         /// <returns>The TeamInvitationDto object of the accepted invitation.</returns>
-        [AllowAnonymous] 
+        [AllowAnonymous]
         [HttpPost("{token}/accept")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -178,8 +190,8 @@ namespace NikoNiko.Api.Controllers
             }
             catch (UnauthorizedAccessException ex)
             {
-                 // This can happen if the service has a stricter check than the controller.
-                 // In this case, we respect the service's final decision.
+                // This can happen if the service has a stricter check than the controller.
+                // In this case, we respect the service's final decision.
                 return Forbid(ex.Message);
             }
             catch (Exception ex)

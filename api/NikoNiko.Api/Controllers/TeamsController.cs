@@ -1,12 +1,14 @@
 using System.Security.Claims;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
 using NikoNiko.Core.DTOs.Sprint;
 using NikoNiko.Core.DTOs.Team;
 using NikoNiko.Core.DTOs.User;
-using NikoNiko.Data;
 using NikoNiko.Core.Models; // Ensure this is explicitly used
+using NikoNiko.Data;
 using NikoNiko.Services;
 
 namespace NikoNiko.Api.Controllers;
@@ -60,29 +62,29 @@ public class TeamsController : ControllerBase
         }
 
         var teams = await baseQuery.Select(t => new TeamWithSprintsDto
+        {
+            Id = t.Id,
+            Name = t.Name,
+            AdminId = t.AdminId,
+            AdminName = t.Admin.Name ?? t.Admin.Email,
+            CreatedAt = t.CreatedAt,
+            Sprints = t.Sprints.Select(s => new SprintDto
             {
-                Id = t.Id,
-                Name = t.Name,
-                AdminId = t.AdminId,
-                AdminName = t.Admin.Name ?? t.Admin.Email,
-                CreatedAt = t.CreatedAt,
-                Sprints = t.Sprints.Select(s => new SprintDto
-                {
-                    Id = s.Id,
-                    Name = s.Name,
-                    StartDate = s.StartDate.ToUniversalTime(),
-                    EndDate = s.EndDate.ToUniversalTime(),
-                    TeamId = s.TeamId
-                }).ToList(),
-                Members = t.TeamUsers.Select(tu => new UserDto
-                {
-                    Id = tu.User.Id,
-                    Email = tu.User.Email,
-                    Name = tu.User.Name,
-                    AvatarUrl = tu.User.AvatarUrl,
-                    CreatedAt = tu.User.CreatedAt
-                }).ToList()
-            })
+                Id = s.Id,
+                Name = s.Name,
+                StartDate = s.StartDate.ToUniversalTime(),
+                EndDate = s.EndDate.ToUniversalTime(),
+                TeamId = s.TeamId
+            }).ToList(),
+            Members = t.TeamUsers.Select(tu => new UserDto
+            {
+                Id = tu.User.Id,
+                Email = tu.User.Email,
+                Name = tu.User.Name,
+                AvatarUrl = tu.User.AvatarUrl,
+                CreatedAt = tu.User.CreatedAt
+            }).ToList()
+        })
             .ToListAsync();
 
         return Ok(teams);
@@ -139,7 +141,7 @@ public class TeamsController : ControllerBase
 
         return Ok(team);
     }
-    
+
     /// <summary>
     /// Updates the details of a team.
     /// Only the team's admin or a super-admin can update a team.
@@ -171,6 +173,58 @@ public class TeamsController : ControllerBase
         await _context.SaveChangesAsync();
 
         await _notificationService.NotifyTeamRenamedAsync(team.Id, team.Name);
+
+        return NoContent();
+    }
+
+    /// <summary>
+    /// Transfers the administration of a team to another user.
+    /// Only the team's admin or a super-admin can perform this action.
+    /// </summary>
+    /// <param name="teamId">The ID of the team.</param>
+    /// <param name="updateTeamAdminDto">The data containing the new admin ID.</param>
+    /// <returns>NoContent if successful.</returns>
+    [HttpPut("{teamId}/admin")]
+    [Authorize(Policy = "IsTeamAdmin")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateTeamAdmin(Guid teamId, [FromBody] UpdateTeamAdminDto updateTeamAdminDto)
+    {
+        var team = await _context.Teams
+            .Include(t => t.TeamUsers)
+            .FirstOrDefaultAsync(t => t.Id == teamId);
+
+        if (team == null)
+        {
+            return NotFound();
+        }
+
+        var newAdminId = updateTeamAdminDto.NewAdminId;
+
+        // Verify that the new admin is a member of the team
+        if (!team.TeamUsers.Any(tu => tu.UserId == newAdminId))
+        {
+            return BadRequest("The new administrator must be a member of the team.");
+        }
+
+        var oldAdminId = team.AdminId;
+
+        // Update the admin
+        team.AdminId = newAdminId;
+
+        // Safeguard: Ensure the old admin remains a member of the team
+        if (!team.TeamUsers.Any(tu => tu.UserId == oldAdminId))
+        {
+            _context.TeamUsers.Add(new TeamUser
+            {
+                TeamId = teamId,
+                UserId = oldAdminId
+            });
+        }
+
+        await _context.SaveChangesAsync();
 
         return NoContent();
     }
@@ -225,7 +279,7 @@ public class TeamsController : ControllerBase
             Name = createTeamDto.Name,
             AdminId = userId
         };
-        
+
         var teamUser = new TeamUser
         {
             Team = team,
@@ -250,7 +304,7 @@ public class TeamsController : ControllerBase
 
         return CreatedAtAction(nameof(GetTeam), new { teamId = team.Id }, teamDto);
     }
-    
+
     /// <summary>
     /// Removes a user from a specific team.
     /// Only the team's admin or a super-admin can remove users.

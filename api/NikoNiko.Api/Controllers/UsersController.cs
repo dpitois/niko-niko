@@ -1,7 +1,9 @@
 using System.Security.Claims;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
 using NikoNiko.Core.DTOs.User;
 using NikoNiko.Data;
 
@@ -99,7 +101,7 @@ public class UsersController : ControllerBase
 
         return Ok(user);
     }
-    
+
     /// <summary>
     /// Deletes a specific user account. Accessible only by super-admins.
     /// A user cannot delete their own account.

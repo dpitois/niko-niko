@@ -8,7 +8,10 @@ const TEAMS_BASE_URL = '/teams'; // Correction ici
 
 export const teamInvitationService = {
   createTeamInvitation: async (createData: CreateTeamInvitation): Promise<TeamInvitation> => {
-    const response = await api.post<TeamInvitation>(BASE_URL, createData);
+    const response = await api.post<TeamInvitation>(
+      `${TEAMS_BASE_URL}/${createData.teamId}/invitations`,
+      createData
+    );
     return response.data;
   },
 

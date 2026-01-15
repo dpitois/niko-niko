@@ -338,7 +338,7 @@ const AdminUsersPage: React.FC = () => {
                               }
                               sx={{ mt: 1 }}
                             >
-                              {t('adminUsers.invitations.copyLink')}
+                              {t('common.copyLink')}
                             </Button>
                           </Grid>
                         </Grid>

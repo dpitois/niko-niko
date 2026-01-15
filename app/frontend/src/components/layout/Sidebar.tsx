@@ -134,6 +134,29 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose, handleDrawer
         <ListItem disablePadding sx={{ display: 'block' }}>
           <ListItemButton
             component={NavLink}
+            to="/current-sprints"
+            sx={{
+              minHeight: 48,
+              justifyContent: open ? 'initial' : 'center',
+              px: 2.5,
+            }}
+          >
+            <ListItemIcon
+              sx={{
+                minWidth: 0,
+                mr: open ? 3 : 'auto',
+                justifyContent: 'center',
+              }}
+            >
+              <TimelineIcon />
+            </ListItemIcon>
+            <ListItemText primary={t('sidebar.currentSprint')} sx={{ opacity: open ? 1 : 0 }} />
+          </ListItemButton>
+        </ListItem>
+
+        <ListItem disablePadding sx={{ display: 'block' }}>
+          <ListItemButton
+            component={NavLink}
             to="/past-sprints"
             sx={{
               minHeight: 48,

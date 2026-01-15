@@ -13,6 +13,7 @@
     "actions": "Actions",
     "copyLink": "Copy Link",
     "date": "Date",
+    "noData": "No data available",
     "logoutDialog": {
       "title": "Confirm Logout",
       "content": "Are you sure you want to log out?",
@@ -21,6 +22,7 @@
   },
   "sidebar": {
     "home": "Home",
+    "currentSprint": "Current Sprints",
     "pastSprints": "Past Sprints",
     "admin": "Administration",
     "teams": "Teams",
@@ -45,7 +47,18 @@
     "noActiveSprint": "No active sprint found for this team.",
     "editTeamName": "Edit team name",
     "teamUpdated": "Team name updated successfully.",
-    "teamUpdateFailed": "Failed to update team name."
+    "teamUpdateFailed": "Failed to update team name.",
+    "viewFullBoard": "View Full Board",
+    "howAreYouToday": "How are you today?",
+    "selectDate": "Select a date",
+    "moodRecorded": "Mood recorded for this day",
+    "teamTrend": "Team Trend",
+    "averageMood": "Average Mood"
+  },
+  "mood": {
+    "happy": "Happy",
+    "neutral": "Neutral",
+    "sad": "Sad"
   },
   "adminTeams": {
     "title": "Admin Teams",

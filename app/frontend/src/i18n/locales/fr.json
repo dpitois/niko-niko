@@ -13,6 +13,7 @@
     "actions": "Actions",
     "copyLink": "Copier le lien",
     "date": "Date",
+    "noData": "Pas de données disponibles",
     "logoutDialog": {
       "title": "Confirmer la déconnexion",
       "content": "Êtes-vous sûr de vouloir vous déconnecter ?",
@@ -21,6 +22,7 @@
   },
   "sidebar": {
     "home": "Accueil",
+    "currentSprint": "Sprints en cours",
     "pastSprints": "Sprints Passés",
     "admin": "Administration",
     "teams": "Équipes",
@@ -45,7 +47,18 @@
     "noActiveSprint": "Aucun sprint actif trouvé pour cette équipe.",
     "editTeamName": "Modifier le nom de l'équipe",
     "teamUpdated": "Nom de l'équipe mis à jour avec succès.",
-    "teamUpdateFailed": "Échec de la mise à jour du nom de l'équipe."
+    "teamUpdateFailed": "Échec de la mise à jour du nom de l'équipe.",
+    "viewFullBoard": "Voir le tableau complet",
+    "howAreYouToday": "Comment allez-vous ?",
+    "selectDate": "Sélectionner une date",
+    "moodRecorded": "Humeur enregistrée pour ce jour",
+    "teamTrend": "Tendance de l'équipe",
+    "averageMood": "Humeur moyenne"
+  },
+  "mood": {
+    "happy": "Heureux",
+    "neutral": "Neutre",
+    "sad": "Triste"
   },
   "adminTeams": {
     "title": "Administration des Équipes",

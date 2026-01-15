@@ -90,7 +90,7 @@ const CreateTeamInvitationForm: React.FC<CreateTeamInvitationFormProps> = ({
       </Button>
 
       {invitationLink && (
-        <Box sx={{ mt: 3, p: 2, bgcolor: '#f0f0f0', borderRadius: '4px' }}>
+        <Box sx={{ mt: 3, p: 2, bgcolor: 'background.paper', borderRadius: '4px', border: '1px solid', borderColor: 'divider' }}>
           <Typography variant="subtitle1">
             {t('adminUsers.invitations.createForm.linkLabel')}
           </Typography>
@@ -110,7 +110,7 @@ const CreateTeamInvitationForm: React.FC<CreateTeamInvitationFormProps> = ({
             onClick={() => navigator.clipboard.writeText(invitationLink)}
             sx={{ mt: 1 }}
           >
-            {t('adminUsers.invitations.copyLink')}
+            {t('common.copyLink')}
           </Button>
         </Box>
       )}

@@ -20,7 +20,7 @@ import useSprints from '@/hooks/useSprints';
 import useTeams from '@/hooks/useTeams';
 import type { Sprint } from '@/models/Sprint';
 import type { TeamWithMembersAndSprints } from '@/models/Team/TeamWithMembersAndSprints';
-import { updateTeam } from '@/services/teamService';
+import { transferTeamAdmin,updateTeam } from '@/services/teamService';
 
 import EditTeamDialog from '@/components/EditTeamDialog';
 import PageContainer from '@/components/layout/PageContainer';
@@ -97,6 +97,17 @@ const TeamDashboardSection: React.FC<TeamDashboardSectionProps> = ({ team, onUpd
     }
   };
 
+  const handleTransferAdmin = async (newAdminId: string) => {
+    try {
+      await transferTeamAdmin(team.id, newAdminId);
+      enqueueSnackbar(t('adminTeams.teamAdminTransferred'), { variant: 'success' });
+      onUpdate();
+    } catch {
+      enqueueSnackbar(t('adminTeams.teamAdminTransferFailed'), { variant: 'error' });
+      throw new Error('Transfer failed');
+    }
+  };
+
   const currentSprint = sprints?.find((sprint: Sprint) => {
     const today = new Date();
     const startDate = new Date(sprint.startDate);
@@ -159,6 +170,9 @@ const TeamDashboardSection: React.FC<TeamDashboardSectionProps> = ({ team, onUpd
         onClose={() => setIsEditDialogOpen(false)}
         onUpdate={handleUpdateName}
         currentName={team.name}
+        members={team.members}
+        currentAdminId={team.adminId}
+        onTransfer={handleTransferAdmin}
       />
     </Card>
   );

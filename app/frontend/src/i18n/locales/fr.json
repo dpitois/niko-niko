@@ -64,9 +64,17 @@
       "membersCount": "Membres ({{count}})",
       "editNameTitle": "Modifier le nom de l'équipe"
     },
+    "teamAdminTransferred": "Administration de l'équipe transférée avec succès.",
+    "teamAdminTransferFailed": "Échec du transfert de l'administration de l'équipe.",
     "editDialog": {
       "title": "Modifier le nom de l'équipe",
-      "labelName": "Nom de l'équipe"
+      "labelName": "Nom de l'équipe",
+      "transferError": "Erreur lors du transfert de l'administration.",
+      "transferWarning": "Attention : Le transfert de l'administration est irréversible. Vous perdrez les droits d'administration sur cette équipe.",
+      "transferButton": "Transférer l'administration",
+      "noMembersToTransfer": "Vous ne pouvez pas transférer l'administration car il n'y a pas d'autres membres dans cette équipe. Invitez d'abord des membres.",
+      "dangerZone": "Zone de danger",
+      "selectNewAdmin": "Sélectionner le nouvel administrateur"
     }
   },
   "pastSprints": {

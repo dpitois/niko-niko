@@ -1,4 +1,5 @@
 using System.Security.Claims;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -269,7 +270,7 @@ public class MoodEntriesController : ControllerBase
                 return StatusCode(403, "You can only view moods for users within your teams.");
             }
         }
-        
+
         if (userId.HasValue)
         {
             query = query.Where(me => me.UserId == userId.Value);

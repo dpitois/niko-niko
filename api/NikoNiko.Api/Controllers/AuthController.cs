@@ -89,9 +89,9 @@ public class AuthController : ControllerBase
         var authenticateResult = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
         if (!authenticateResult.Succeeded)
         {
-             _logger.LogError(authenticateResult.Failure, "Google authentication failed during callback.");
-             // Redirect to login with error? Or throw? Following GitHub pattern:
-             throw new Exception($"Error authenticating with Google: {authenticateResult.Failure?.Message}");
+            _logger.LogError(authenticateResult.Failure, "Google authentication failed during callback.");
+            // Redirect to login with error? Or throw? Following GitHub pattern:
+            throw new Exception($"Error authenticating with Google: {authenticateResult.Failure?.Message}");
         }
 
         string? invitationToken = null;
@@ -230,31 +230,31 @@ public class AuthController : ControllerBase
             throw new Exception("Could not retrieve required user information from provider.");
         }
 
-                // For GitHub, the public email might be null. We'll use a placeholder if needed.
+        // For GitHub, the public email might be null. We'll use a placeholder if needed.
 
-                if (string.IsNullOrEmpty(email) && provider == GitHubAuthenticationDefaults.AuthenticationScheme)
+        if (string.IsNullOrEmpty(email) && provider == GitHubAuthenticationDefaults.AuthenticationScheme)
 
-                {
+        {
 
-                    var githubLogin = claims.FirstOrDefault(c => c.Type == "urn:github:login")?.Value;
+            var githubLogin = claims.FirstOrDefault(c => c.Type == "urn:github:login")?.Value;
 
-                     email = $"{githubLogin}@users.noreply.github.com";
+            email = $"{githubLogin}@users.noreply.github.com";
 
-                }
+        }
 
-        
 
-                if (string.IsNullOrEmpty(email))
 
-                {
+        if (string.IsNullOrEmpty(email))
 
-                     throw new Exception("Email is required but was not provided by the authentication provider.");
+        {
 
-                }
+            throw new Exception("Email is required but was not provided by the authentication provider.");
 
-        
+        }
 
-                var user = await _context.Users.FirstOrDefaultAsync(u => u.OAuthId == oauthId && u.Email == email);
+
+
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.OAuthId == oauthId && u.Email == email);
 
         var superAdminEmails = GetSuperAdminEmails();
 
@@ -303,7 +303,7 @@ public class AuthController : ControllerBase
         {
             // Sync user profile data (Avatar and Name) from provider
             bool isUpdated = false;
-            
+
             if (user.AvatarUrl != avatar)
             {
                 user.AvatarUrl = avatar;

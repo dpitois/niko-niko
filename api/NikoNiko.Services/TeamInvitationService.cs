@@ -18,7 +18,7 @@ namespace NikoNiko.Services
             _context = context;
         }
 
-        public async Task<TeamInvitationDto> CreateTeamInvitationAsync(Guid teamId, Guid creatorUserId, CreateTeamInvitationDto createDto)
+        public async Task<TeamInvitationDto> CreateTeamInvitationAsync(Guid teamId, Guid creatorUserId, CreateTeamInvitationDto createDto, bool isSuperAdmin = false)
         {
             var team = await _context.Teams
                 .Include(t => t.TeamUsers)
@@ -36,8 +36,8 @@ namespace NikoNiko.Services
                 throw new KeyNotFoundException($"Creator user with ID {creatorUserId} not found.");
             }
 
-            // Check if the creator is an admin of the team
-            if (team.AdminId != creatorUserId)
+            // Check if the creator is an admin of the team or super admin
+            if (team.AdminId != creatorUserId && !isSuperAdmin)
             {
                 throw new UnauthorizedAccessException("Only team admins can create invitations.");
             }

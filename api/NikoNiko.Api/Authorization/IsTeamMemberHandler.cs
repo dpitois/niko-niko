@@ -1,8 +1,10 @@
 using System.Security.Claims;
 using System.Threading.Tasks;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+
 using NikoNiko.Data;
 
 namespace NikoNiko.Api.Authorization;
@@ -68,7 +70,7 @@ public class IsTeamMemberHandler : AuthorizationHandler<IsTeamMemberRequirement>
 
         var isMember = await _dbContext.TeamUsers
             .AnyAsync(tu => tu.TeamId == teamId && tu.UserId == userId);
-            
+
         var team = await _dbContext.Teams.AsNoTracking().FirstOrDefaultAsync(t => t.Id == teamId); // Use AsNoTracking for read-only query
         var isTeamAdmin = team?.AdminId == userId;
 

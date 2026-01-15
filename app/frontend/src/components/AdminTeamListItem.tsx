@@ -20,7 +20,7 @@ import {
 import { useSnackbar } from 'notistack';
 
 import type { TeamWithMembersAndSprints } from '@/models/Team/TeamWithMembersAndSprints';
-import { updateTeam } from '@/services/teamService';
+import { transferTeamAdmin,updateTeam } from '@/services/teamService';
 
 import EditTeamDialog from './EditTeamDialog';
 
@@ -43,6 +43,17 @@ const AdminTeamListItem: React.FC<AdminTeamListItemProps> = ({ team, onDelete, o
     } catch {
       enqueueSnackbar(t('dashboard.teamUpdateFailed'), { variant: 'error' });
       throw new Error('Update failed');
+    }
+  };
+
+  const handleTransferAdmin = async (newAdminId: string) => {
+    try {
+      await transferTeamAdmin(team.id, newAdminId);
+      enqueueSnackbar(t('adminTeams.teamAdminTransferred'), { variant: 'success' });
+      if (onUpdate) onUpdate();
+    } catch {
+      enqueueSnackbar(t('adminTeams.teamAdminTransferFailed'), { variant: 'error' });
+      throw new Error('Transfer failed');
     }
   };
 
@@ -85,6 +96,9 @@ const AdminTeamListItem: React.FC<AdminTeamListItemProps> = ({ team, onDelete, o
         onClose={() => setIsEditDialogOpen(false)}
         onUpdate={handleUpdateName}
         currentName={team.name}
+        members={team.members}
+        currentAdminId={team.adminId}
+        onTransfer={handleTransferAdmin}
       />
       <Box>
         <Typography variant="subtitle2" sx={{ mb: 1, display: 'flex', alignItems: 'center' }}>

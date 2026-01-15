@@ -6,7 +6,7 @@ services:
   tests-backend:
     build:
       context: .
-      dockerfile: api/Dockerfile.test
+      dockerfile: docker/Dockerfile.test-backend
     container_name: nikoniko_tests_backend
     volumes:
       - ./test-results:/src/TestResults # Mount test results directory

@@ -17,7 +17,7 @@ services:
   backend:
     build:
       context: .
-      dockerfile: api/NikoNiko.Api/Dockerfile
+      dockerfile: docker/Dockerfile.backend
     container_name: nikoniko_backend
     volumes:
       - ./data:/app/data # Mount data directory
@@ -48,7 +48,7 @@ services:
   notifications: # New SignalR Service
     build:
       context: .
-      dockerfile: api/NikoNiko.Notifications/Dockerfile
+      dockerfile: docker/Dockerfile.notifications
     container_name: nikoniko_notifications
     environment:
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
@@ -65,8 +65,8 @@ services:
 
   frontend:
     build:
-      context: ./app/frontend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: docker/Dockerfile.frontend
       args:
         - VITE_GITHUB_REPO_URL=${VITE_GITHUB_REPO_URL}
     container_name: nikoniko_frontend

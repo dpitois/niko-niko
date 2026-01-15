@@ -62,8 +62,17 @@ This directory contains the React web application developed with TypeScript.
     *   `pages/`: Page components representing different application views (e.g., Login, Dashboard, Admin/Teams, Admin/Users, Admin/Sprints, MyTeams, PastSprints).
     *   `services/`: Functions and modules for interacting with backend APIs (using Axios and SWR for data management).
 *   **`public/`**: Static assets.
-*   **`vite.config.ts`**: Vite configuration.
-*   **`package.json`**: NPM dependencies and scripts.
+    *   `vite.config.ts`: Vite configuration.
+    *   `package.json`: NPM dependencies and scripts.
+
+### `docker/` (Infrastructure)
+
+Centralized Docker configuration files.
+
+*   `Dockerfile.backend`: Build definition for the main API.
+*   `Dockerfile.notifications`: Build definition for the Notification service.
+*   `Dockerfile.frontend`: Build definition for the React frontend.
+*   `Dockerfile.test-backend`: Build definition for running backend tests.
 
 ## Key Features
 

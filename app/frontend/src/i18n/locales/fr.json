@@ -13,6 +13,7 @@
     "actions": "Actions",
     "copyLink": "Copier le lien",
     "date": "Date",
+    "noData": "Pas de données disponibles",
     "logoutDialog": {
       "title": "Confirmer la déconnexion",
       "content": "Êtes-vous sûr de vouloir vous déconnecter ?",

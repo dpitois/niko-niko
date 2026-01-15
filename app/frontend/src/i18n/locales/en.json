@@ -13,6 +13,7 @@
     "actions": "Actions",
     "copyLink": "Copy Link",
     "date": "Date",
+    "noData": "No data available",
     "logoutDialog": {
       "title": "Confirm Logout",
       "content": "Are you sure you want to log out?",

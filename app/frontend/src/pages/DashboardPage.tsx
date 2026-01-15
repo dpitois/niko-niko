@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link as RouterLink } from 'react-router-dom';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
@@ -18,9 +18,8 @@ import type { Sprint } from '@/models/Sprint';
 import type { TeamWithMembersAndSprints } from '@/models/Team/TeamWithMembersAndSprints';
 
 import DailyMoodWidget from '@/components/dashboard/DailyMoodWidget';
+import TeamMoodTrendWidget from '@/components/dashboard/TeamMoodTrendWidget';
 import PageContainer from '@/components/layout/PageContainer';
-
-const TeamMoodTrendWidget = React.lazy(() => import('@/components/dashboard/TeamMoodTrendWidget'));
 
 const DashboardPage: React.FC = () => {
   const { t } = useTranslation();
@@ -131,19 +130,11 @@ const TeamDashboardSection: React.FC<TeamDashboardSectionProps> = ({ team }) => 
             />
           </Grid>
           <Grid size={{ xs: 12, md: 7 }}>
-            <Suspense
-              fallback={
-                <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-                  <CircularProgress />
-                </Box>
-              }
-            >
-              <TeamMoodTrendWidget
-                sprintId={currentSprint.id}
-                sprintStartDate={currentSprint.startDate}
-                sprintEndDate={currentSprint.endDate}
-              />
-            </Suspense>
+            <TeamMoodTrendWidget
+              sprintId={currentSprint.id}
+              sprintStartDate={currentSprint.startDate}
+              sprintEndDate={currentSprint.endDate}
+            />
           </Grid>
         </Grid>
       ) : (

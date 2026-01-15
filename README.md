@@ -16,7 +16,7 @@ Créer une application **distribuée** et **auto-hébergée** (via Docker) pour 
 - **Backend** : API RESTful en **.NET 10** (WebAPI).
 - **Frontend** : Application **React 19+** avec TypeScript, Material UI, Axios, et SWR.
 - **Base de Données** : **PostgreSQL / SQLite (configurable)**.
-- **Déploiement** : **Docker** (3 services : backend, frontend, db).
+- **Déploiement** : **Docker** (3 services : backend, frontend, db) avec une configuration centralisée dans `docker/`.
 
 ## 3. Fonctionnalités Clés
 

@@ -76,7 +76,7 @@ Centralized Docker configuration files.
 
 ## Key Features
 
-*   **Authentication**: OAuth2 (currently GitHub functional).
+*   **Authentication**: OAuth2 (GitHub, Google, Discord).
 *   **API Documentation**: Backend includes OpenAPI/Swagger documentation.
 *   **Team Management**: Team creation (via admin dashboard), member management (admin role), team invitation system (creation, acceptance, soft deletion).
 *   **Sprints**: Admin-defined work periods, sprint tracking on the dashboard, dedicated pages for creation and management.
@@ -112,8 +112,12 @@ For OAuth 2.0 authentication (currently GitHub), you must configure external pro
 
 1.  **Create an OAuth 2.0 application** for GitHub:
     *   [GitHub Developer Settings](https://github.com/settings/developers)
+    *   [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
+    *   [Discord Developer Portal](https://discord.com/developers/applications)
 2.  **Configure Redirect URIs**: Use the following callback for development. It is important that this URL exactly matches the one configured in your GitHub application.
     *   GitHub: `http://localhost:5000/signin-github`
+    *   Google: `http://localhost:5000/signin-google`
+    *   Discord: `http://localhost:5000/signin-discord`
 3.  **Update your `.env` file**: Replace `ClientId` and `ClientSecret` values with your own. Ensure the `JWT_KEY` variable is also defined in `.env`. You can find these environment variables under the `backend` service in `docker-compose.yml`.
 
     ```yaml

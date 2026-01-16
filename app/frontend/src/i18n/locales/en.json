@@ -36,6 +36,7 @@
     "subtitle": "Please sign in to continue",
     "signInGithub": "Sign in with GitHub",
     "signInGoogle": "Sign in with Google",
+    "signInDiscord": "Sign in with Discord",
     "signInMicrosoft": "Sign in with Microsoft"
   },
   "dashboard": {

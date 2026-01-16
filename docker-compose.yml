@@ -36,6 +36,8 @@ services:
       - Authentication__Microsoft__ClientSecret=
       - Authentication__GitHub__ClientId=${GITHUB_CLIENT_ID}
       - Authentication__GitHub__ClientSecret=${GITHUB_CLIENT_SECRET}
+      - Authentication__Discord__ClientId=${DISCORD_CLIENT_ID}
+      - Authentication__Discord__ClientSecret=${DISCORD_CLIENT_SECRET}
       - Authentication__FrontendRedirectUrl=${FRONTEND_REDIRECT_URL}
       - SignalRService__BaseUrl=http://nikoniko_notifications:8080 # SignalR Service URL for backend
       - SUPER_ADMINS=${SUPER_ADMINS}

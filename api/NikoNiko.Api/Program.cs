@@ -122,6 +122,21 @@ if (!string.IsNullOrEmpty(googleClientId) && !string.IsNullOrEmpty(googleClientS
     });
 }
 
+var discordClientId = config["Authentication:Discord:ClientId"];
+var discordClientSecret = config["Authentication:Discord:ClientSecret"];
+
+if (!string.IsNullOrEmpty(discordClientId) && !string.IsNullOrEmpty(discordClientSecret))
+{
+    builder.Services.AddAuthentication().AddDiscord(options =>
+    {
+        options.SignInScheme = "ExternalCookie";
+        options.ClientId = discordClientId;
+        options.ClientSecret = discordClientSecret;
+        options.CallbackPath = "/signin-discord";
+        options.Scope.Add("email");
+    });
+}
+
 // Configure Authorization
 builder.Services.AddAuthorization(options =>
 {

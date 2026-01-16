@@ -1,5 +1,6 @@
 using System.Security.Claims;
 
+using AspNet.Security.OAuth.Discord;
 using AspNet.Security.OAuth.GitHub;
 
 using Microsoft.AspNetCore.Authentication;
@@ -200,6 +201,69 @@ public class AuthController : ControllerBase
         return Redirect(redirectUrl);
     }
 
+    /// <summary>
+    /// Initiates the Discord login flow.
+    /// </summary>
+    [HttpGet("login-discord")]
+    [ApiExplorerSettings(IgnoreApi = true)]
+    public IActionResult LoginDiscord(string? invitationToken = null)
+    {
+        var properties = new AuthenticationProperties { RedirectUri = "/api/auth/signin-discord" };
+
+        if (!string.IsNullOrEmpty(invitationToken))
+        {
+            properties.Items.Add("invitationToken", invitationToken);
+        }
+
+        // Force HTTPS for RedirectUri if in Production and X-Forwarded-Proto is HTTPS
+        if (_config.GetValue<string>("ASPNETCORE_ENVIRONMENT") == "Production")
+        {
+            if (HttpContext.Request.Headers.TryGetValue("X-Forwarded-Proto", out var forwardedProto) && forwardedProto == "https")
+            {
+                properties.RedirectUri = UriHelper.BuildAbsolute(
+                    "https",
+                    new HostString(HttpContext.Request.Host.Value),
+                    PathString.FromUriComponent(properties.RedirectUri)
+                ).ToString();
+            }
+            else if (HttpContext.Request.IsHttps)
+            {
+                properties.RedirectUri = UriHelper.BuildAbsolute(
+                    "https",
+                    new HostString(HttpContext.Request.Host.Value),
+                    PathString.FromUriComponent(properties.RedirectUri)
+                ).ToString();
+            }
+        }
+
+        return Challenge(properties, DiscordAuthenticationDefaults.AuthenticationScheme);
+    }
+
+    /// <summary>
+    /// Discord sign-in callback.
+    /// </summary>
+    [HttpGet("signin-discord")]
+    [ApiExplorerSettings(IgnoreApi = true)]
+    public async Task<IActionResult> SigninDiscord()
+    {
+        var authenticateResult = await HttpContext.AuthenticateAsync(DiscordAuthenticationDefaults.AuthenticationScheme);
+        if (!authenticateResult.Succeeded)
+        {
+            _logger.LogError(authenticateResult.Failure, "Discord authentication failed during callback.");
+            throw new Exception($"Error authenticating with Discord: {authenticateResult.Failure?.Message}");
+        }
+
+        string? invitationToken = null;
+        if (authenticateResult.Properties != null && authenticateResult.Properties.Items.TryGetValue("invitationToken", out var tokenValue))
+        {
+            invitationToken = tokenValue;
+        }
+
+        var (user, token) = await HandleSignIn(DiscordAuthenticationDefaults.AuthenticationScheme, invitationToken);
+        var redirectUrl = $"{_frontendRedirectUrl}/auth/callback?token={token}";
+        return Redirect(redirectUrl);
+    }
+
     private async Task<(User, string)> HandleSignIn(string provider, string? invitationToken = null)
     {
         var result = await HttpContext.AuthenticateAsync(provider);
@@ -222,6 +286,15 @@ public class AuthController : ControllerBase
             // Often it's just "picture" or ClaimTypes.Uri if mapped manually?
             // Checking raw claim type "picture" is safest for Google.
             avatar = claims.FirstOrDefault(c => c.Type == "picture")?.Value;
+        }
+
+        if (string.IsNullOrEmpty(avatar) && provider == DiscordAuthenticationDefaults.AuthenticationScheme)
+        {
+            // Discord avatar logic: https://cdn.discordapp.com/avatars/{user_id}/{avatar_hash}.png
+            // The AspNet.Security.OAuth.Discord package usually maps the avatar hash to "urn:discord:avatar:url" or similar, 
+            // but checking for "avatar" or "urn:discord:avatar" claim is safer if we want the hash.
+            // Actually, the package often maps the full URL to ClaimTypes.Uri or a custom claim.
+            avatar = claims.FirstOrDefault(c => c.Type == "urn:discord:avatar:url")?.Value;
         }
 
 

@@ -5,7 +5,7 @@ namespace NikoNiko.Core.Models;
 /// </summary>
 public enum MoodType
 {
-    Happy,
+    Sad,
     Neutral,
-    Sad
+    Happy
 }

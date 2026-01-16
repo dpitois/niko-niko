@@ -122,21 +122,21 @@ erDiagram
 
 ## 4. Authentication Workflow
 
-Authentication is handled via OAuth 2.0 (GitHub/Google) and secured using JWT (JSON Web Tokens).
+Authentication is handled via OAuth 2.0 (GitHub/Google/Discord) and secured using JWT (JSON Web Tokens).
 
 ```mermaid
 sequenceDiagram
     participant U as User
     participant F as Frontend
     participant A as Main API
-    participant P as OAuth Provider (GitHub/Google)
+    participant P as OAuth Provider (GitHub/Google/Discord)
 
     U->>F: Clicks Login
-    F->>A: Redirects to /api/auth/login-github
+    F->>A: Redirects to /api/auth/login-{provider}
     A->>P: Challenge OAuth Request
     P->>U: Requests Consent
     U->>P: Grants Permission
-    P->>A: Callback with Code (/signin-github)
+    P->>A: Callback with Code (/signin-{provider})
     A->>A: Exchange Code for Profile Info
     A->>A: Create/Update User & Generate JWT
     A->>F: Redirect to Callback with JWT

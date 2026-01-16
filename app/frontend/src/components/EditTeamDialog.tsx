@@ -126,7 +126,7 @@ const EditTeamDialog: React.FC<EditTeamDialogProps> = ({
                     >
                       {availableMembers.map((member) => (
                         <MenuItem key={member.id} value={member.id}>
-                          {member.name || member.email}
+                          {member.name || member.email || 'Unknown User'}
                         </MenuItem>
                       ))}
                     </Select>

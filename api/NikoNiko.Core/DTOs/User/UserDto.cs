@@ -26,6 +26,11 @@ public record UserDto
     public string? AvatarUrl { get; init; }
 
     /// <summary>
+    /// The authentication provider (e.g., GitHub, Google, Discord).
+    /// </summary>
+    public string? Provider { get; init; }
+
+    /// <summary>
     /// The date the user account was created.
     /// </summary>
     public DateTime CreatedAt { get; init; }

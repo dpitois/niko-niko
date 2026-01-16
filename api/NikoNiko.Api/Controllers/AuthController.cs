@@ -1,5 +1,6 @@
 using System.Security.Claims;
 
+using AspNet.Security.OAuth.Discord;
 using AspNet.Security.OAuth.GitHub;
 
 using Microsoft.AspNetCore.Authentication;
@@ -200,6 +201,69 @@ public class AuthController : ControllerBase
         return Redirect(redirectUrl);
     }
 
+    /// <summary>
+    /// Initiates the Discord login flow.
+    /// </summary>
+    [HttpGet("login-discord")]
+    [ApiExplorerSettings(IgnoreApi = true)]
+    public IActionResult LoginDiscord(string? invitationToken = null)
+    {
+        var properties = new AuthenticationProperties { RedirectUri = "/api/auth/signin-discord" };
+
+        if (!string.IsNullOrEmpty(invitationToken))
+        {
+            properties.Items.Add("invitationToken", invitationToken);
+        }
+
+        // Force HTTPS for RedirectUri if in Production and X-Forwarded-Proto is HTTPS
+        if (_config.GetValue<string>("ASPNETCORE_ENVIRONMENT") == "Production")
+        {
+            if (HttpContext.Request.Headers.TryGetValue("X-Forwarded-Proto", out var forwardedProto) && forwardedProto == "https")
+            {
+                properties.RedirectUri = UriHelper.BuildAbsolute(
+                    "https",
+                    new HostString(HttpContext.Request.Host.Value),
+                    PathString.FromUriComponent(properties.RedirectUri)
+                ).ToString();
+            }
+            else if (HttpContext.Request.IsHttps)
+            {
+                properties.RedirectUri = UriHelper.BuildAbsolute(
+                    "https",
+                    new HostString(HttpContext.Request.Host.Value),
+                    PathString.FromUriComponent(properties.RedirectUri)
+                ).ToString();
+            }
+        }
+
+        return Challenge(properties, DiscordAuthenticationDefaults.AuthenticationScheme);
+    }
+
+    /// <summary>
+    /// Discord sign-in callback.
+    /// </summary>
+    [HttpGet("signin-discord")]
+    [ApiExplorerSettings(IgnoreApi = true)]
+    public async Task<IActionResult> SigninDiscord()
+    {
+        var authenticateResult = await HttpContext.AuthenticateAsync(DiscordAuthenticationDefaults.AuthenticationScheme);
+        if (!authenticateResult.Succeeded)
+        {
+            _logger.LogError(authenticateResult.Failure, "Discord authentication failed during callback.");
+            throw new Exception($"Error authenticating with Discord: {authenticateResult.Failure?.Message}");
+        }
+
+        string? invitationToken = null;
+        if (authenticateResult.Properties != null && authenticateResult.Properties.Items.TryGetValue("invitationToken", out var tokenValue))
+        {
+            invitationToken = tokenValue;
+        }
+
+        var (user, token) = await HandleSignIn(DiscordAuthenticationDefaults.AuthenticationScheme, invitationToken);
+        var redirectUrl = $"{_frontendRedirectUrl}/auth/callback?token={token}";
+        return Redirect(redirectUrl);
+    }
+
     private async Task<(User, string)> HandleSignIn(string provider, string? invitationToken = null)
     {
         var result = await HttpContext.AuthenticateAsync(provider);
@@ -224,6 +288,15 @@ public class AuthController : ControllerBase
             avatar = claims.FirstOrDefault(c => c.Type == "picture")?.Value;
         }
 
+        if (string.IsNullOrEmpty(avatar) && provider == DiscordAuthenticationDefaults.AuthenticationScheme)
+        {
+            // Discord avatar logic: https://cdn.discordapp.com/avatars/{user_id}/{avatar_hash}.png
+            // The AspNet.Security.OAuth.Discord package usually maps the avatar hash to "urn:discord:avatar:url" or similar, 
+            // but checking for "avatar" or "urn:discord:avatar" claim is safer if we want the hash.
+            // Actually, the package often maps the full URL to ClaimTypes.Uri or a custom claim.
+            avatar = claims.FirstOrDefault(c => c.Type == "urn:discord:avatar:url")?.Value;
+        }
+
 
         if (oauthId == null || name == null)
         {
@@ -231,30 +304,29 @@ public class AuthController : ControllerBase
         }
 
         // For GitHub, the public email might be null. We'll use a placeholder if needed.
-
         if (string.IsNullOrEmpty(email) && provider == GitHubAuthenticationDefaults.AuthenticationScheme)
-
         {
-
             var githubLogin = claims.FirstOrDefault(c => c.Type == "urn:github:login")?.Value;
-
-            email = $"{githubLogin}@users.noreply.github.com";
-
+            if (!string.IsNullOrEmpty(githubLogin))
+            {
+                email = $"{githubLogin}@users.noreply.github.com";
+            }
         }
 
+        // Prioritize lookup by OAuthId as email might be null or change
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.OAuthId == oauthId);
 
-
-        if (string.IsNullOrEmpty(email))
-
+        // Fallback for legacy users: try finding by Email if OAuthId didn't match (migration path)
+        if (user == null && !string.IsNullOrEmpty(email))
         {
-
-            throw new Exception("Email is required but was not provided by the authentication provider.");
-
+            user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            // If found by email but OAuthId was different/missing, update OAuthId? 
+            // For safety in this refactor, we assume if OAuthId search failed, it's a new user OR a legacy user who hasn't logged in with this provider before.
+            // But if we find by email, we should probably link them.
+            // However, allowing multiple providers means OAuthId is provider-specific. Ideally User model should store Provider + ProviderId.
+            // Current model has single OAuthId. Assuming one primary provider or "first come first served".
+            // Let's stick to simple logic: Find by OAuthId. If not found, check Email.
         }
-
-
-
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.OAuthId == oauthId && u.Email == email);
 
         var superAdminEmails = GetSuperAdminEmails();
 
@@ -263,12 +335,13 @@ public class AuthController : ControllerBase
             user = new User
             {
                 OAuthId = oauthId,
-                Email = email,
+                Email = email, // Can be null
                 Name = name,
-                AvatarUrl = avatar
+                AvatarUrl = avatar,
+                Provider = provider
             };
 
-            if (superAdminEmails.Contains(user.Email, StringComparer.OrdinalIgnoreCase))
+            if (!string.IsNullOrEmpty(user.Email) && superAdminEmails.Contains(user.Email, StringComparer.OrdinalIgnoreCase))
             {
                 user.IsSuperAdmin = true;
                 _logger.LogInformation("Promoted new user {Email} to super admin.", user.Email);
@@ -296,7 +369,7 @@ public class AuthController : ControllerBase
                 _context.Teams.Add(newTeam);
                 _context.TeamUsers.Add(teamUser);
                 await _context.SaveChangesAsync();
-                _logger.LogInformation("Auto-created team {TeamName} for new user {Email}.", teamName, user.Email);
+                _logger.LogInformation("Auto-created team {TeamName} for new user {UserId}.", teamName, user.Id);
             }
         }
         else
@@ -316,20 +389,38 @@ public class AuthController : ControllerBase
                 isUpdated = true;
             }
 
-            // Sync IsSuperAdmin status for existing users
-            var shouldBeSuperAdmin = superAdminEmails.Contains(user.Email, StringComparer.OrdinalIgnoreCase);
-
-            if (user.IsSuperAdmin != shouldBeSuperAdmin)
+            // Update Email if it was null and now provided, or changed
+            // Caution: If email changes, be sure it doesn't conflict? 
+            // For now, let's just update it if we have one from provider.
+            if (!string.IsNullOrEmpty(email) && user.Email != email)
             {
-                user.IsSuperAdmin = shouldBeSuperAdmin;
+                 user.Email = email;
+                 isUpdated = true;
+            }
+
+            // Sync Provider if missing
+            if (user.Provider != provider)
+            {
+                user.Provider = provider;
                 isUpdated = true;
-                _logger.LogInformation("Updated super admin status for existing user {Email} to {IsSuperAdmin}.", user.Email, user.IsSuperAdmin);
+            }
+
+            // Sync IsSuperAdmin status for existing users (only if they have an email)
+            if (!string.IsNullOrEmpty(user.Email))
+            {
+                var shouldBeSuperAdmin = superAdminEmails.Contains(user.Email, StringComparer.OrdinalIgnoreCase);
+                if (user.IsSuperAdmin != shouldBeSuperAdmin)
+                {
+                    user.IsSuperAdmin = shouldBeSuperAdmin;
+                    isUpdated = true;
+                    _logger.LogInformation("Updated super admin status for existing user {UserId} to {IsSuperAdmin}.", user.Id, user.IsSuperAdmin);
+                }
             }
 
             if (isUpdated)
             {
                 await _context.SaveChangesAsync();
-                _logger.LogInformation("Updated profile for user {Email}.", user.Email);
+                _logger.LogInformation("Updated profile for user {UserId}.", user.Id);
             }
         }
 

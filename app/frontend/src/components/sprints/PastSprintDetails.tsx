@@ -3,8 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { Box, Divider, Grid,Typography } from '@mui/material';
 
 import { useMoods } from '@/hooks/useMoods';
-import { calculateMoodTrend } from '@/utils/moodTrendUtils';
 import type { User } from '@/models/User';
+import { calculateMoodTrend } from '@/utils/moodTrendUtils';
 
 import MoodTrendChart from '@/components/dashboard/MoodTrendChart';
 import MoodGridDisplay from './MoodGridDisplay';

@@ -36,6 +36,7 @@
     "subtitle": "Veuillez vous connecter pour continuer",
     "signInGithub": "Se connecter avec GitHub",
     "signInGoogle": "Se connecter avec Google",
+    "signInDiscord": "Se connecter avec Discord",
     "signInMicrosoft": "Se connecter avec Microsoft"
   },
   "dashboard": {
@@ -110,6 +111,7 @@
       "avatar": "Avatar",
       "name": "Nom",
       "email": "Email",
+      "provider": "Source",
       "createdAt": "Créé le",
       "actions": "Actions",
       "noUsers": "Aucun utilisateur trouvé."

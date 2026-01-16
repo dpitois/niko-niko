@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NikoNiko.Data;
 
@@ -10,9 +11,11 @@ using NikoNiko.Data;
 namespace NikoNiko.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260116210340_MakeEmailOptional")]
+    partial class MakeEmailOptional
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.2");
@@ -225,9 +228,6 @@ namespace NikoNiko.Data.Migrations
 
                     b.Property<string>("OAuthId")
                         .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Provider")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");

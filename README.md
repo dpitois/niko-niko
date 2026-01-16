@@ -20,7 +20,7 @@ Créer une application **distribuée** et **auto-hébergée** (via Docker) pour 
 
 ## 3. Fonctionnalités Clés
 
-- **Authentification** : OAuth2 (GitHub, Google). Microsoft est temporairement désactivé.
+- **Authentification** : OAuth2 (GitHub, Google, Discord). Microsoft est temporairement désactivé.
 - **Gestion d'Équipes** : Création d'équipes (via le tableau de bord admin), gestion des membres et des invitations (création, acceptation, suppression).
 - **Sprints** : Définition de périodes de travail par les admins et suivi des sprints sur le tableau de bord, y compris la création de sprints et une page dédiée pour la creation de sprint.
 - **Suivi d'Humeur** : Enregistrement quotidien (😊/😐/🙁) par sprint, désormais fonctionnel sur le frontend et mis à jour de manière effective, avec une page dédiée pour la saisie de l'humeur.
@@ -71,10 +71,12 @@ Pour que l'authentification OAuth 2.0 fonctionne, vous devez configurer les four
 1.  **Créez une application OAuth 2.0** pour chaque fournisseur :
     *   [GitHub Developer Settings](https://github.com/settings/developers)
     *   [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
+    *   [Discord Developer Portal](https://discord.com/developers/applications)
 
 2.  **Configurez les URI de redirection** : Lors de la création de vos applications, utilisez les callbacks suivants pour l'environnement de développement.
     *   GitHub : `http://localhost:5000/signin-github`
     *   Google : `http://localhost:5000/signin-google`
+    *   Discord : `http://localhost:5000/signin-discord`
 
 3.  **Mettez à jour `appsettings.json` et votre fichier `.env`** : Remplacez les valeurs de `ClientId` et `ClientSecret` avec les vôtres. Assurez-vous également que la variable `JWT_KEY` est définie dans `.env`.
 
@@ -87,6 +89,10 @@ Pour que l'authentification OAuth 2.0 fonctionne, vous devez configurer les four
       "Google": {
         "ClientId": "VOTRE_CLIENT_ID_GOOGLE",
         "ClientSecret": "VOTRE_CLIENT_SECRET_GOOGLE"
+      },
+      "Discord": {
+        "ClientId": "VOTRE_CLIENT_ID_DISCORD",
+        "ClientSecret": "VOTRE_CLIENT_SECRET_DISCORD"
       }
       // Microsoft est temporairement désactivé.
     }

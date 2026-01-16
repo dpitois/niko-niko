@@ -122,6 +122,20 @@ if (!string.IsNullOrEmpty(googleClientId) && !string.IsNullOrEmpty(googleClientS
     });
 }
 
+var discordClientId = config["Authentication:Discord:ClientId"];
+var discordClientSecret = config["Authentication:Discord:ClientSecret"];
+
+if (!string.IsNullOrEmpty(discordClientId) && !string.IsNullOrEmpty(discordClientSecret))
+{
+    builder.Services.AddAuthentication().AddDiscord(options =>
+    {
+        options.SignInScheme = "ExternalCookie";
+        options.ClientId = discordClientId;
+        options.ClientSecret = discordClientSecret;
+        options.CallbackPath = "/signin-discord";
+    });
+}
+
 // Configure Authorization
 builder.Services.AddAuthorization(options =>
 {
@@ -227,7 +241,7 @@ async Task SeedAndSyncSuperAdminRoles(WebApplication webApp)
         }
 
         // Then, promote users from the list
-        var usersToPromote = allUsers.Where(u => superAdminEmails.Contains(u.Email, StringComparer.OrdinalIgnoreCase));
+        var usersToPromote = allUsers.Where(u => !string.IsNullOrEmpty(u.Email) && superAdminEmails.Contains(u.Email, StringComparer.OrdinalIgnoreCase));
         foreach (var user in usersToPromote)
         {
             user.IsSuperAdmin = true;

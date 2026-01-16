@@ -81,4 +81,5 @@ docker-compose.prod.yml
 .gemini/**
 
 # Private planning folder
-plans/
+plans/*
+!plans/[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]--*.md

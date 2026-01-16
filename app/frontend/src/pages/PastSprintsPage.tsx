@@ -11,6 +11,9 @@ import {
   CircularProgress,
   Typography,
 } from '@mui/material';
+import dayjs from 'dayjs';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 
 import useTeams from '@/hooks/useTeams';
 import type { Sprint } from '@/models/Sprint';
@@ -19,19 +22,20 @@ import type { TeamWithMembersAndSprints } from '@/models/Team/TeamWithMembersAnd
 import PageContainer from '@/components/layout/PageContainer';
 import PastSprintDetails from '@/components/sprints/PastSprintDetails';
 
+dayjs.extend(isSameOrAfter);
+dayjs.extend(isSameOrBefore);
+
 const PastSprintsPage: React.FC = () => {
   const { t } = useTranslation();
   const { teams, isLoading: isLoadingTeams, isError: isErrorTeams } = useTeams();
 
   const sortedTeams = useMemo(() => {
     if (!teams) return [];
-    const today = new Date();
+    const today = dayjs();
 
     const getActiveSprint = (team: TeamWithMembersAndSprints) => {
       return team.sprints?.find((s) => {
-        const start = new Date(s.startDate);
-        const end = new Date(s.endDate);
-        return today >= start && today <= end;
+        return today.isSameOrAfter(s.startDate, 'day') && today.isSameOrBefore(s.endDate, 'day');
       });
     };
 
@@ -64,13 +68,13 @@ const PastSprintsPage: React.FC = () => {
     return <Alert severity="info">{t('pastSprints.noData')}</Alert>;
   }
 
-  const today = new Date();
+  const today = dayjs();
 
   return (
     <PageContainer title={t('pastSprints.title')} icon={<HistoryIcon />}>
       {sortedTeams.map((team) => {
         const pastSprints = team.sprints
-          .filter((sprint) => new Date(sprint.endDate) < today)
+          .filter((sprint) => dayjs(sprint.endDate).isBefore(today, 'day'))
           .sort((a, b) => a.name.localeCompare(b.name));
 
         if (pastSprints.length === 0) return null;
@@ -107,7 +111,7 @@ const PastSprintsPage: React.FC = () => {
         );
       })}
       
-      {sortedTeams.every(t => t.sprints.filter(s => new Date(s.endDate) < today).length === 0) && (
+      {sortedTeams.every(t => t.sprints.filter(s => dayjs(s.endDate).isBefore(today, 'day')).length === 0) && (
         <Typography variant="body1">{t('pastSprints.noSprintsFound')}</Typography>
       )}
     </PageContainer>

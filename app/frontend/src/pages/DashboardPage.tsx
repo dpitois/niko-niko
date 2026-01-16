@@ -11,6 +11,9 @@ import {
   Grid,
   Typography,
 } from '@mui/material';
+import dayjs from 'dayjs';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 
 import useSprints from '@/hooks/useSprints';
 import useTeams from '@/hooks/useTeams';
@@ -21,19 +24,20 @@ import DailyMoodWidget from '@/components/dashboard/DailyMoodWidget';
 import TeamMoodTrendWidget from '@/components/dashboard/TeamMoodTrendWidget';
 import PageContainer from '@/components/layout/PageContainer';
 
+dayjs.extend(isSameOrAfter);
+dayjs.extend(isSameOrBefore);
+
 const DashboardPage: React.FC = () => {
   const { t } = useTranslation();
   const { teams, isLoading: isLoadingTeams, isError: isErrorTeams } = useTeams();
 
   const sortedTeams = React.useMemo(() => {
     if (!teams) return [];
-    const today = new Date();
+    const today = dayjs();
 
     const getActiveSprint = (team: TeamWithMembersAndSprints) => {
       return team.sprints?.find((s) => {
-        const start = new Date(s.startDate);
-        const end = new Date(s.endDate);
-        return today >= start && today <= end;
+        return today.isSameOrAfter(s.startDate, 'day') && today.isSameOrBefore(s.endDate, 'day');
       });
     };
 
@@ -104,10 +108,8 @@ const TeamDashboardSection: React.FC<TeamDashboardSectionProps> = ({ team }) => 
   }
 
   const currentSprint = sprints?.find((sprint: Sprint) => {
-    const today = new Date();
-    const startDate = new Date(sprint.startDate);
-    const endDate = new Date(sprint.endDate);
-    return today >= startDate && today <= endDate;
+    const today = dayjs();
+    return today.isSameOrAfter(sprint.startDate, 'day') && today.isSameOrBefore(sprint.endDate, 'day');
   });
 
   return (

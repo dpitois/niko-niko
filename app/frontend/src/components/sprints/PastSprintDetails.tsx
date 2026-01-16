@@ -4,6 +4,7 @@ import { Box, Divider, Grid,Typography } from '@mui/material';
 
 import { useMoods } from '@/hooks/useMoods';
 import { calculateMoodTrend } from '@/utils/moodTrendUtils';
+import type { User } from '@/models/User';
 
 import MoodTrendChart from '@/components/dashboard/MoodTrendChart';
 import MoodGridDisplay from './MoodGridDisplay';
@@ -12,7 +13,7 @@ interface PastSprintDetailsProps {
   sprintId: string;
   sprintStartDate: string;
   sprintEndDate: string;
-  teamMembers: { id: string; name: string; email: string; avatarUrl?: string }[];
+  teamMembers: User[];
 }
 
 const PastSprintDetails: React.FC<PastSprintDetailsProps> = ({

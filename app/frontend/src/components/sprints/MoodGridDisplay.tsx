@@ -9,17 +9,11 @@ import dayjs from 'dayjs';
 import type { Mood } from '@/models/Mood';
 import type { MoodType } from '@/models/MoodType';
 import { MoodValues } from '@/models/MoodType';
-
-interface TeamMember {
-  id: string;
-  name: string;
-  email: string;
-  avatarUrl?: string;
-}
+import type { User } from '@/models/User';
 
 interface MoodGridDisplayProps {
   sprintDates: Date[];
-  teamMembers: TeamMember[];
+  teamMembers: User[];
   moods?: Mood[];
   currentUserId?: string;
   onMoodClick?: (date: Date, nextMood: MoodType) => void;

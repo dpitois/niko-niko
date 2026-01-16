@@ -9,7 +9,7 @@ import {
   useTheme,
 } from '@mui/material';
 
-import type { ChartDataPoint } from '@/utils/moodTrendUtils';
+import type { ChartDataPoint } from '@/models/ChartData';
 
 interface MoodTrendChartProps {
   chartData: ChartDataPoint[];

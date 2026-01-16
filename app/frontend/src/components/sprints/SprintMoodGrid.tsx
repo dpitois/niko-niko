@@ -6,6 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useMoodMutation } from '@/hooks/useMoodMutation';
 import { useMoods } from '@/hooks/useMoods';
 import type { MoodType } from '@/models/MoodType';
+import type { User } from '@/models/User';
 
 import MoodGridDisplay from './MoodGridDisplay';
 
@@ -13,7 +14,7 @@ interface SprintMoodGridProps {
   sprintId: string;
   sprintStartDate: Date;
   sprintEndDate: Date;
-  teamMembers: { id: string; name: string; email: string; avatarUrl?: string }[];
+  teamMembers: User[];
 }
 
 const SprintMoodGrid: React.FC<SprintMoodGridProps> = ({

@@ -220,7 +220,9 @@ const AdminUsersPage: React.FC = () => {
                     </TableCell>
                     <TableCell>{user.name}</TableCell>
                     <TableCell>{user.email}</TableCell>
-                    <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
+                    <TableCell>
+                      {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '-'}
+                    </TableCell>
                     <TableCell>
                       <IconButton
                         aria-label="delete user"

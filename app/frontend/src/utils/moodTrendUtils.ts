@@ -1,17 +1,11 @@
 import dayjs from 'dayjs';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 
+import type { ChartDataPoint } from '@/models/ChartData';
 import type { Mood } from '@/models/Mood';
 import { MoodValues } from '@/models/MoodType';
 
 dayjs.extend(isSameOrBefore);
-
-export interface ChartDataPoint {
-  date: string;
-  displayDate: string;
-  average: number | null;
-  userAverage: number | null;
-}
 
 export const calculateMoodTrend = (
   moods: Mood[] | undefined,

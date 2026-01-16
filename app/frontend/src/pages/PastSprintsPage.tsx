@@ -1,30 +1,58 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import HistoryIcon from '@mui/icons-material/History';
 import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Alert,
   Box,
-  Card,
-  CardContent,
   CircularProgress,
-  List,
-  ListItem,
-  ListItemText,
   Typography,
 } from '@mui/material';
+import dayjs from 'dayjs';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 
-import useSprints from '@/hooks/useSprints';
 import useTeams from '@/hooks/useTeams';
 import type { Sprint } from '@/models/Sprint';
+import type { TeamWithMembersAndSprints } from '@/models/Team/TeamWithMembersAndSprints';
 
 import PageContainer from '@/components/layout/PageContainer';
+import PastSprintDetails from '@/components/sprints/PastSprintDetails';
+
+dayjs.extend(isSameOrAfter);
+dayjs.extend(isSameOrBefore);
 
 const PastSprintsPage: React.FC = () => {
   const { t } = useTranslation();
-  const { sprints, isLoading: isLoadingSprints, isError: isErrorSprints } = useSprints();
   const { teams, isLoading: isLoadingTeams, isError: isErrorTeams } = useTeams();
 
-  if (isLoadingSprints || isLoadingTeams) {
+  const sortedTeams = useMemo(() => {
+    if (!teams) return [];
+    const today = dayjs();
+
+    const getActiveSprint = (team: TeamWithMembersAndSprints) => {
+      return team.sprints?.find((s) => {
+        return today.isSameOrAfter(s.startDate, 'day') && today.isSameOrBefore(s.endDate, 'day');
+      });
+    };
+
+    return [...teams].sort((a, b) => {
+      const aSprint = getActiveSprint(a);
+      const bSprint = getActiveSprint(b);
+
+      // 1. Active Sprint > No Active Sprint
+      if (aSprint && !bSprint) return -1;
+      if (!aSprint && bSprint) return 1;
+
+      // 2. Team Name
+      return a.name.localeCompare(b.name);
+    });
+  }, [teams]);
+
+  if (isLoadingTeams) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
         <CircularProgress />
@@ -32,52 +60,58 @@ const PastSprintsPage: React.FC = () => {
     );
   }
 
-  if (isErrorSprints || isErrorTeams) {
+  if (isErrorTeams) {
     return <Alert severity="error">{t('pastSprints.failedLoad')}</Alert>;
   }
 
-  if (!sprints || !teams) {
+  if (!teams || teams.length === 0) {
     return <Alert severity="info">{t('pastSprints.noData')}</Alert>;
   }
 
-  const today = new Date();
-  const pastSprints = sprints.filter((sprint: Sprint) => new Date(sprint.endDate) < today);
-
-  // Helper to get team name
-  const getTeamName = (teamId: string): string => {
-    return teams.find((team) => team.id === teamId)?.name || 'Unknown Team';
-  };
+  const today = dayjs();
 
   return (
     <PageContainer title={t('pastSprints.title')} icon={<HistoryIcon />}>
-      {pastSprints.length > 0 ? (
-        <List>
-          {pastSprints.map((sprint: Sprint) => (
-            <Card key={sprint.id} variant="outlined" sx={{ mb: 2 }}>
-              <CardContent>
-                <ListItem disablePadding>
-                  <ListItemText
-                    primary={<Typography variant="h6">{sprint.name}</Typography>}
-                    secondary={
-                      <React.Fragment>
-                        <Typography
-                          sx={{ display: 'inline' }}
-                          component="span"
-                          variant="body2"
-                          color="text.primary"
-                        >
-                          {t('pastSprints.team', { name: getTeamName(sprint.teamId) })}
-                        </Typography>
-                        {` — ${t('pastSprints.from', { start: new Date(sprint.startDate).toLocaleDateString(), end: new Date(sprint.endDate).toLocaleDateString() })}`}
-                      </React.Fragment>
-                    }
+      {sortedTeams.map((team) => {
+        const pastSprints = team.sprints
+          .filter((sprint) => dayjs(sprint.endDate).isBefore(today, 'day'))
+          .sort((a, b) => a.name.localeCompare(b.name));
+
+        if (pastSprints.length === 0) return null;
+
+        return (
+          <Box key={team.id} sx={{ mb: 6 }}>
+            <Typography variant="h5" fontWeight="bold" gutterBottom sx={{ borderBottom: 1, borderColor: 'divider', pb: 1, mb: 3 }}>
+              {team.name}
+            </Typography>
+            
+            {pastSprints.map((sprint: Sprint) => (
+              <Accordion key={sprint.id} TransitionProps={{ unmountOnExit: true }} sx={{ mb: 1 }}>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                    <Typography variant="subtitle1" fontWeight="bold">
+                      {sprint.name}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {new Date(sprint.startDate).toLocaleDateString()} - {new Date(sprint.endDate).toLocaleDateString()}
+                    </Typography>
+                  </Box>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <PastSprintDetails
+                    sprintId={sprint.id}
+                    sprintStartDate={sprint.startDate}
+                    sprintEndDate={sprint.endDate}
+                    teamMembers={team.members}
                   />
-                </ListItem>
-              </CardContent>
-            </Card>
-          ))}
-        </List>
-      ) : (
+                </AccordionDetails>
+              </Accordion>
+            ))}
+          </Box>
+        );
+      })}
+      
+      {sortedTeams.every(t => t.sprints.filter(s => dayjs(s.endDate).isBefore(today, 'day')).length === 0) && (
         <Typography variant="body1">{t('pastSprints.noSprintsFound')}</Typography>
       )}
     </PageContainer>

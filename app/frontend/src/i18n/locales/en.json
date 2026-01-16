@@ -53,7 +53,8 @@
     "selectDate": "Select a date",
     "moodRecorded": "Mood recorded for this day",
     "teamTrend": "Team Trend",
-    "averageMood": "Average Mood"
+    "averageMood": "Average Mood",
+    "yourMood": "Your Mood"
   },
   "mood": {
     "happy": "Happy",
@@ -96,7 +97,8 @@
     "failedLoad": "Failed to load data. Make sure you are logged in.",
     "noSprintsFound": "No past sprints found.",
     "team": "Team: {{name}}",
-    "from": "From {{start}} to {{end}}"
+    "from": "From {{start}} to {{end}}",
+    "moodGrid": "Mood Grid"
   },
   "adminUsers": {
     "title": "Admin Users",

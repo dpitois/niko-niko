@@ -11,11 +11,11 @@ export const getTheme = (mode: PaletteMode) => {
       secondary: {
         main: mode === 'dark' ? '#ce93d8' : '#6c757d',
       },
+      background: {
+        default: mode === 'dark' ? '#121212' : '#f5f7f9',
+        paper: mode === 'dark' ? '#1e1e1e' : '#ffffff',
+      },
       ...(mode === 'dark' && {
-        background: {
-          default: '#121212',
-          paper: '#1e1e1e',
-        },
         text: {
           primary: '#ffffff',
           secondary: 'rgba(255, 255, 255, 0.7)',
@@ -45,6 +45,27 @@ export const getTheme = (mode: PaletteMode) => {
       },
     },
     components: {
+      MuiAppBar: {
+        styleOverrides: {
+          root: {
+            backgroundColor: mode === 'dark' ? '#1e1e1e' : '#ffffff',
+            color: mode === 'dark' ? '#ffffff' : '#000000',
+            boxShadow: mode === 'dark' ? 'none' : '0px 1px 3px rgba(0, 0, 0, 0.1)',
+            borderBottom: mode === 'dark' ? '1px solid rgba(255, 255, 255, 0.12)' : 'none',
+          },
+        },
+      },
+      MuiPaper: {
+        styleOverrides: {
+          root: {
+            backgroundImage: 'none',
+          },
+          elevation1: {
+            boxShadow: mode === 'dark' ? 'none' : '0px 1px 3px rgba(0, 0, 0, 0.05)',
+            border: mode === 'dark' ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid rgba(0, 0, 0, 0.08)',
+          },
+        },
+      },
       MuiButton: {
         styleOverrides: {
           root: {

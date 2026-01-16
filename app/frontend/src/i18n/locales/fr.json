@@ -53,7 +53,8 @@
     "selectDate": "Sélectionner une date",
     "moodRecorded": "Humeur enregistrée pour ce jour",
     "teamTrend": "Tendance de l'équipe",
-    "averageMood": "Humeur moyenne"
+    "averageMood": "Humeur moyenne",
+    "yourMood": "Votre humeur"
   },
   "mood": {
     "happy": "Heureux",
@@ -96,7 +97,8 @@
     "failedLoad": "Échec du chargement des données. Assurez-vous d'être connecté.",
     "noSprintsFound": "Aucun sprint passé trouvé.",
     "team": "Équipe : {{name}}",
-    "from": "Du {{start}} au {{end}}"
+    "from": "Du {{start}} au {{end}}",
+    "moodGrid": "Grille d'humeurs"
   },
   "adminUsers": {
     "title": "Administration des Utilisateurs",

@@ -11,6 +11,9 @@ import {
   Grid,
   Typography,
 } from '@mui/material';
+import dayjs from 'dayjs';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 
 import useSprints from '@/hooks/useSprints';
 import useTeams from '@/hooks/useTeams';
@@ -21,9 +24,43 @@ import DailyMoodWidget from '@/components/dashboard/DailyMoodWidget';
 import TeamMoodTrendWidget from '@/components/dashboard/TeamMoodTrendWidget';
 import PageContainer from '@/components/layout/PageContainer';
 
+dayjs.extend(isSameOrAfter);
+dayjs.extend(isSameOrBefore);
+
 const DashboardPage: React.FC = () => {
   const { t } = useTranslation();
   const { teams, isLoading: isLoadingTeams, isError: isErrorTeams } = useTeams();
+
+  const sortedTeams = React.useMemo(() => {
+    if (!teams) return [];
+    const today = dayjs();
+
+    const getActiveSprint = (team: TeamWithMembersAndSprints) => {
+      return team.sprints?.find((s) => {
+        return today.isSameOrAfter(s.startDate, 'day') && today.isSameOrBefore(s.endDate, 'day');
+      });
+    };
+
+    return [...teams].sort((a, b) => {
+      const aSprint = getActiveSprint(a);
+      const bSprint = getActiveSprint(b);
+
+      // 1. Active Sprint > No Active Sprint
+      if (aSprint && !bSprint) return -1;
+      if (!aSprint && bSprint) return 1;
+
+      // 2. Team Name
+      const nameCompare = a.name.localeCompare(b.name);
+      if (nameCompare !== 0) return nameCompare;
+
+      // 3. Sprint Name
+      if (aSprint && bSprint) {
+        return aSprint.name.localeCompare(bSprint.name);
+      }
+
+      return 0;
+    });
+  }, [teams]);
 
   if (isLoadingTeams) {
     return (
@@ -39,8 +76,8 @@ const DashboardPage: React.FC = () => {
 
   return (
     <PageContainer title={t('dashboard.title')} icon={<DashboardIcon />}>
-      {teams && teams.length > 0 ? (
-        teams.map((team: TeamWithMembersAndSprints) => (
+      {sortedTeams && sortedTeams.length > 0 ? (
+        sortedTeams.map((team: TeamWithMembersAndSprints) => (
           <TeamDashboardSection key={team.id} team={team} />
         ))
       ) : (
@@ -71,10 +108,8 @@ const TeamDashboardSection: React.FC<TeamDashboardSectionProps> = ({ team }) => 
   }
 
   const currentSprint = sprints?.find((sprint: Sprint) => {
-    const today = new Date();
-    const startDate = new Date(sprint.startDate);
-    const endDate = new Date(sprint.endDate);
-    return today >= startDate && today <= endDate;
+    const today = dayjs();
+    return today.isSameOrAfter(sprint.startDate, 'day') && today.isSameOrBefore(sprint.endDate, 'day');
   });
 
   return (

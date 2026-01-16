@@ -359,7 +359,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose, handleDrawer
                   </ListItemIcon>
                   <ListItemText
                     primary={user.name}
-                    secondary={user.email}
+                    secondary={user.email || ''}
                     sx={{
                       opacity: open ? 1 : 0,
                       '& .MuiListItemText-secondary': {

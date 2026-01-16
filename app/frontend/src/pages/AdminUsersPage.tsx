@@ -214,8 +214,12 @@ const AdminUsersPage: React.FC = () => {
                 {users.map((user) => (
                   <TableRow key={user.id}>
                     <TableCell>
-                      <Avatar src={user.avatarUrl} alt={user.name || user.email}>
-                        {user.name ? user.name[0].toUpperCase() : user.email[0].toUpperCase()}
+                      <Avatar src={user.avatarUrl} alt={user.name || user.email || 'User'}>
+                        {user.name
+                          ? user.name[0].toUpperCase()
+                          : user.email
+                            ? user.email[0].toUpperCase()
+                            : '?'}
                       </Avatar>
                     </TableCell>
                     <TableCell>{user.name}</TableCell>
@@ -226,7 +230,9 @@ const AdminUsersPage: React.FC = () => {
                     <TableCell>
                       <IconButton
                         aria-label="delete user"
-                        onClick={() => handleDeleteUserClick(user.id, user.name || user.email)}
+                        onClick={() =>
+                          handleDeleteUserClick(user.id, user.name || user.email || 'Unknown User')
+                        }
                         color="error"
                         disabled={currentUser?.sub === user.id}
                       >

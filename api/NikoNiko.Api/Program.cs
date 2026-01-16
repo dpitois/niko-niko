@@ -133,7 +133,6 @@ if (!string.IsNullOrEmpty(discordClientId) && !string.IsNullOrEmpty(discordClien
         options.ClientId = discordClientId;
         options.ClientSecret = discordClientSecret;
         options.CallbackPath = "/signin-discord";
-        options.Scope.Add("email");
     });
 }
 
@@ -242,7 +241,7 @@ async Task SeedAndSyncSuperAdminRoles(WebApplication webApp)
         }
 
         // Then, promote users from the list
-        var usersToPromote = allUsers.Where(u => superAdminEmails.Contains(u.Email, StringComparer.OrdinalIgnoreCase));
+        var usersToPromote = allUsers.Where(u => !string.IsNullOrEmpty(u.Email) && superAdminEmails.Contains(u.Email, StringComparer.OrdinalIgnoreCase));
         foreach (var user in usersToPromote)
         {
             user.IsSuperAdmin = true;

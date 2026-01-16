@@ -21,9 +21,8 @@ public class User
     /// <summary>
     /// The user's email address.
     /// </summary>
-    [Required]
     [EmailAddress]
-    public string Email { get; set; } = null!;
+    public string? Email { get; set; }
 
     /// <summary>
     /// The user's full name or display name.

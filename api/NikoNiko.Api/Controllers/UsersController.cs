@@ -65,6 +65,7 @@ public class UsersController : ControllerBase
                 Email = u.Email,
                 Name = u.Name,
                 AvatarUrl = u.AvatarUrl,
+                Provider = u.Provider,
                 CreatedAt = u.CreatedAt
             })
             .Distinct()
@@ -90,6 +91,7 @@ public class UsersController : ControllerBase
                 Email = u.Email,
                 Name = u.Name,
                 AvatarUrl = u.AvatarUrl,
+                Provider = u.Provider,
                 CreatedAt = u.CreatedAt
             })
             .FirstOrDefaultAsync(u => u.Id == id);

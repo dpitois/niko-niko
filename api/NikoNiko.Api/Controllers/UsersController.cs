@@ -114,6 +114,7 @@ public class UsersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> DeleteUser(Guid id)
     {
         var currentUserIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -126,6 +127,30 @@ public class UsersController : ControllerBase
         if (user == null)
         {
             return NotFound();
+        }
+
+        // Check if user is admin of any teams
+        var teamsAsAdmin = await _context.Teams
+            .Include(t => t.TeamUsers)
+            .Where(t => t.AdminId == id)
+            .ToListAsync();
+
+        if (teamsAsAdmin.Any())
+        {
+            foreach (var team in teamsAsAdmin)
+            {
+                // If team has other members besides the admin (or just multiple members if admin is included in TeamUsers)
+                // Note: Admin is usually in TeamUsers too.
+                var otherMembersCount = team.TeamUsers.Count(tu => tu.UserId != id);
+
+                if (otherMembersCount > 0)
+                {
+                    return Conflict($"Cannot delete user because they are the admin of team '{team.Name}' which has other members. Please transfer ownership or remove members first.");
+                }
+                
+                // If no other members, we can safely delete the team
+                _context.Teams.Remove(team);
+            }
         }
 
         _context.Users.Remove(user);

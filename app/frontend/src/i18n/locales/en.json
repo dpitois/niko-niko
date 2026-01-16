@@ -97,7 +97,8 @@
     "failedLoad": "Failed to load data. Make sure you are logged in.",
     "noSprintsFound": "No past sprints found.",
     "team": "Team: {{name}}",
-    "from": "From {{start}} to {{end}}"
+    "from": "From {{start}} to {{end}}",
+    "moodGrid": "Mood Grid"
   },
   "adminUsers": {
     "title": "Admin Users",

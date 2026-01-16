@@ -67,10 +67,10 @@ const DailyMoodWidget: React.FC<DailyMoodWidgetProps> = ({
 
   const moodButtons = [
     {
-      type: MoodValues.Happy,
-      icon: <SentimentSatisfiedAltIcon sx={{ fontSize: 80 }} />,
-      color: theme.palette.success.main,
-      label: t('mood.happy', 'Happy'),
+      type: MoodValues.Sad,
+      icon: <SentimentDissatisfiedIcon sx={{ fontSize: 80 }} />,
+      color: theme.palette.error.main,
+      label: t('mood.sad', 'Sad'),
     },
     {
       type: MoodValues.Neutral,
@@ -79,10 +79,10 @@ const DailyMoodWidget: React.FC<DailyMoodWidgetProps> = ({
       label: t('mood.neutral', 'Neutral'),
     },
     {
-      type: MoodValues.Sad,
-      icon: <SentimentDissatisfiedIcon sx={{ fontSize: 80 }} />,
-      color: theme.palette.error.main,
-      label: t('mood.sad', 'Sad'),
+      type: MoodValues.Happy,
+      icon: <SentimentSatisfiedAltIcon sx={{ fontSize: 80 }} />,
+      color: theme.palette.success.main,
+      label: t('mood.happy', 'Happy'),
     },
   ];
 

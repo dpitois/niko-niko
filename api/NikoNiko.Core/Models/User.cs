@@ -25,6 +25,11 @@ public class User
     public string? Email { get; set; }
 
     /// <summary>
+    /// The authentication provider (e.g., GitHub, Google, Discord).
+    /// </summary>
+    public string? Provider { get; set; }
+
+    /// <summary>
     /// The user's full name or display name.
     /// </summary>
     [Required]

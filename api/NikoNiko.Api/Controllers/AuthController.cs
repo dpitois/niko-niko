@@ -337,7 +337,8 @@ public class AuthController : ControllerBase
                 OAuthId = oauthId,
                 Email = email, // Can be null
                 Name = name,
-                AvatarUrl = avatar
+                AvatarUrl = avatar,
+                Provider = provider
             };
 
             if (!string.IsNullOrEmpty(user.Email) && superAdminEmails.Contains(user.Email, StringComparer.OrdinalIgnoreCase))
@@ -395,6 +396,13 @@ public class AuthController : ControllerBase
             {
                  user.Email = email;
                  isUpdated = true;
+            }
+
+            // Sync Provider if missing
+            if (user.Provider != provider)
+            {
+                user.Provider = provider;
+                isUpdated = true;
             }
 
             // Sync IsSuperAdmin status for existing users (only if they have an email)

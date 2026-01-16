@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import DeleteIcon from '@mui/icons-material/Delete';
+import GitHubIcon from '@mui/icons-material/GitHub';
+import GoogleIcon from '@mui/icons-material/Google';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import PeopleIcon from '@mui/icons-material/People';
 import {
   Alert,
@@ -23,6 +26,8 @@ import {
   MenuItem,
   Paper,
   Select,
+  SvgIcon,
+  type SvgIconProps,
   Tab,
   Table,
   TableBody,
@@ -31,6 +36,7 @@ import {
   TableHead,
   TableRow,
   Tabs,
+  Tooltip,
   Typography,
 } from '@mui/material';
 import axios from 'axios';
@@ -76,6 +82,25 @@ function a11yProps(index: number) {
     'aria-controls': `simple-tabpanel-${index}`,
   };
 }
+
+const DiscordIcon = (props: SvgIconProps) => (
+  <SvgIcon {...props}>
+    <path d="M19.27 4.57C17.77 3.88 16.16 3.38 14.48 3.1c-.21.37-.45.78-.62 1.16-1.78-.27-3.55-.27-5.3 0-.17-.38-.42-.79-.63-1.16-1.68.28-3.29.78-4.79 1.47-3.02 4.51-3.84 8.91-3.44 13.23 2 1.48 3.94 2.38 5.83 2.97.47-.64.88-1.32 1.24-2.04-1.35-.51-2.62-1.16-3.79-1.95.32-.24.63-.49.93-.75 3.66 1.69 7.64 1.69 11.26 0 .3.26.61.51.75-1.17.79-2.44 1.44-3.79 1.95.36.72.77 1.4 1.24 2.04 1.89-.59 3.83-1.49 5.83-2.97.48-5.01-.84-9.39-3.44-13.23zM8.52 14.91c-1.14 0-2.07-1.05-2.07-2.33s.9-2.33 2.07-2.33c1.18 0 2.1 1.05 2.07 2.33s-.92 2.33-2.07 2.33zm7.02 0c-1.14 0-2.07-1.05-2.07-2.33s.9-2.33 2.07-2.33c1.18 0 2.1 1.05 2.07 2.33s-.89 2.33-2.07 2.33z" />
+  </SvgIcon>
+);
+
+const getProviderIcon = (provider?: string) => {
+  switch (provider?.toLowerCase()) {
+    case 'github':
+      return <GitHubIcon fontSize="small" />;
+    case 'google':
+      return <GoogleIcon fontSize="small" color="error" />;
+    case 'discord':
+      return <DiscordIcon fontSize="small" sx={{ color: '#5865F2' }} />;
+    default:
+      return <HelpOutlineIcon fontSize="small" color="disabled" />;
+  }
+};
 
 const AdminUsersPage: React.FC = () => {
   const { t } = useTranslation();
@@ -206,6 +231,7 @@ const AdminUsersPage: React.FC = () => {
                   <TableCell>{t('adminUsers.table.avatar')}</TableCell>
                   <TableCell>{t('adminUsers.table.name')}</TableCell>
                   <TableCell>{t('adminUsers.table.email')}</TableCell>
+                  <TableCell align="center">{t('adminUsers.table.provider')}</TableCell>
                   <TableCell>{t('adminUsers.table.createdAt')}</TableCell>
                   <TableCell>{t('adminUsers.table.actions')}</TableCell>
                 </TableRow>
@@ -223,7 +249,14 @@ const AdminUsersPage: React.FC = () => {
                       </Avatar>
                     </TableCell>
                     <TableCell>{user.name}</TableCell>
-                    <TableCell>{user.email}</TableCell>
+                    <TableCell>{user.email || 'N/A'}</TableCell>
+                    <TableCell align="center">
+                      <Tooltip title={user.provider || 'Unknown'}>
+                        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                          {getProviderIcon(user.provider)}
+                        </Box>
+                      </Tooltip>
+                    </TableCell>
                     <TableCell>
                       {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '-'}
                     </TableCell>

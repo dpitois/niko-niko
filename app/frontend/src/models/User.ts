@@ -3,5 +3,6 @@ export interface User {
   email?: string; // Optional now
   name: string;
   avatarUrl?: string;
+  provider?: string;
   createdAt?: string; // ISO string
 }

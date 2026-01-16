@@ -111,6 +111,7 @@
       "avatar": "Avatar",
       "name": "Name",
       "email": "Email",
+      "provider": "Provider",
       "createdAt": "Created At",
       "actions": "Actions",
       "noUsers": "No users found."

@@ -14,6 +14,7 @@ import {
 import dayjs from 'dayjs';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 
+import { useAuth } from '@/context/AuthContext';
 import { useMoods } from '@/hooks/useMoods';
 import { MoodValues } from '@/models/MoodType';
 
@@ -29,6 +30,7 @@ interface ChartDataPoint {
   date: string;
   displayDate: string;
   average: number | null;
+  userAverage: number | null;
 }
 
 const TeamMoodTrendWidget: React.FC<TeamMoodTrendWidgetProps> = ({
@@ -38,6 +40,7 @@ const TeamMoodTrendWidget: React.FC<TeamMoodTrendWidgetProps> = ({
 }) => {
   const { t } = useTranslation();
   const theme = useTheme();
+  const { user } = useAuth();
   const { moods, isLoading } = useMoods(sprintId);
   
   const [tooltipState, setTooltipState] = useState<{
@@ -48,7 +51,7 @@ const TeamMoodTrendWidget: React.FC<TeamMoodTrendWidgetProps> = ({
   const chartData: ChartDataPoint[] = useMemo(() => {
     if (!moods) return [];
 
-    const moodsByDate: Record<string, { totalScore: number; count: number }> = {};
+    const moodsByDate: Record<string, { totalScore: number; count: number; userScore: number; userCount: number }> = {};
 
     const start = dayjs(sprintStartDate);
     const end = dayjs(sprintEndDate);
@@ -56,7 +59,7 @@ const TeamMoodTrendWidget: React.FC<TeamMoodTrendWidgetProps> = ({
     const lastDate = end.isBefore(today) ? end : today;
 
     for (let d = start; d.isSameOrBefore(lastDate); d = d.add(1, 'day')) {
-      moodsByDate[d.format('YYYY-MM-DD')] = { totalScore: 0, count: 0 };
+      moodsByDate[d.format('YYYY-MM-DD')] = { totalScore: 0, count: 0, userScore: 0, userCount: 0 };
     }
 
     moods.forEach((m) => {
@@ -69,6 +72,11 @@ const TeamMoodTrendWidget: React.FC<TeamMoodTrendWidgetProps> = ({
 
         moodsByDate[dateStr].totalScore += score;
         moodsByDate[dateStr].count += 1;
+
+        if (user && m.userId === user.sub) {
+          moodsByDate[dateStr].userScore += score;
+          moodsByDate[dateStr].userCount += 1;
+        }
       }
     });
 
@@ -77,9 +85,10 @@ const TeamMoodTrendWidget: React.FC<TeamMoodTrendWidgetProps> = ({
         date,
         displayDate: dayjs(date).format('DD/MM'),
         average: data.count > 0 ? parseFloat((data.totalScore / data.count).toFixed(2)) : null,
+        userAverage: data.userCount > 0 ? parseFloat((data.userScore / data.userCount).toFixed(2)) : null,
       }))
       .sort((a, b) => a.date.localeCompare(b.date));
-  }, [moods, sprintStartDate, sprintEndDate]);
+  }, [moods, sprintStartDate, sprintEndDate, user]);
 
   // Chart Dimensions
   const VIEWBOX_WIDTH = 100;
@@ -101,12 +110,21 @@ const TeamMoodTrendWidget: React.FC<TeamMoodTrendWidgetProps> = ({
 
   const points = chartData.map((d, i) => {
     const y = getY(d.average);
-    return { x: getX(i), y, data: d };
+    const userY = getY(d.userAverage);
+    return { x: getX(i), y, userY, data: d };
   });
 
   const validPoints = points.filter((p) => p.y !== null) as {
     x: number;
     y: number;
+    userY: number | null;
+    data: ChartDataPoint;
+  }[];
+
+  const validUserPoints = points.filter((p) => p.userY !== null) as {
+    x: number;
+    y: number | null;
+    userY: number;
     data: ChartDataPoint;
   }[];
 
@@ -130,6 +148,11 @@ const TeamMoodTrendWidget: React.FC<TeamMoodTrendWidgetProps> = ({
   };
 
   const linePath = useMemo(() => getCurvePath(validPoints), [validPoints]);
+  
+  const userLinePath = useMemo(() => 
+    getCurvePath(validUserPoints.map(p => ({ x: p.x, y: p.userY }))), 
+    [validUserPoints]
+  );
 
   const areaPath = useMemo(() => {
     if (validPoints.length === 0) return '';
@@ -137,6 +160,13 @@ const TeamMoodTrendWidget: React.FC<TeamMoodTrendWidgetProps> = ({
     const last = validPoints[validPoints.length - 1];
     return `${linePath} L ${last.x} ${VIEWBOX_HEIGHT} L ${first.x} ${VIEWBOX_HEIGHT} Z`;
   }, [linePath, validPoints]);
+
+  const userAreaPath = useMemo(() => {
+    if (validUserPoints.length === 0) return '';
+    const first = validUserPoints[0];
+    const last = validUserPoints[validUserPoints.length - 1];
+    return `${userLinePath} L ${last.x} ${VIEWBOX_HEIGHT} L ${first.x} ${VIEWBOX_HEIGHT} Z`;
+  }, [userLinePath, validUserPoints]);
 
   if (isLoading) {
     return (
@@ -170,6 +200,10 @@ const TeamMoodTrendWidget: React.FC<TeamMoodTrendWidgetProps> = ({
                     <stop offset="0%" stopColor={theme.palette.primary.main} stopOpacity={0.6} />
                     <stop offset="100%" stopColor={theme.palette.primary.main} stopOpacity={0} />
                   </linearGradient>
+                  <linearGradient id="gradientUserMood" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={theme.palette.secondary.main} stopOpacity={0.4} />
+                    <stop offset="100%" stopColor={theme.palette.secondary.main} stopOpacity={0} />
+                  </linearGradient>
                 </defs>
 
                 {/* Grid Lines */}
@@ -200,6 +234,18 @@ const TeamMoodTrendWidget: React.FC<TeamMoodTrendWidgetProps> = ({
                   strokeWidth="0.6"
                   strokeLinecap="round"
                   strokeLinejoin="round"
+                />
+
+                <path d={userAreaPath} fill="url(#gradientUserMood)" />
+
+                <path
+                  d={userLinePath}
+                  fill="none"
+                  stroke={theme.palette.secondary.main}
+                  strokeWidth="0.6"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeDasharray="2 1"
                 />
               </svg>
 
@@ -261,6 +307,39 @@ const TeamMoodTrendWidget: React.FC<TeamMoodTrendWidgetProps> = ({
                   );
               })}
 
+              {/* User Points */}
+              {validUserPoints.map((p, i) => {
+                  const leftPercent = (p.x / VIEWBOX_WIDTH) * 100;
+                  const topPercent = (p.userY / VIEWBOX_HEIGHT) * 100;
+
+                  return (
+                    <Box
+                      key={`user-dot-${i}`}
+                      sx={{
+                        position: 'absolute',
+                        left: `${leftPercent}%`,
+                        top: `${topPercent}%`,
+                        width: 12, // Slightly smaller
+                        height: 12,
+                        borderRadius: '50%',
+                        backgroundColor: theme.palette.secondary.main,
+                        border: `2px solid ${theme.palette.background.paper}`,
+                        transform: 'translate(-50%, -50%)',
+                        cursor: 'pointer',
+                        zIndex: 4, // Above team dots
+                        transition: 'transform 0.2s, box-shadow 0.2s',
+                        '&:hover': {
+                           transform: 'translate(-50%, -50%) scale(1.25)',
+                           boxShadow: theme.shadows[3],
+                           zIndex: 5, // Highest when hovered
+                        }
+                      }}
+                      onMouseEnter={(e) => setTooltipState({ anchorEl: e.currentTarget, data: p.data })}
+                      onMouseLeave={() => setTooltipState({ anchorEl: null, data: null })}
+                    />
+                  );
+              })}
+
               {/* Popper Tooltip */}
               <Popper 
                 open={Boolean(tooltipState.anchorEl)} 
@@ -290,9 +369,16 @@ const TeamMoodTrendWidget: React.FC<TeamMoodTrendWidgetProps> = ({
                        <Typography variant="caption" display="block" color="text.secondary">
                         {t('common.date')}: {tooltipState.data?.displayDate}
                       </Typography>
-                      <Typography variant="body2" fontWeight="bold">
-                        {t('dashboard.averageMood')}: {tooltipState.data?.average}
-                      </Typography>
+                      {tooltipState.data?.average !== null && (
+                        <Typography variant="body2" fontWeight="bold" color="primary.main">
+                          {t('dashboard.averageMood')}: {tooltipState.data?.average}
+                        </Typography>
+                      )}
+                      {tooltipState.data?.userAverage !== null && (
+                        <Typography variant="body2" fontWeight="bold" color="secondary.main">
+                          {t('dashboard.yourMood', 'Votre humeur')}: {tooltipState.data?.userAverage}
+                        </Typography>
+                      )}
                     </Paper>
                   </Fade>
                 )}

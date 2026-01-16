@@ -53,7 +53,8 @@
     "selectDate": "Sélectionner une date",
     "moodRecorded": "Humeur enregistrée pour ce jour",
     "teamTrend": "Tendance de l'équipe",
-    "averageMood": "Humeur moyenne"
+    "averageMood": "Humeur moyenne",
+    "yourMood": "Votre humeur"
   },
   "mood": {
     "happy": "Heureux",

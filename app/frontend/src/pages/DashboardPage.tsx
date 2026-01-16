@@ -25,6 +25,39 @@ const DashboardPage: React.FC = () => {
   const { t } = useTranslation();
   const { teams, isLoading: isLoadingTeams, isError: isErrorTeams } = useTeams();
 
+  const sortedTeams = React.useMemo(() => {
+    if (!teams) return [];
+    const today = new Date();
+
+    const getActiveSprint = (team: TeamWithMembersAndSprints) => {
+      return team.sprints?.find((s) => {
+        const start = new Date(s.startDate);
+        const end = new Date(s.endDate);
+        return today >= start && today <= end;
+      });
+    };
+
+    return [...teams].sort((a, b) => {
+      const aSprint = getActiveSprint(a);
+      const bSprint = getActiveSprint(b);
+
+      // 1. Active Sprint > No Active Sprint
+      if (aSprint && !bSprint) return -1;
+      if (!aSprint && bSprint) return 1;
+
+      // 2. Team Name
+      const nameCompare = a.name.localeCompare(b.name);
+      if (nameCompare !== 0) return nameCompare;
+
+      // 3. Sprint Name
+      if (aSprint && bSprint) {
+        return aSprint.name.localeCompare(bSprint.name);
+      }
+
+      return 0;
+    });
+  }, [teams]);
+
   if (isLoadingTeams) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
@@ -39,8 +72,8 @@ const DashboardPage: React.FC = () => {
 
   return (
     <PageContainer title={t('dashboard.title')} icon={<DashboardIcon />}>
-      {teams && teams.length > 0 ? (
-        teams.map((team: TeamWithMembersAndSprints) => (
+      {sortedTeams && sortedTeams.length > 0 ? (
+        sortedTeams.map((team: TeamWithMembersAndSprints) => (
           <TeamDashboardSection key={team.id} team={team} />
         ))
       ) : (

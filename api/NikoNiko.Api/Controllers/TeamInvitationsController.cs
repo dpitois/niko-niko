@@ -165,28 +165,45 @@ namespace NikoNiko.Api.Controllers
         /// <summary>
         /// Deletes a specific team invitation. Accessible only by team administrators or super-admin.
         /// </summary>
+        /// <param name="teamId">The ID of the team.</param>
         /// <param name="invitationId">The ID of the invitation to delete.</param>
-        [HttpDelete("{invitationId}")]
+        [HttpDelete("/api/teams/{teamId}/invitations/{invitationId}")]
         [Authorize(Policy = "IsTeamAdmin")] // Policy will check if user is admin of the team for this invitation
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> DeleteTeamInvitation(Guid invitationId)
+        public async Task<IActionResult> DeleteTeamInvitation(Guid teamId, Guid invitationId)
         {
-            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (!Guid.TryParse(userIdString, out var userId))
-            {
-                return Unauthorized();
-            }
-
-            // The policy IsTeamAdmin already handles checking if the user is an admin or super-admin.
-            // So, we can directly call the service.
-
             try
             {
-                await _teamInvitationService.DeleteTeamInvitationAsync(invitationId, userId);
+                var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (!Guid.TryParse(userIdString, out var userId))
+                {
+                    return Unauthorized();
+                }
+
+                var isSuperAdmin = User.HasClaim("is_super_admin", "true");
+
+                // Ensure the invitation belongs to the team specified in the route
+                var invitation = await _context.TeamInvitations
+                    .IgnoreQueryFilters()
+                    .FirstOrDefaultAsync(i => i.Id == invitationId);
+                    
+                if (invitation != null && invitation.TeamId != teamId)
+                {
+                    return BadRequest("Invitation does not belong to the specified team.");
+                }
+
+                // The policy IsTeamAdmin already handles checking if the user is an admin or super-admin.
+                // So, we can directly call the service.
+
+                await _teamInvitationService.DeleteTeamInvitationAsync(invitationId, userId, isSuperAdmin);
                 return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
             }
             catch (UnauthorizedAccessException ex)
             {

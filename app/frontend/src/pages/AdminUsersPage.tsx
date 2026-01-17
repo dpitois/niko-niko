@@ -198,9 +198,9 @@ const AdminUsersPage: React.FC = () => {
   };
 
   const handleConfirmDeleteInvitation = async () => {
-    if (invitationToDeleteId) {
+    if (invitationToDeleteId && selectedTeamId) {
       try {
-        await teamInvitationService.deleteTeamInvitation(invitationToDeleteId);
+        await teamInvitationService.deleteTeamInvitation(selectedTeamId, invitationToDeleteId);
         enqueueSnackbar(t('adminUsers.invitations.deleteDialog.success'), { variant: 'success' });
         mutateTeamInvitations();
       } catch (error: unknown) {

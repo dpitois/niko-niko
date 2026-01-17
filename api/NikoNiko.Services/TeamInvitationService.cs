@@ -118,11 +118,6 @@ namespace NikoNiko.Services
             invitation.AcceptedAt = DateTime.UtcNow;
             invitation.IsDeleted = true; // Mark as soft-deleted after acceptance
 
-            invitation.Status = "Accepted";
-            invitation.AcceptedByUserId = acceptedByUserId;
-            invitation.AcceptedAt = DateTime.UtcNow;
-            invitation.IsDeleted = true; // Mark as soft-deleted after acceptance
-
             await _context.SaveChangesAsync();
 
             return new TeamInvitationDto
@@ -185,7 +180,7 @@ namespace NikoNiko.Services
                 .FirstOrDefaultAsync(ti => ti.Token == token);
         }
 
-        public async Task DeleteTeamInvitationAsync(Guid invitationId, Guid requestingUserId)
+        public async Task DeleteTeamInvitationAsync(Guid invitationId, Guid requestingUserId, bool isSuperAdmin = false)
         {
             var invitation = await _context.TeamInvitations
                 .IgnoreQueryFilters() // Ignorer le filtre global pour récupérer l'invitation, même si elle est déjà soft-deleted
@@ -197,9 +192,9 @@ namespace NikoNiko.Services
                 throw new KeyNotFoundException($"Invitation with ID {invitationId} not found.");
             }
 
-            if (invitation.Team!.AdminId != requestingUserId)
+            if (!isSuperAdmin && invitation.Team?.AdminId != requestingUserId)
             {
-                throw new UnauthorizedAccessException("Only team admins can delete invitations.");
+                throw new UnauthorizedAccessException("Only team admins or super admins can delete invitations.");
             }
 
             invitation.IsDeleted = true; // Marque l'invitation comme supprimée logiquement

@@ -25,7 +25,7 @@ export const teamInvitationService = {
     return response.data;
   },
 
-  deleteTeamInvitation: async (invitationId: string): Promise<void> => {
-    await api.delete(`${BASE_URL}/${invitationId}`);
+  deleteTeamInvitation: async (teamId: string, invitationId: string): Promise<void> => {
+    await api.delete(`${TEAMS_BASE_URL}/${teamId}/invitations/${invitationId}`);
   },
 };

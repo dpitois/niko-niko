@@ -133,6 +133,7 @@ if (!string.IsNullOrEmpty(discordClientId) && !string.IsNullOrEmpty(discordClien
         options.ClientId = discordClientId;
         options.ClientSecret = discordClientSecret;
         options.CallbackPath = "/signin-discord";
+        options.ClaimActions.MapJsonKey("urn:discord:avatar:hash", "avatar");
         options.Events.OnRedirectToAuthorizationEndpoint = context =>
         {
             // By default, the Discord handler adds prompt=consent, which forces the user to see the authorization screen on every login.

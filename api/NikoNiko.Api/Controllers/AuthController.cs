@@ -291,10 +291,11 @@ public class AuthController : ControllerBase
         if (string.IsNullOrEmpty(avatar) && provider == DiscordAuthenticationDefaults.AuthenticationScheme)
         {
             // Discord avatar logic: https://cdn.discordapp.com/avatars/{user_id}/{avatar_hash}.png
-            // The AspNet.Security.OAuth.Discord package usually maps the avatar hash to "urn:discord:avatar:url" or similar, 
-            // but checking for "avatar" or "urn:discord:avatar" claim is safer if we want the hash.
-            // Actually, the package often maps the full URL to ClaimTypes.Uri or a custom claim.
-            avatar = claims.FirstOrDefault(c => c.Type == "urn:discord:avatar:url")?.Value;
+            var avatarHash = claims.FirstOrDefault(c => c.Type == "urn:discord:avatar:hash")?.Value;
+            if (!string.IsNullOrEmpty(avatarHash) && !string.IsNullOrEmpty(oauthId))
+            {
+                avatar = $"https://cdn.discordapp.com/avatars/{oauthId}/{avatarHash}.png";
+            }
         }
 
 

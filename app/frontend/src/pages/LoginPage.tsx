@@ -1,17 +1,17 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import GoogleIcon from '@mui/icons-material/Google';
-import { Box, Button, Container, SvgIcon, type SvgIconProps, Typography } from '@mui/material';
+import { Alert, Box, Button, Container, Typography } from '@mui/material';
 
-const DiscordIcon = (props: SvgIconProps) => (
-  <SvgIcon {...props}>
-    <path d="M19.27 4.57C17.77 3.88 16.16 3.38 14.48 3.1c-.21.37-.45.78-.62 1.16-1.78-.27-3.55-.27-5.3 0-.17-.38-.42-.79-.63-1.16-1.68.28-3.29.78-4.79 1.47-3.02 4.51-3.84 8.91-3.44 13.23 2 1.48 3.94 2.38 5.83 2.97.47-.64.88-1.32 1.24-2.04-1.35-.51-2.62-1.16-3.79-1.95.32-.24.63-.49.93-.75 3.66 1.69 7.64 1.69 11.26 0 .3.26.61.51.93.75-1.17.79-2.44 1.44-3.79 1.95.36.72.77 1.4 1.24 2.04 1.89-.59 3.83-1.49 5.83-2.97.48-5.01-.84-9.39-3.44-13.23zM8.52 14.91c-1.14 0-2.07-1.05-2.07-2.33s.9-2.33 2.07-2.33c1.18 0 2.1 1.05 2.07 2.33s-.92 2.33-2.07 2.33zm7.02 0c-1.14 0-2.07-1.05-2.07-2.33s.9-2.33 2.07-2.33c1.18 0 2.1 1.05 2.07 2.33s-.89 2.33-2.07 2.33z" />
-  </SvgIcon>
-);
+import DiscordIcon from '@/components/icons/DiscordIcon';
 
 const LoginPage = () => {
   const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
+  const error = searchParams.get('error');
+
   const [githubLoginHref] = useState(() => {
     const invitationToken = localStorage.getItem('invitationToken');
     return invitationToken
@@ -46,6 +46,13 @@ const LoginPage = () => {
           {t('common.appName')}
         </Typography>
         <Typography variant="body1">{t('login.subtitle')}</Typography>
+
+        {error && (
+          <Alert severity="error" sx={{ width: '100%', mb: 2 }}>
+            {t('login.authenticationFailed')}
+          </Alert>
+        )}
+
         <Button
           fullWidth
           variant="contained"

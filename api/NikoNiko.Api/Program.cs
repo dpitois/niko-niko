@@ -106,6 +106,13 @@ builder.Services.AddAuthentication(options =>
         options.CallbackPath = "/signin-github";
         options.Scope.Add("user:email");
         options.ClaimActions.MapJsonKey("urn:github:avatar_url", "avatar_url");
+        options.Events.OnRemoteFailure = context =>
+        {
+            var failureMessage = Uri.EscapeDataString(context.Failure?.Message ?? "Unknown error");
+            context.Response.Redirect(config["Authentication:FrontendRedirectUrl"] + "/login?error=" + failureMessage);
+            context.HandleResponse();
+            return Task.CompletedTask;
+        };
     });
 
 var googleClientId = config["Authentication:Google:ClientId"];
@@ -119,6 +126,13 @@ if (!string.IsNullOrEmpty(googleClientId) && !string.IsNullOrEmpty(googleClientS
         options.ClientId = googleClientId;
         options.ClientSecret = googleClientSecret;
         options.CallbackPath = "/signin-google";
+        options.Events.OnRemoteFailure = context =>
+        {
+            var failureMessage = Uri.EscapeDataString(context.Failure?.Message ?? "Unknown error");
+            context.Response.Redirect(config["Authentication:FrontendRedirectUrl"] + "/login?error=" + failureMessage);
+            context.HandleResponse();
+            return Task.CompletedTask;
+        };
     });
 }
 
@@ -133,6 +147,14 @@ if (!string.IsNullOrEmpty(discordClientId) && !string.IsNullOrEmpty(discordClien
         options.ClientId = discordClientId;
         options.ClientSecret = discordClientSecret;
         options.CallbackPath = "/signin-discord";
+        options.ClaimActions.MapJsonKey("urn:discord:avatar:hash", "avatar");
+        options.Events.OnRemoteFailure = context =>
+        {
+            var failureMessage = Uri.EscapeDataString(context.Failure?.Message ?? "Unknown error");
+            context.Response.Redirect(config["Authentication:FrontendRedirectUrl"] + "/login?error=" + failureMessage);
+            context.HandleResponse();
+            return Task.CompletedTask;
+        };
         options.Events.OnRedirectToAuthorizationEndpoint = context =>
         {
             // By default, the Discord handler adds prompt=consent, which forces the user to see the authorization screen on every login.

@@ -37,7 +37,8 @@
     "signInGithub": "Sign in with GitHub",
     "signInGoogle": "Sign in with Google",
     "signInDiscord": "Sign in with Discord",
-    "signInMicrosoft": "Sign in with Microsoft"
+    "signInMicrosoft": "Sign in with Microsoft",
+    "authenticationFailed": "Authentication failed. Please try again."
   },
   "dashboard": {
     "title": "Home",

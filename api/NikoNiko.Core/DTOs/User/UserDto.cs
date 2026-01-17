@@ -13,12 +13,12 @@ public record UserDto
     /// <summary>
     /// The email address of the user.
     /// </summary>
-    public string Email { get; init; } = null!;
+    public string? Email { get; init; }
 
     /// <summary>
     /// The full name of the user.
     /// </summary>
-    public string Name { get; init; } = null!;
+    public string? Name { get; init; }
 
     /// <summary>
     /// The URL of the user's avatar (optional).

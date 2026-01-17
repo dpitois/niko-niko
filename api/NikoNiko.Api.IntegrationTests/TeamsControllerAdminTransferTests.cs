@@ -82,6 +82,7 @@ public class TeamsControllerAdminTransferTests
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             var updatedTeam = await dbContext.Teams.FindAsync(team.Id);
+            Assert.NotNull(updatedTeam);
             Assert.Equal(newAdmin.Id, updatedTeam.AdminId);
         }
     }

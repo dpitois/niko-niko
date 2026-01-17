@@ -1,6 +1,7 @@
 using System.Net;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions; // Added for Regex
 
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -147,9 +148,28 @@ if (!string.IsNullOrEmpty(discordClientId) && !string.IsNullOrEmpty(discordClien
         options.ClientId = discordClientId;
         options.ClientSecret = discordClientSecret;
         options.CallbackPath = "/signin-discord";
+        options.Prompt = "none";
+        options.Scope.Add("openid");
         options.ClaimActions.MapJsonKey("urn:discord:avatar:hash", "avatar");
         options.Events.OnRemoteFailure = context =>
         {
+            // Check for 'interaction_required' error which means 'prompt=none' failed
+            if (context.Failure?.Message?.Contains("interaction_required", StringComparison.OrdinalIgnoreCase) == true ||
+                context.Request.Query["error"] == "interaction_required")
+            {
+                // Fallback: User needs to consent. 
+                // CRITICAL: Preserve the invitationToken if it was present in the original challenge
+                var redirectUrl = "/api/auth/login-discord?prompt=consent";
+                if (context.Properties?.Items.TryGetValue("invitationToken", out var token) == true && !string.IsNullOrEmpty(token))
+                {
+                    redirectUrl += $"&invitationToken={Uri.EscapeDataString(token)}";
+                }
+
+                context.Response.Redirect(redirectUrl);
+                context.HandleResponse();
+                return Task.CompletedTask;
+            }
+
             var failureMessage = Uri.EscapeDataString(context.Failure?.Message ?? "Unknown error");
             context.Response.Redirect(config["Authentication:FrontendRedirectUrl"] + "/login?error=" + failureMessage);
             context.HandleResponse();
@@ -157,14 +177,23 @@ if (!string.IsNullOrEmpty(discordClientId) && !string.IsNullOrEmpty(discordClien
         };
         options.Events.OnRedirectToAuthorizationEndpoint = context =>
         {
-            // By default, the Discord handler adds prompt=consent, which forces the user to see the authorization screen on every login.
-            // We remove it to allow a seamless login if the user has already authorized the application.
-            var redirectUri = context.RedirectUri;
-            redirectUri = redirectUri.Replace("&prompt=consent", "");
-            redirectUri = redirectUri.Replace("?prompt=consent&", "?");
-            redirectUri = redirectUri.Replace("?prompt=consent", "");
-
-            context.Response.Redirect(redirectUri);
+            // Allow overriding the default 'prompt=none' if specified in AuthenticationProperties
+            if (context.Properties.Items.TryGetValue("prompt", out var prompt) && !string.IsNullOrEmpty(prompt))
+            {
+                var uri = context.RedirectUri;
+                // Robustly remove existing prompt param
+                uri = Regex.Replace(uri, @"&prompt=[^&]*", "", RegexOptions.IgnoreCase);
+                uri = Regex.Replace(uri, @"\?prompt=[^&]*&", "?", RegexOptions.IgnoreCase);
+                uri = Regex.Replace(uri, @"\?prompt=[^&]*$", "", RegexOptions.IgnoreCase);
+                
+                // Append new prompt
+                var separator = uri.Contains("?") ? "&" : "?";
+                uri += $"{separator}prompt={Uri.EscapeDataString(prompt)}";
+                
+                context.RedirectUri = uri;
+            }
+            
+            context.Response.Redirect(context.RedirectUri);
             return Task.CompletedTask;
         };
     });

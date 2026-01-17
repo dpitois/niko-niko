@@ -206,13 +206,18 @@ public class AuthController : ControllerBase
     /// </summary>
     [HttpGet("login-discord")]
     [ApiExplorerSettings(IgnoreApi = true)]
-    public IActionResult LoginDiscord(string? invitationToken = null)
+    public IActionResult LoginDiscord(string? invitationToken = null, string? prompt = null)
     {
         var properties = new AuthenticationProperties { RedirectUri = "/api/auth/signin-discord" };
 
         if (!string.IsNullOrEmpty(invitationToken))
         {
             properties.Items.Add("invitationToken", invitationToken);
+        }
+
+        if (!string.IsNullOrEmpty(prompt))
+        {
+            properties.Items.Add("prompt", prompt);
         }
 
         // Force HTTPS for RedirectUri if in Production and X-Forwarded-Proto is HTTPS

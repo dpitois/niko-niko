@@ -20,7 +20,7 @@ public record TeamDto
     /// <summary>
     /// The name of the team's administrator.
     /// </summary>
-    public string AdminName { get; init; } = null!;
+    public string? AdminName { get; init; }
     /// <summary>
     /// The date and time when the team was created.
     /// </summary>

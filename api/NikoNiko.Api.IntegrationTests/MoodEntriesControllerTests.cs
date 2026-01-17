@@ -132,6 +132,7 @@ public class MoodEntriesControllerTests
         var sprintResp = await client.PostAsJsonAsync("/api/sprints", createSprintDto);
         sprintResp.EnsureSuccessStatusCode();
         var sprint = await sprintResp.Content.ReadFromJsonAsync<SprintDto>();
+        Assert.NotNull(sprint);
 
         // Scenario: User is in a timezone ahead of UTC (e.g. UTC+24 for test simplicity)
         // They try to post a mood for "Tomorrow" (relative to UTC), which is "Today" for them.
@@ -174,6 +175,7 @@ public class MoodEntriesControllerTests
         var sprintResp = await client.PostAsJsonAsync("/api/sprints", createSprintDto);
         sprintResp.EnsureSuccessStatusCode();
         var sprint = await sprintResp.Content.ReadFromJsonAsync<SprintDto>();
+        Assert.NotNull(sprint);
 
         // Scenario: User is in a timezone behind UTC (e.g. UTC-5)
         // They try to post a mood for "Tomorrow" (relative to UTC).

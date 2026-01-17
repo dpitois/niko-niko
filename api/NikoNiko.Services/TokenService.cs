@@ -22,10 +22,18 @@ public class TokenService : ITokenService
     {
         var claims = new List<Claim>
         {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email),
-            new Claim(JwtRegisteredClaimNames.Name, user.Name)
+            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString())
         };
+
+        if (!string.IsNullOrEmpty(user.Email))
+        {
+            claims.Add(new Claim(JwtRegisteredClaimNames.Email, user.Email));
+        }
+
+        if (!string.IsNullOrEmpty(user.Name))
+        {
+            claims.Add(new Claim(JwtRegisteredClaimNames.Name, user.Name));
+        }
 
         if (!string.IsNullOrEmpty(user.AvatarUrl))
         {

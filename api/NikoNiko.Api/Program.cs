@@ -133,6 +133,18 @@ if (!string.IsNullOrEmpty(discordClientId) && !string.IsNullOrEmpty(discordClien
         options.ClientId = discordClientId;
         options.ClientSecret = discordClientSecret;
         options.CallbackPath = "/signin-discord";
+        options.Events.OnRedirectToAuthorizationEndpoint = context =>
+        {
+            // By default, the Discord handler adds prompt=consent, which forces the user to see the authorization screen on every login.
+            // We remove it to allow a seamless login if the user has already authorized the application.
+            var redirectUri = context.RedirectUri;
+            redirectUri = redirectUri.Replace("&prompt=consent", "");
+            redirectUri = redirectUri.Replace("?prompt=consent&", "?");
+            redirectUri = redirectUri.Replace("?prompt=consent", "");
+
+            context.Response.Redirect(redirectUri);
+            return Task.CompletedTask;
+        };
     });
 }
 

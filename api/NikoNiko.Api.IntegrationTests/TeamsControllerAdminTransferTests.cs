@@ -1,10 +1,13 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+
 using NikoNiko.Core.DTOs.Team;
 using NikoNiko.Data;
+
 using Xunit;
 
 namespace NikoNiko.Api.IntegrationTests;
@@ -40,10 +43,10 @@ public class TeamsControllerAdminTransferTests
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             var updatedTeam = await dbContext.Teams.Include(t => t.TeamUsers).FirstOrDefaultAsync(t => t.Id == team.Id);
-            
+
             Assert.NotNull(updatedTeam);
             Assert.Equal(newAdmin.Id, updatedTeam.AdminId);
-            
+
             // Verify old admin is still a member
             Assert.Contains(updatedTeam.TeamUsers, tu => tu.UserId == currentAdmin.Id);
             // Verify new admin is a member
@@ -59,7 +62,7 @@ public class TeamsControllerAdminTransferTests
         var (currentAdmin, _, _) = await application.CreateUserAndClient("Current Admin");
         var (newAdmin, _, _) = await application.CreateUserAndClient("New Admin");
         var (_, superClient, _) = await application.CreateUserAndClient("Super Admin", isSuperAdmin: true);
-        
+
         var team = await application.CreateTeam("Test Team", currentAdmin.Id);
 
         // Add new admin as a member first

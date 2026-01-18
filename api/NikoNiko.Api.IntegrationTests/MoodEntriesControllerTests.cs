@@ -6,14 +6,17 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+
+using NikoNiko.Core.DTOs.Mood;
 using NikoNiko.Core.DTOs.Sprint;
 using NikoNiko.Core.DTOs.Team;
 using NikoNiko.Core.DTOs.User;
-using NikoNiko.Core.DTOs.Mood;
 using NikoNiko.Core.Models;
 using NikoNiko.Data;
+
 using Xunit;
 
 namespace NikoNiko.Api.IntegrationTests;
@@ -52,7 +55,7 @@ public class MoodEntriesControllerTests
             SprintId = sprint.Id,
             Date = DateTime.UtcNow.Date,
             Mood = MoodType.Happy,
-            UserId = teamMember.Id 
+            UserId = teamMember.Id
         };
         var createMoodResponse = await memberClient.PostAsJsonAsync("/api/moodentries", createMoodEntryDto);
         createMoodResponse.EnsureSuccessStatusCode();
@@ -137,10 +140,10 @@ public class MoodEntriesControllerTests
         // Scenario: User is in a timezone ahead of UTC (e.g. UTC+24 for test simplicity)
         // They try to post a mood for "Tomorrow" (relative to UTC), which is "Today" for them.
         // Condition: entryDate <= UtcNow + Offset
-        
+
         var entryDate = DateTime.UtcNow.Date.AddDays(1); // "Tomorrow" UTC
         var offsetMinutes = 24 * 60; // +24 hours offset
-        
+
         var createMoodEntryDto = new CreateMoodEntryDto
         {
             SprintId = sprint.Id,
@@ -180,10 +183,10 @@ public class MoodEntriesControllerTests
         // Scenario: User is in a timezone behind UTC (e.g. UTC-5)
         // They try to post a mood for "Tomorrow" (relative to UTC).
         // Condition: entryDate > UtcNow + Offset
-        
+
         var entryDate = DateTime.UtcNow.Date.AddDays(1); // "Tomorrow" UTC
         var offsetMinutes = -300; // -5 hours offset (NY)
-        
+
         var createMoodEntryDto = new CreateMoodEntryDto
         {
             SprintId = sprint.Id,

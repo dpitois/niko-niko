@@ -79,7 +79,10 @@
     },
     "listItem": {
       "membersCount": "Membres ({{count}})",
-      "editNameTitle": "Modifier le nom de l'équipe"
+      "editNameTitle": "Modifier le nom de l'équipe",
+      "removeMemberConfirm": "Êtes-vous sûr de vouloir retirer ce membre de l'équipe ?",
+      "removeMemberSuccess": "Membre retiré avec succès.",
+      "removeMemberError": "Échec du retrait du membre."
     },
     "teamAdminTransferred": "Administration de l'équipe transférée avec succès.",
     "teamAdminTransferFailed": "Échec du transfert de l'administration de l'équipe.",

@@ -52,7 +52,7 @@ namespace NikoNiko.Notifications.IntegrationTests
                     options.AccessTokenProvider = () => Task.FromResult<string?>(senderToken);
                 })
                 .Build();
-            
+
             senderConnection.On<string, string>("ReceiveNotification", (user, message) =>
             {
                 senderReceived = true;

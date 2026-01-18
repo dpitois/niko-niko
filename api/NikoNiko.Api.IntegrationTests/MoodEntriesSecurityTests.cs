@@ -5,14 +5,17 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+
+using NikoNiko.Core.DTOs.Mood;
 using NikoNiko.Core.DTOs.Sprint;
 using NikoNiko.Core.DTOs.Team;
 using NikoNiko.Core.DTOs.User;
-using NikoNiko.Core.DTOs.Mood;
 using NikoNiko.Core.Models;
 using NikoNiko.Data;
+
 using Xunit;
 
 namespace NikoNiko.Api.IntegrationTests;
@@ -23,10 +26,10 @@ public class MoodEntriesSecurityTests
     public async Task SuperAdmin_PostingToNonMemberTeam_ShouldReturnForbidden()
     {
         // This test verifies that we FIXED the security gap.
-        
+
         // Arrange
         await using var application = new NikoNikoApiTestApplication();
-        
+
         // 1. Create a Team and a Sprint managed by a regular user
         var (teamAdmin, adminClient, _) = await application.CreateUserAndClient("Team Admin");
         var team = await application.CreateTeam("Test Team", teamAdmin.Id);
@@ -51,7 +54,7 @@ public class MoodEntriesSecurityTests
             SprintId = sprint.Id,
             Date = DateTime.UtcNow.Date,
             Mood = MoodType.Happy,
-            UserId = superAdmin.Id 
+            UserId = superAdmin.Id
         };
 
         // Act
@@ -65,14 +68,14 @@ public class MoodEntriesSecurityTests
     public async Task SuperAdmin_ReadingNonMemberTeamMoods_ShouldReturnOk()
     {
         // This test ensures that Super Admin REMAINS able to READ all moods.
-        
+
         // Arrange
         await using var application = new NikoNikoApiTestApplication();
-        
+
         // 1. Create a Team and a Sprint managed by a regular user
         var (teamAdmin, adminClient, _) = await application.CreateUserAndClient("Team Admin");
         var team = await application.CreateTeam("Test Team", teamAdmin.Id);
-        
+
         var createSprintDto = new CreateSprintDto
         {
             Name = "Test Sprint",

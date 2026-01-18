@@ -20,7 +20,7 @@ import {
 import { useSnackbar } from 'notistack';
 
 import type { TeamWithMembersAndSprints } from '@/models/Team/TeamWithMembersAndSprints';
-import { transferTeamAdmin,updateTeam } from '@/services/teamService';
+import { removeUserFromTeam,transferTeamAdmin,updateTeam } from '@/services/teamService';
 
 import EditTeamDialog from './EditTeamDialog';
 
@@ -54,6 +54,20 @@ const AdminTeamListItem: React.FC<AdminTeamListItemProps> = ({ team, onDelete, o
     } catch {
       enqueueSnackbar(t('adminTeams.teamAdminTransferFailed'), { variant: 'error' });
       throw new Error('Transfer failed');
+    }
+  };
+
+  const handleRemoveMember = async (userId: string) => {
+    if (!window.confirm(t('adminTeams.listItem.removeMemberConfirm'))) {
+      return;
+    }
+
+    try {
+      await removeUserFromTeam(team.id, userId);
+      enqueueSnackbar(t('adminTeams.listItem.removeMemberSuccess'), { variant: 'success' });
+      if (onUpdate) onUpdate();
+    } catch {
+      enqueueSnackbar(t('adminTeams.listItem.removeMemberError'), { variant: 'error' });
     }
   };
 
@@ -107,7 +121,23 @@ const AdminTeamListItem: React.FC<AdminTeamListItemProps> = ({ team, onDelete, o
         </Typography>
         <List dense>
           {team.members.map((member) => (
-            <ListItem key={member.id} disablePadding>
+            <ListItem
+              key={member.id}
+              disablePadding
+              secondaryAction={
+                member.id !== team.adminId && (
+                  <IconButton
+                    edge="end"
+                    aria-label="delete"
+                    size="small"
+                    onClick={() => handleRemoveMember(member.id)}
+                    sx={{ color: 'text.secondary', '&:hover': { color: 'error.main' } }}
+                  >
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                )
+              }
+            >
               <ListItemAvatar>
                 <Avatar
                   src={member.avatarUrl}

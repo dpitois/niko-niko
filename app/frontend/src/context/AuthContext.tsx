@@ -1,8 +1,8 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
-import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 
+import api, { setLogoutHandler } from '@/services/api';
 import type { DecodedToken, TeamRole } from '@/models/Auth';
 import type { TeamWithSprintsDto } from '@/models/Team/TeamWithSprintsDto';
 import type { User } from '@/models/User';
@@ -26,14 +26,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const fetchUserTeamRoles = useCallback(async (userId: string) => {
     try {
-      const token = localStorage.getItem('jwt_token');
-      if (!token) return;
-
-      const response = await axios.get<TeamWithSprintsDto[]>('/api/teams', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      // Token is handled by api interceptor
+      const response = await api.get<TeamWithSprintsDto[]>('/teams');
 
       const roles: { [teamId: string]: TeamRole } = {};
       response.data.forEach((team) => {
@@ -70,7 +64,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     [fetchUserTeamRoles],
   );
 
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
+    try {
+      await api.post('/auth/logout');
+    } catch (error) {
+      console.error('Logout failed on server:', error);
+    }
     localStorage.removeItem('jwt_token');
     setUser(null);
     setIsSuperAdmin(false);
@@ -78,6 +77,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   useEffect(() => {
+    setLogoutHandler(logout);
     const token = localStorage.getItem('jwt_token');
     const loadAuthData = async () => {
       setIsLoading(true);

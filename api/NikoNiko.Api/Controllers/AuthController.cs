@@ -271,6 +271,98 @@ public class AuthController : ControllerBase
         return Redirect(redirectUrl);
     }
 
+    private void SetTokenCookie(string token)
+    {
+        var cookieOptions = new CookieOptions
+        {
+            HttpOnly = true,
+            Expires = DateTime.UtcNow.AddDays(7),
+            SameSite = SameSiteMode.Strict,
+            Secure = true
+        };
+        Response.Cookies.Append("refreshToken", token, cookieOptions);
+    }
+
+    /// <summary>
+    /// Refresh the access token using a valid refresh token from cookie.
+    /// </summary>
+    [HttpPost("refresh-token")]
+    public async Task<IActionResult> RefreshToken()
+    {
+        var refreshToken = Request.Cookies["refreshToken"];
+        if (string.IsNullOrEmpty(refreshToken))
+        {
+            return Unauthorized(new { message = "Token is required" });
+        }
+
+        var user = await _context.Users
+            .Include(u => u.RefreshTokens)
+            .SingleOrDefaultAsync(u => u.RefreshTokens.Any(t => t.Token == refreshToken));
+
+        if (user == null)
+        {
+            return Unauthorized(new { message = "Token not found" });
+        }
+
+        var oldToken = user.RefreshTokens.Single(x => x.Token == refreshToken);
+
+        if (!oldToken.IsActive)
+        {
+            return Unauthorized(new { message = "Token is not active" });
+        }
+
+        var newRefreshToken = _tokenService.GenerateRefreshToken(HttpContext.Connection.RemoteIpAddress?.ToString());
+        
+        // Revoke old token
+        oldToken.Revoked = DateTime.UtcNow;
+        oldToken.RevokedByIp = HttpContext.Connection.RemoteIpAddress?.ToString();
+        oldToken.ReplacedByToken = newRefreshToken.Token;
+
+        // Add new token
+        user.RefreshTokens.Add(newRefreshToken);
+
+        // Prune old tokens (optional: keep last N or delete older than X days)
+        // For simplicity, let's keep it clean: remove tokens revoked more than 2 days ago
+        var threshold = DateTime.UtcNow.AddDays(-2);
+        user.RefreshTokens.RemoveAll(x => x.Revoked < threshold && x.IsRevoked);
+
+        await _context.SaveChangesAsync();
+
+        var jwtToken = _tokenService.CreateToken(user);
+        SetTokenCookie(newRefreshToken.Token);
+
+        return Ok(new { token = jwtToken });
+    }
+
+    /// <summary>
+    /// Revokes the refresh token and clears the cookie.
+    /// </summary>
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout()
+    {
+        var refreshToken = Request.Cookies["refreshToken"];
+        if (!string.IsNullOrEmpty(refreshToken))
+        {
+            var user = await _context.Users
+                .Include(u => u.RefreshTokens)
+                .SingleOrDefaultAsync(u => u.RefreshTokens.Any(t => t.Token == refreshToken));
+
+            if (user != null)
+            {
+                var token = user.RefreshTokens.SingleOrDefault(x => x.Token == refreshToken);
+                if (token != null && token.IsActive)
+                {
+                    token.Revoked = DateTime.UtcNow;
+                    token.RevokedByIp = HttpContext.Connection.RemoteIpAddress?.ToString();
+                    await _context.SaveChangesAsync();
+                }
+            }
+        }
+
+        Response.Cookies.Delete("refreshToken");
+        return NoContent();
+    }
+
     private async Task<(User, string)> HandleSignIn(string provider, string? invitationToken = null)
     {
         var result = await HttpContext.AuthenticateAsync(provider);
@@ -322,12 +414,12 @@ public class AuthController : ControllerBase
         }
 
         // Prioritize lookup by OAuthId as email might be null or change
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.OAuthId == oauthId);
+        var user = await _context.Users.Include(u => u.RefreshTokens).FirstOrDefaultAsync(u => u.OAuthId == oauthId);
 
         // Fallback for legacy users: try finding by Email if OAuthId didn't match (migration path)
         if (user == null && !string.IsNullOrEmpty(email))
         {
-            user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            user = await _context.Users.Include(u => u.RefreshTokens).FirstOrDefaultAsync(u => u.Email == email);
             // If found by email but OAuthId was different/missing, update OAuthId? 
             // For safety in this refactor, we assume if OAuthId search failed, it's a new user OR a legacy user who hasn't logged in with this provider before.
             // But if we find by email, we should probably link them.
@@ -416,7 +508,16 @@ public class AuthController : ControllerBase
             }
         }
 
-        var token = _tokenService.CreateToken(user);
+        var jwtToken = _tokenService.CreateToken(user);
+        var refreshToken = _tokenService.GenerateRefreshToken(HttpContext.Connection.RemoteIpAddress?.ToString());
+        
+        // Ensure RefreshTokens collection is initialized (it is in the constructor but good to be safe with EF)
+        if (user.RefreshTokens == null) user.RefreshTokens = new List<RefreshToken>();
+        
+        user.RefreshTokens.Add(refreshToken);
+        await _context.SaveChangesAsync();
+        
+        SetTokenCookie(refreshToken.Token);
 
         // If an invitation token was provided, attempt to accept the invitation
         if (!string.IsNullOrEmpty(invitationToken))
@@ -433,7 +534,7 @@ public class AuthController : ControllerBase
                 _logger.LogError(ex, "Failed to accept invitation {InvitationToken} for user {UserId} during sign-in.", invitationToken, user.Id);
             }
         }
-        return (user, token);
+        return (user, jwtToken);
     }
 
     private List<string> GetSuperAdminEmails()

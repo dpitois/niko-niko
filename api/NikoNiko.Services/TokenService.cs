@@ -7,6 +7,8 @@ using Microsoft.IdentityModel.Tokens;
 
 using NikoNiko.Core.Models; // Updated namespace for User
 
+using System.Security.Cryptography;
+
 namespace NikoNiko.Services;
 
 public class TokenService : ITokenService
@@ -51,7 +53,7 @@ public class TokenService : ITokenService
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.UtcNow.AddDays(7),
+            Expires = DateTime.UtcNow.AddMinutes(15), // Short lived token
             Issuer = _config["Authentication:Jwt:Issuer"],
             Audience = _config["Authentication:Jwt:Audience"],
             SigningCredentials = creds
@@ -61,6 +63,20 @@ public class TokenService : ITokenService
         var token = tokenHandler.CreateToken(tokenDescriptor);
 
         return tokenHandler.WriteToken(token);
+    }
+
+    public RefreshToken GenerateRefreshToken(string? ipAddress)
+    {
+        var randomNumber = new byte[32];
+        using var rng = RandomNumberGenerator.Create();
+        rng.GetBytes(randomNumber);
+        return new RefreshToken
+        {
+            Token = Convert.ToBase64String(randomNumber),
+            Expires = DateTime.UtcNow.AddDays(7),
+            Created = DateTime.UtcNow,
+            CreatedByIp = ipAddress
+        };
     }
 
     // New method for testing flexibility

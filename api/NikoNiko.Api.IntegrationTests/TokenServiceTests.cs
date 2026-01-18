@@ -1,7 +1,10 @@
 using System.IdentityModel.Tokens.Jwt;
+
 using Microsoft.Extensions.Configuration;
+
 using NikoNiko.Core.Models;
 using NikoNiko.Services;
+
 using Xunit;
 
 namespace NikoNiko.Api.IntegrationTests;
@@ -46,7 +49,7 @@ public class TokenServiceTests
         Assert.NotNull(token);
         var handler = new JwtSecurityTokenHandler();
         var jwtToken = handler.ReadJwtToken(token);
-        
+
         Assert.Equal(user.Id.ToString(), jwtToken.Subject);
         Assert.DoesNotContain(jwtToken.Claims, c => c.Type == JwtRegisteredClaimNames.Email);
         Assert.DoesNotContain(jwtToken.Claims, c => c.Type == JwtRegisteredClaimNames.Name);
@@ -72,7 +75,7 @@ public class TokenServiceTests
         Assert.NotNull(token);
         var handler = new JwtSecurityTokenHandler();
         var jwtToken = handler.ReadJwtToken(token);
-        
+
         Assert.Equal(user.Id.ToString(), jwtToken.Subject);
         Assert.Equal(user.Email, jwtToken.Claims.First(c => c.Type == JwtRegisteredClaimNames.Email).Value);
         Assert.Equal(user.Name, jwtToken.Claims.First(c => c.Type == JwtRegisteredClaimNames.Name).Value);

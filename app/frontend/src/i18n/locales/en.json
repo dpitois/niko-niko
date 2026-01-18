@@ -52,6 +52,7 @@
     "teamUpdateFailed": "Failed to update team name.",
     "viewFullBoard": "View Full Board",
     "howAreYouToday": "How are you today?",
+    "observerMode": "You are viewing this team in observer mode.",
     "selectDate": "Select a date",
     "moodRecorded": "Mood recorded for this day",
     "teamTrend": "Team Trend",
@@ -78,7 +79,10 @@
     },
     "listItem": {
       "membersCount": "Members ({{count}})",
-      "editNameTitle": "Edit team name"
+      "editNameTitle": "Edit team name",
+      "removeMemberConfirm": "Are you sure you want to remove this member from the team?",
+      "removeMemberSuccess": "Member removed successfully.",
+      "removeMemberError": "Failed to remove member."
     },
     "teamAdminTransferred": "Team administration transferred successfully.",
     "teamAdminTransferFailed": "Failed to transfer team administration.",

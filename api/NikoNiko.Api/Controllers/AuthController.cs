@@ -28,14 +28,16 @@ public class AuthController : ControllerBase
     private readonly ITokenService _tokenService;
     private readonly IConfiguration _config;
     private readonly ILogger<AuthController> _logger;
+    private readonly ITeamService _teamService;
     private readonly string _frontendRedirectUrl;
 
-    public AuthController(ApplicationDbContext context, ITokenService tokenService, IConfiguration config, ILogger<AuthController> logger)
+    public AuthController(ApplicationDbContext context, ITokenService tokenService, IConfiguration config, ILogger<AuthController> logger, ITeamService teamService)
     {
         _context = context;
         _tokenService = tokenService;
         _config = config;
         _logger = logger;
+        _teamService = teamService;
         _frontendRedirectUrl = _config["Authentication:FrontendRedirectUrl"] ?? throw new ArgumentNullException("FrontendRedirectUrl is not configured.");
     }
 
@@ -359,23 +361,7 @@ public class AuthController : ControllerBase
             // Auto-create a team for new users who sign up without an invitation token
             if (string.IsNullOrEmpty(invitationToken))
             {
-                var teamName = $"{(string.IsNullOrWhiteSpace(user.Name) ? "My" : user.Name)}'s Team";
-                var newTeam = new Team
-                {
-                    Name = teamName,
-                    AdminId = user.Id
-                };
-
-                var teamUser = new TeamUser
-                {
-                    Team = newTeam,
-                    UserId = user.Id
-                };
-
-                _context.Teams.Add(newTeam);
-                _context.TeamUsers.Add(teamUser);
-                await _context.SaveChangesAsync();
-                _logger.LogInformation("Auto-created team {TeamName} for new user {UserId}.", teamName, user.Id);
+                await _teamService.CreateDefaultTeamForUserAsync(user);
             }
         }
         else
@@ -400,8 +386,8 @@ public class AuthController : ControllerBase
             // For now, let's just update it if we have one from provider.
             if (!string.IsNullOrEmpty(email) && user.Email != email)
             {
-                 user.Email = email;
-                 isUpdated = true;
+                user.Email = email;
+                isUpdated = true;
             }
 
             // Sync Provider if missing

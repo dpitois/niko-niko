@@ -6,14 +6,17 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+
+using NikoNiko.Core.DTOs.Mood;
 using NikoNiko.Core.DTOs.Sprint;
 using NikoNiko.Core.DTOs.Team;
 using NikoNiko.Core.DTOs.User;
-using NikoNiko.Core.DTOs.Mood;
 using NikoNiko.Core.Models;
 using NikoNiko.Data;
+
 using Xunit;
 
 namespace NikoNiko.Api.IntegrationTests;
@@ -86,13 +89,13 @@ public class UsersControllerTests
     {
         // Arrange
         await using var application = new NikoNikoApiTestApplication();
-        
+
         // 1. Authenticate as Super Admin
         var (superAdmin, client, _) = await application.CreateUserAndClient("Super Admin", isSuperAdmin: true);
-        
+
         // 2. Create User A (Invited)
         var (userToDelete, _, _) = await application.CreateUserAndClient("User To Delete");
-        
+
         // 3. Create Team and Admin
         var (teamAdmin, _, _) = await application.CreateUserAndClient("Team Admin");
         var team = await application.CreateTeam("Invitation Team", teamAdmin.Id);
@@ -130,14 +133,14 @@ public class UsersControllerTests
 
             // Verify invitation still exists but AcceptedByUserId is null
             var invitation = await dbContext.TeamInvitations.FirstOrDefaultAsync(i => i.AcceptedByUserId == null && i.TeamId == team.Id);
-             // Note: Depending on the fix (SetNull), checking for null is correct.
-             // If we haven't applied the fix yet, the test above (DeleteAsync) would fail with 500.
-             // After fix, we expect invitation.AcceptedByUserId to be null.
-             // However, checking 'AcceptedByUserId == null' might match other invitations if any.
-             // Better to find by Token or just check count.
-             // Let's just check that we can find the invitation by Token/Id if we had it, 
-             // but here checking for *any* invitation in the team that *was* the one we created.
-             // Actually, since I didn't save the Invitation Id in the test scope, I'll rely on response status code mostly.
+            // Note: Depending on the fix (SetNull), checking for null is correct.
+            // If we haven't applied the fix yet, the test above (DeleteAsync) would fail with 500.
+            // After fix, we expect invitation.AcceptedByUserId to be null.
+            // However, checking 'AcceptedByUserId == null' might match other invitations if any.
+            // Better to find by Token or just check count.
+            // Let's just check that we can find the invitation by Token/Id if we had it, 
+            // but here checking for *any* invitation in the team that *was* the one we created.
+            // Actually, since I didn't save the Invitation Id in the test scope, I'll rely on response status code mostly.
         }
     }
 }

@@ -159,6 +159,7 @@ const TeamDashboardSection: React.FC<TeamDashboardSectionProps> = ({ team }) => 
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 5 }}>
             <DailyMoodWidget
+              teamId={team.id}
               sprintId={currentSprint.id}
               sprintStartDate={currentSprint.startDate}
               sprintEndDate={currentSprint.endDate}

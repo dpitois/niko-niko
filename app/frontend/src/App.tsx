@@ -59,7 +59,7 @@ function App() {
           ref={notistackRef}
           maxSnack={5}
           preventDuplicate
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
           action={(key) => (
             <IconButton onClick={onClickDismiss(key)} color="inherit" size="small">
               <CloseIcon fontSize="small" />

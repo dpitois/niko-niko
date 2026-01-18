@@ -23,11 +23,13 @@ public class TeamsController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
     private readonly INotificationService _notificationService;
+    private readonly ITeamService _teamService;
 
-    public TeamsController(ApplicationDbContext context, INotificationService notificationService)
+    public TeamsController(ApplicationDbContext context, INotificationService notificationService, ITeamService teamService)
     {
         _context = context;
         _notificationService = notificationService;
+        _teamService = teamService;
     }
 
     /// <summary>
@@ -347,8 +349,32 @@ public class TeamsController : ControllerBase
             return NotFound("User is not a member of this team.");
         }
 
+        // 1. Remove User from Team
         _context.TeamUsers.Remove(teamUser);
+
+        // 2. Cascade delete mood entries for this team's sprints
+        var teamSprintIds = await _context.Sprints
+            .Where(s => s.TeamId == teamId)
+            .Select(s => s.Id)
+            .ToListAsync();
+
+        if (teamSprintIds.Any())
+        {
+            var moodsToDelete = _context.MoodEntries
+                .Where(m => m.UserId == userId && teamSprintIds.Contains(m.SprintId));
+            _context.MoodEntries.RemoveRange(moodsToDelete);
+        }
+
         await _context.SaveChangesAsync();
+
+        // 3. Check if user is now an orphan (no teams left)
+        var remainingTeamsCount = await _context.TeamUsers.CountAsync(tu => tu.UserId == userId);
+        if (remainingTeamsCount == 0)
+        {
+            // Re-fetch user to ensure we have fresh data if needed, or use 'userToRemove'
+            // 'userToRemove' is already loaded from FindAsync above.
+            await _teamService.CreateDefaultTeamForUserAsync(userToRemove);
+        }
 
         return NoContent();
     }

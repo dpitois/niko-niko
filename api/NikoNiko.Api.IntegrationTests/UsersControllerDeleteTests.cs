@@ -2,10 +2,13 @@ using System;
 using System.Net;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+
 using NikoNiko.Core.Models;
 using NikoNiko.Data;
+
 using Xunit;
 
 namespace NikoNiko.Api.IntegrationTests;
@@ -32,7 +35,7 @@ public class UsersControllerDeleteTests
                 AdminId = userToDelete.Id
             };
             var teamUser = new TeamUser { TeamId = team.Id, UserId = userToDelete.Id };
-            
+
             dbContext.Teams.Add(team);
             dbContext.TeamUsers.Add(teamUser);
             await dbContext.SaveChangesAsync();
@@ -76,7 +79,7 @@ public class UsersControllerDeleteTests
                 Name = "Shared Team",
                 AdminId = userToDelete.Id
             };
-            
+
             dbContext.Teams.Add(team);
             dbContext.TeamUsers.Add(new TeamUser { TeamId = team.Id, UserId = userToDelete.Id });
             dbContext.TeamUsers.Add(new TeamUser { TeamId = team.Id, UserId = otherUser.Id });

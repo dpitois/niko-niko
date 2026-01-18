@@ -26,6 +26,7 @@ var config = builder.Configuration;
 builder.Services.AddControllers();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<ITeamInvitationService, TeamInvitationService>();
+builder.Services.AddScoped<ITeamService, TeamService>();
 
 // Add HttpContextAccessor
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
@@ -185,14 +186,14 @@ if (!string.IsNullOrEmpty(discordClientId) && !string.IsNullOrEmpty(discordClien
                 uri = Regex.Replace(uri, @"&prompt=[^&]*", "", RegexOptions.IgnoreCase);
                 uri = Regex.Replace(uri, @"\?prompt=[^&]*&", "?", RegexOptions.IgnoreCase);
                 uri = Regex.Replace(uri, @"\?prompt=[^&]*$", "", RegexOptions.IgnoreCase);
-                
+
                 // Append new prompt
                 var separator = uri.Contains("?") ? "&" : "?";
                 uri += $"{separator}prompt={Uri.EscapeDataString(prompt)}";
-                
+
                 context.RedirectUri = uri;
             }
-            
+
             context.Response.Redirect(context.RedirectUri);
             return Task.CompletedTask;
         };

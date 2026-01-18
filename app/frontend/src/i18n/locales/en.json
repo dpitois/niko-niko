@@ -52,6 +52,7 @@
     "teamUpdateFailed": "Failed to update team name.",
     "viewFullBoard": "View Full Board",
     "howAreYouToday": "How are you today?",
+    "observerMode": "You are viewing this team in observer mode.",
     "selectDate": "Select a date",
     "moodRecorded": "Mood recorded for this day",
     "teamTrend": "Team Trend",

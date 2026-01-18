@@ -185,14 +185,14 @@ if (!string.IsNullOrEmpty(discordClientId) && !string.IsNullOrEmpty(discordClien
                 uri = Regex.Replace(uri, @"&prompt=[^&]*", "", RegexOptions.IgnoreCase);
                 uri = Regex.Replace(uri, @"\?prompt=[^&]*&", "?", RegexOptions.IgnoreCase);
                 uri = Regex.Replace(uri, @"\?prompt=[^&]*$", "", RegexOptions.IgnoreCase);
-                
+
                 // Append new prompt
                 var separator = uri.Contains("?") ? "&" : "?";
                 uri += $"{separator}prompt={Uri.EscapeDataString(prompt)}";
-                
+
                 context.RedirectUri = uri;
             }
-            
+
             context.Response.Redirect(context.RedirectUri);
             return Task.CompletedTask;
         };

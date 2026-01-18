@@ -189,7 +189,7 @@ namespace NikoNiko.Api.Controllers
                 var invitation = await _context.TeamInvitations
                     .IgnoreQueryFilters()
                     .FirstOrDefaultAsync(i => i.Id == invitationId);
-                    
+
                 if (invitation != null && invitation.TeamId != teamId)
                 {
                     return BadRequest("Invitation does not belong to the specified team.");

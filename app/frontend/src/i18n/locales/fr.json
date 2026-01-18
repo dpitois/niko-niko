@@ -52,6 +52,7 @@
     "teamUpdateFailed": "Échec de la mise à jour du nom de l'équipe.",
     "viewFullBoard": "Voir le tableau complet",
     "howAreYouToday": "Comment allez-vous ?",
+    "observerMode": "Vous visualisez cette équipe en mode observateur.",
     "selectDate": "Sélectionner une date",
     "moodRecorded": "Humeur enregistrée pour ce jour",
     "teamTrend": "Tendance de l'équipe",

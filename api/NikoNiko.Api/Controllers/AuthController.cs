@@ -400,8 +400,8 @@ public class AuthController : ControllerBase
             // For now, let's just update it if we have one from provider.
             if (!string.IsNullOrEmpty(email) && user.Email != email)
             {
-                 user.Email = email;
-                 isUpdated = true;
+                user.Email = email;
+                isUpdated = true;
             }
 
             // Sync Provider if missing

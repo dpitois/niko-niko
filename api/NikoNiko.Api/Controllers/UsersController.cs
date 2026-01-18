@@ -149,7 +149,7 @@ public class UsersController : ControllerBase
                 {
                     return Conflict($"Cannot delete user because they are the admin of team '{team.Name}' which has other members. Please transfer ownership or remove members first.");
                 }
-                
+
                 // If no other members, we can safely delete the team
                 _context.Teams.Remove(team);
             }

@@ -147,6 +147,19 @@ public class MoodEntriesController : ControllerBase
             return BadRequest("Sprint not found.");
         }
 
+        var teamId = sprint.TeamId;
+        // Check strict membership (TeamUser or Team Admin)
+        var isMember = await _context.TeamUsers
+            .AnyAsync(tu => tu.TeamId == teamId && tu.UserId == authenticatedUserId);
+
+        var isTeamAdmin = await _context.Teams
+            .AnyAsync(t => t.Id == teamId && t.AdminId == authenticatedUserId);
+
+        if (!isMember && !isTeamAdmin)
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, "You must be a member of the team to submit a mood entry.");
+        }
+
         var entryDate = createMoodEntryDto.Date?.ToUniversalTime().Date ?? DateTime.UtcNow.Date;
 
         // Calculate the user's local date based on the provided timezone offset.

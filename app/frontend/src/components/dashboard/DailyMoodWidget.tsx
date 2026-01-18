@@ -26,20 +26,24 @@ import type { MoodType } from '@/models/MoodType';
 import { MoodValues } from '@/models/MoodType';
 
 interface DailyMoodWidgetProps {
+  teamId: string;
   sprintId: string;
   sprintStartDate: string;
   sprintEndDate: string;
 }
 
 const DailyMoodWidget: React.FC<DailyMoodWidgetProps> = ({
+  teamId,
   sprintId,
   sprintStartDate,
   sprintEndDate,
 }) => {
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { user, userTeamRoles } = useAuth();
   const { enqueueSnackbar } = useSnackbar();
   const theme = useTheme();
+
+  const canPost = userTeamRoles[teamId]?.isMember || userTeamRoles[teamId]?.isAdmin;
   
   const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
 
@@ -109,10 +113,25 @@ const DailyMoodWidget: React.FC<DailyMoodWidgetProps> = ({
           spacing={3}
           justifyContent="center"
           alignItems="center"
-          sx={{ mt: 4, mb: 2 }}
+          sx={{ mt: 4, mb: 2, minHeight: 110 }}
         >
           {isLoading ? (
             <CircularProgress size={40} />
+          ) : !canPost ? (
+            <Box
+              sx={{
+                p: 2,
+                borderRadius: 2,
+                bgcolor: alpha(theme.palette.info.main, 0.1),
+                border: `1px dashed ${theme.palette.info.main}`,
+                width: '100%',
+                textAlign: 'center',
+              }}
+            >
+              <Typography variant="body2" color="info.main">
+                {t('dashboard.observerMode', 'Vous visualisez cette équipe en mode observateur.')}
+              </Typography>
+            </Box>
           ) : (
             moodButtons.map((button) => {
               const isSelected = currentMoodValue === button.type;
@@ -147,7 +166,7 @@ const DailyMoodWidget: React.FC<DailyMoodWidgetProps> = ({
           )}
         </Stack>
 
-        {currentMoodValue !== undefined && (
+        {canPost && currentMoodValue !== undefined && (
           <Typography variant="body2" color="text.secondary" align="center" sx={{ mt: 1 }}>
             {t('dashboard.moodRecorded', 'Humeur enregistrée pour ce jour')}
           </Typography>

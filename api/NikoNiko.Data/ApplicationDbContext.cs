@@ -17,6 +17,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<MoodEntry> MoodEntries { get; set; }
     public DbSet<Badge> Badges { get; set; }
     public DbSet<TeamInvitation> TeamInvitations { get; set; }
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

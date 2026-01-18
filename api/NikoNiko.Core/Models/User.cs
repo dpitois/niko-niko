@@ -60,4 +60,10 @@ public class User
     /// Navigation property for the badges earned by the user.
     /// </summary>
     public List<Badge> Badges { get; set; } = new();
+
+    /// <summary>
+    /// Navigation property for the refresh tokens associated with the user.
+    /// </summary>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public List<RefreshToken> RefreshTokens { get; set; } = new();
 }

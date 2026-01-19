@@ -197,7 +197,7 @@ public class MoodEntriesController : ControllerBase
             _context.MoodEntries.Update(existingEntry);
             await _context.SaveChangesAsync();
 
-            await _notificationService.SendMoodNotificationAsync(userEmail, notificationMessage, createMoodEntryDto.UserId.ToString());
+            await _notificationService.SendMoodNotificationAsync(userEmail, notificationMessage, createMoodEntryDto.UserId.ToString(), teamId);
 
             var updatedEntryDto = new MoodEntryDto
             {
@@ -222,7 +222,7 @@ public class MoodEntriesController : ControllerBase
             _context.MoodEntries.Add(moodEntry);
             await _context.SaveChangesAsync();
 
-            await _notificationService.SendMoodNotificationAsync(userEmail, notificationMessage, createMoodEntryDto.UserId.ToString());
+            await _notificationService.SendMoodNotificationAsync(userEmail, notificationMessage, createMoodEntryDto.UserId.ToString(), teamId);
 
             var moodEntryDto = new MoodEntryDto
             {

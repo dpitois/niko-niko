@@ -24,6 +24,16 @@ namespace NikoNiko.Notifications.Hubs
             if (userId != null) // Add null check for userId
             {
                 _userConnectionManager.AddConnection(userId, Context.ConnectionId);
+
+                // Join groups for each team the user belongs to
+                var teamIdClaims = Context.User?.FindAll("team_id");
+                if (teamIdClaims != null)
+                {
+                    foreach (var claim in teamIdClaims)
+                    {
+                        await Groups.AddToGroupAsync(Context.ConnectionId, claim.Value);
+                    }
+                }
             }
             await base.OnConnectedAsync();
         }

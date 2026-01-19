@@ -414,12 +414,18 @@ public class AuthController : ControllerBase
         }
 
         // Prioritize lookup by OAuthId as email might be null or change
-        var user = await _context.Users.Include(u => u.RefreshTokens).FirstOrDefaultAsync(u => u.OAuthId == oauthId);
+        var user = await _context.Users
+            .Include(u => u.RefreshTokens)
+            .Include(u => u.TeamUsers)
+            .FirstOrDefaultAsync(u => u.OAuthId == oauthId);
 
         // Fallback for legacy users: try finding by Email if OAuthId didn't match (migration path)
         if (user == null && !string.IsNullOrEmpty(email))
         {
-            user = await _context.Users.Include(u => u.RefreshTokens).FirstOrDefaultAsync(u => u.Email == email);
+            user = await _context.Users
+                .Include(u => u.RefreshTokens)
+                .Include(u => u.TeamUsers)
+                .FirstOrDefaultAsync(u => u.Email == email);
             // If found by email but OAuthId was different/missing, update OAuthId? 
             // For safety in this refactor, we assume if OAuthId search failed, it's a new user OR a legacy user who hasn't logged in with this provider before.
             // But if we find by email, we should probably link them.

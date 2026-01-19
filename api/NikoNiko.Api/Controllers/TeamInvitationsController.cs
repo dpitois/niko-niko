@@ -19,11 +19,13 @@ namespace NikoNiko.Api.Controllers
     {
         private readonly ITeamInvitationService _teamInvitationService;
         private readonly ApplicationDbContext _context;
+        private readonly INotificationService _notificationService;
 
-        public TeamInvitationsController(ITeamInvitationService teamInvitationService, ApplicationDbContext context)
+        public TeamInvitationsController(ITeamInvitationService teamInvitationService, ApplicationDbContext context, INotificationService notificationService)
         {
             _teamInvitationService = teamInvitationService;
             _context = context;
+            _notificationService = notificationService;
         }
 
         /// <summary>
@@ -95,6 +97,7 @@ namespace NikoNiko.Api.Controllers
             try
             {
                 var acceptedInvitation = await _teamInvitationService.AcceptTeamInvitationAsync(token, userId);
+                await _notificationService.UpdateUserGroupAsync(userId.ToString(), acceptedInvitation.TeamId, true);
                 return Ok(acceptedInvitation);
             }
             catch (KeyNotFoundException ex)

@@ -367,6 +367,9 @@ public class TeamsController : ControllerBase
 
         await _context.SaveChangesAsync();
 
+        // Remove from SignalR Group
+        await _notificationService.UpdateUserGroupAsync(userId.ToString(), teamId, false);
+
         // 3. Check if user is now an orphan (no teams left)
         var remainingTeamsCount = await _context.TeamUsers.CountAsync(tu => tu.UserId == userId);
         if (remainingTeamsCount == 0)

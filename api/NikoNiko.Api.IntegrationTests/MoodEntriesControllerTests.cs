@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.TestHost;
+using Moq;
 
 using NikoNiko.Core.DTOs.Mood;
 using NikoNiko.Core.DTOs.Sprint;
@@ -16,6 +18,7 @@ using NikoNiko.Core.DTOs.Team;
 using NikoNiko.Core.DTOs.User;
 using NikoNiko.Core.Models;
 using NikoNiko.Data;
+using NikoNiko.Services;
 
 using Xunit;
 
@@ -23,6 +26,57 @@ namespace NikoNiko.Api.IntegrationTests;
 
 public class MoodEntriesControllerTests
 {
+    [Fact]
+    public async Task CreateMoodEntry_SendsNotificationWithCorrectTeamId()
+    {
+        // Arrange
+        var mockNotificationService = new Mock<INotificationService>();
+        await using var application = new NikoNikoApiTestApplication();
+        var client = application.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureTestServices(services =>
+            {
+                services.AddScoped(_ => mockNotificationService.Object);
+            });
+        }).CreateClient();
+
+        var (user, userClient, token) = await application.CreateUserAndClient("Notified User");
+        client.DefaultRequestHeaders.Authorization = userClient.DefaultRequestHeaders.Authorization;
+
+        var team = await application.CreateTeam("Test Team", user.Id);
+        var createSprintDto = new CreateSprintDto
+        {
+            Name = "Test Sprint",
+            TeamId = team.Id,
+            StartDate = DateTime.UtcNow.Date,
+            EndDate = DateTime.UtcNow.AddDays(15)
+        };
+        var sprintResponse = await client.PostAsJsonAsync("/api/sprints", createSprintDto);
+        sprintResponse.EnsureSuccessStatusCode();
+        var sprint = await sprintResponse.Content.ReadFromJsonAsync<SprintDto>();
+        Assert.NotNull(sprint);
+
+        var createMoodEntryDto = new CreateMoodEntryDto
+        {
+            SprintId = sprint.Id,
+            Date = DateTime.UtcNow.Date,
+            Mood = MoodType.Happy,
+            UserId = user.Id
+        };
+
+        // Act
+        var response = await client.PostAsJsonAsync("/api/moodentries", createMoodEntryDto);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        mockNotificationService.Verify(n => n.SendMoodNotificationAsync(
+            It.Is<string>(s => s == user.Email),
+            It.IsAny<string>(),
+            It.Is<string>(s => s == user.Id.ToString()),
+            It.Is<Guid>(g => g == team.Id)
+        ), Times.Once);
+    }
+
     [Fact]
     public async Task GetMoodEntries_AsTeamMember_ReturnsOk()
     {

@@ -81,4 +81,37 @@ public class TokenServiceTests
         Assert.Equal(user.Name, jwtToken.Claims.First(c => c.Type == JwtRegisteredClaimNames.Name).Value);
         Assert.Equal(user.AvatarUrl, jwtToken.Claims.First(c => c.Type == "avatar_url").Value);
     }
+
+    [Fact]
+    public void CreateToken_ShouldIncludeTeamIdClaims_WhenUserHasTeams()
+    {
+        // Arrange
+        var teamId1 = Guid.NewGuid();
+        var teamId2 = Guid.NewGuid();
+        var user = new User
+        {
+            Id = Guid.NewGuid(),
+            OAuthId = "github-789",
+            Email = "test@example.com",
+            Name = "Team User",
+            TeamUsers = new List<TeamUser>
+            {
+                new TeamUser { TeamId = teamId1 },
+                new TeamUser { TeamId = teamId2 }
+            }
+        };
+
+        // Act
+        var token = _tokenService.CreateToken(user);
+
+        // Assert
+        Assert.NotNull(token);
+        var handler = new JwtSecurityTokenHandler();
+        var jwtToken = handler.ReadJwtToken(token);
+
+        var teamIdClaims = jwtToken.Claims.Where(c => c.Type == "team_id").Select(c => c.Value).ToList();
+        Assert.Equal(2, teamIdClaims.Count);
+        Assert.Contains(teamId1.ToString(), teamIdClaims);
+        Assert.Contains(teamId2.ToString(), teamIdClaims);
+    }
 }

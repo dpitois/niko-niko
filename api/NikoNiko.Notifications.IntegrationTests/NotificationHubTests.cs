@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -101,15 +102,107 @@ namespace NikoNiko.Notifications.IntegrationTests
             await receiverConnection.StopAsync();
         }
 
-        // Helper method to generate a JWT token for testing
-        private string GenerateTestJwtToken(string userId, IConfiguration config)
+        [Fact]
+        public async Task Connect_WithTeamClaims_ShouldSucceed()
         {
-            var claims = new[]
+            // Arrange
+            var userId = "teamUser";
+            var teamId1 = Guid.NewGuid().ToString();
+            var teamId2 = Guid.NewGuid().ToString();
+            var teamIds = new List<string> { teamId1, teamId2 };
+
+            var token = GenerateTestJwtToken(userId, _factory.Services.GetRequiredService<IConfiguration>(), teamIds);
+
+            var connection = new HubConnectionBuilder()
+                .WithUrl(new Uri(_factory.Server.BaseAddress, "notificationHub"), options =>
+                {
+                    options.HttpMessageHandlerFactory = _ => _factory.Server.CreateHandler();
+                    options.AccessTokenProvider = () => Task.FromResult<string?>(token);
+                })
+                .Build();
+
+            // Act & Assert
+            try
+            {
+                await connection.StartAsync();
+                Assert.Equal(HubConnectionState.Connected, connection.State);
+            }
+            finally
+            {
+                await connection.StopAsync();
+            }
+        }
+
+        [Fact]
+        public async Task ManageGroups_ShouldAddUserToGroup_AndAllowTargetedNotifications()
+        {
+            // Arrange
+            var userId = "dynamicUser";
+            var teamId = Guid.NewGuid();
+            var token = GenerateTestJwtToken(userId, _factory.Services.GetRequiredService<IConfiguration>());
+
+            var tcs = new TaskCompletionSource<string>();
+            var connection = new HubConnectionBuilder()
+                .WithUrl(new Uri(_factory.Server.BaseAddress, "notificationHub"), options =>
+                {
+                    options.HttpMessageHandlerFactory = _ => _factory.Server.CreateHandler();
+                    options.AccessTokenProvider = () => Task.FromResult<string?>(token);
+                })
+                .Build();
+
+            connection.On<string, string>("ReceiveNotification", (user, message) =>
+            {
+                tcs.SetResult(message);
+            });
+
+            await connection.StartAsync();
+
+            // Act 1: Add user to group via API
+            var httpClient = _factory.CreateClient();
+            var managePayload = new
+            {
+                UserId = userId,
+                TeamId = teamId,
+                Action = "Add"
+            };
+            var manageContent = new StringContent(System.Text.Json.JsonSerializer.Serialize(managePayload), Encoding.UTF8, "application/json");
+            var manageResponse = await httpClient.PostAsync("/api/Notifications/manage-groups", manageContent);
+            manageResponse.EnsureSuccessStatusCode();
+
+            // Act 2: Send message to the group directly via HubContext (simulating what Dispatch will do in Step 4)
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<NikoNiko.Notifications.Hubs.NotificationHub>>();
+                await hubContext.Clients.Group(teamId.ToString()).SendAsync("ReceiveNotification", "System", "Group Message");
+            }
+
+            // Assert
+            var resultTask = tcs.Task;
+            var completedTask = await Task.WhenAny(resultTask, Task.Delay(TimeSpan.FromSeconds(5)));
+
+            Assert.True(resultTask.IsCompletedSuccessfully, "User should have received the group notification.");
+            Assert.Equal("Group Message", resultTask.Result);
+
+            await connection.StopAsync();
+        }
+
+        // Helper method to generate a JWT token for testing
+        private string GenerateTestJwtToken(string userId, IConfiguration config, List<string>? teamIds = null)
+        {
+            var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, userId),
                 new Claim(ClaimTypes.Name, userId),
                 new Claim(ClaimTypes.Email, $"{userId}@example.com")
             };
+
+            if (teamIds != null)
+            {
+                foreach (var teamId in teamIds)
+                {
+                    claims.Add(new Claim("team_id", teamId));
+                }
+            }
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Authentication:Jwt:Key"]!));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);

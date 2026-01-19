@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 using NikoNiko.Core.DTOs.User;
 using NikoNiko.Data;
+using NikoNiko.Services;
 
 namespace NikoNiko.Api.Controllers;
 
@@ -18,10 +19,50 @@ namespace NikoNiko.Api.Controllers;
 public class UsersController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
+    private readonly ITokenService _tokenService;
 
-    public UsersController(ApplicationDbContext context)
+    public UsersController(ApplicationDbContext context, ITokenService tokenService)
     {
         _context = context;
+        _tokenService = tokenService;
+    }
+
+    /// <summary>
+    /// Updates the user's onboarding status (consent).
+    /// Returns a new JWT token reflecting the updated status.
+    /// </summary>
+    /// <param name="consentDto">The consent details.</param>
+    /// <returns>An object containing the new JWT token.</returns>
+    [HttpPost("consent")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<object>> SubmitConsent(UserConsentDto consentDto)
+    {
+        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!Guid.TryParse(userIdString, out var userId))
+        {
+            return Unauthorized();
+        }
+
+        var user = await _context.Users
+            .Include(u => u.TeamUsers)
+            .FirstOrDefaultAsync(u => u.Id == userId);
+
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        user.IsOnboarded = true;
+        user.ConsentAt = DateTime.UtcNow;
+        user.ConsentVersion = consentDto.ConsentVersion;
+
+        await _context.SaveChangesAsync();
+
+        var newToken = _tokenService.CreateToken(user);
+
+        return Ok(new { token = newToken });
     }
 
     /// <summary>

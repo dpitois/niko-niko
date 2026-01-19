@@ -47,6 +47,8 @@ public class TokenService : ITokenService
             claims.Add(new Claim("is_super_admin", "true"));
         }
 
+        claims.Add(new Claim("is_onboarded", user.IsOnboarded ? "true" : "false"));
+
         if (user.TeamUsers != null)
         {
             foreach (var teamUser in user.TeamUsers)

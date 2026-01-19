@@ -2,14 +2,15 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { jwtDecode } from 'jwt-decode';
 
-import api, { setLogoutHandler } from '@/services/api';
 import type { DecodedToken, TeamRole } from '@/models/Auth';
 import type { TeamWithSprintsDto } from '@/models/Team/TeamWithSprintsDto';
 import type { User } from '@/models/User';
+import api, { setLogoutHandler } from '@/services/api';
 
 interface AuthContextType {
   user: DecodedToken | null;
   isSuperAdmin: boolean;
+  isOnboarded: boolean;
   userTeamRoles: { [teamId: string]: TeamRole }; // Map of teamId to roles
   login: (token: string) => void;
   logout: () => void;
@@ -21,6 +22,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<DecodedToken | null>(null);
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  const [isOnboarded, setIsOnboarded] = useState(false);
   const [userTeamRoles, setUserTeamRoles] = useState<{ [teamId: string]: TeamRole }>({});
   const [isLoading, setIsLoading] = useState(true);
 
@@ -50,12 +52,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const decoded = jwtDecode<DecodedToken>(token);
         setUser(decoded);
         setIsSuperAdmin(decoded.is_super_admin === 'true');
+        setIsOnboarded(decoded.is_onboarded === 'true');
         await fetchUserTeamRoles(decoded.sub);
       } catch (error) {
         console.error('Invalid token during login:', error);
         localStorage.removeItem('jwt_token');
         setUser(null);
         setIsSuperAdmin(false);
+        setIsOnboarded(false);
         setUserTeamRoles({});
       } finally {
         setIsLoading(false);
@@ -73,6 +77,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem('jwt_token');
     setUser(null);
     setIsSuperAdmin(false);
+    setIsOnboarded(false);
     setUserTeamRoles({}); // Clear roles on logout
   }, []);
 
@@ -86,12 +91,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const decoded = jwtDecode<DecodedToken>(token);
           setUser(decoded);
           setIsSuperAdmin(decoded.is_super_admin === 'true');
+          setIsOnboarded(decoded.is_onboarded === 'true');
           await fetchUserTeamRoles(decoded.sub); // Wait for roles to be fetched
         } catch (error) {
           console.error('Invalid token during useEffect init:', error);
           localStorage.removeItem('jwt_token');
           setUser(null);
           setIsSuperAdmin(false);
+          setIsOnboarded(false);
           setUserTeamRoles({});
         }
       }
@@ -99,10 +106,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     loadAuthData();
-  }, [fetchUserTeamRoles]);
+  }, [fetchUserTeamRoles, logout]);
 
   return (
-    <AuthContext.Provider value={{ user, isSuperAdmin, userTeamRoles, login, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, isSuperAdmin, isOnboarded, userTeamRoles, login, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

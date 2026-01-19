@@ -26,6 +26,7 @@ import AuthCallbackPage from '@/pages/AuthCallbackPage';
 import CurrentSprintsPage from '@/pages/CurrentSprintsPage';
 import DashboardPage from '@/pages/DashboardPage';
 import LoginPage from '@/pages/LoginPage';
+import OnboardingPage from '@/pages/OnboardingPage';
 import PastSprintsPage from '@/pages/PastSprintsPage';
 import SprintDetailsPage from '@/pages/SprintDetailsPage';
 
@@ -34,9 +35,11 @@ import 'dayjs/locale/fr';
 import 'dayjs/locale/en';
 
 const ProtectedLayout = () => (
-  <AppLayout>
-    <Outlet />
-  </AppLayout>
+  <ProtectedRoute>
+    <AppLayout>
+      <Outlet />
+    </AppLayout>
+  </ProtectedRoute>
 );
 
 function App() {
@@ -71,44 +74,24 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/auth/callback" element={<AuthCallbackPage />} />
             <Route path="/accept-invitation/:token" element={<AcceptInvitationPage />} />
+            <Route
+              path="/onboarding"
+              element={
+                <ProtectedRoute skipOnboardingCheck={true}>
+                  <OnboardingPage />
+                </ProtectedRoute>
+              }
+            />
 
             {/* Protected routes within the layout */}
             <Route element={<ProtectedLayout />}>
               <Route path="/" element={<Navigate to="/my-teams" />} />
 
               {/* User Dashboard */}
-              <Route
-                path="/my-teams"
-                element={
-                  <ProtectedRoute>
-                    <DashboardPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/teams/:teamId/sprints/:sprintId"
-                element={
-                  <ProtectedRoute>
-                    <SprintDetailsPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/current-sprints"
-                element={
-                  <ProtectedRoute>
-                    <CurrentSprintsPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/past-sprints"
-                element={
-                  <ProtectedRoute>
-                    <PastSprintsPage />
-                  </ProtectedRoute>
-                }
-              />
+              <Route path="/my-teams" element={<DashboardPage />} />
+              <Route path="/teams/:teamId/sprints/:sprintId" element={<SprintDetailsPage />} />
+              <Route path="/current-sprints" element={<CurrentSprintsPage />} />
+              <Route path="/past-sprints" element={<PastSprintsPage />} />
 
               {/* Admin Dashboard */}
               <Route
@@ -144,6 +127,9 @@ function App() {
                 }
               />
             </Route>
+
+            {/* Catch-all route: redirect unknown paths to home */}
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </SnackbarProvider>
       </LocalizationProvider>

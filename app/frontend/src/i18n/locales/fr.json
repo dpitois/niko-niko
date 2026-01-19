@@ -40,6 +40,18 @@
     "signInMicrosoft": "Se connecter avec Microsoft",
     "authenticationFailed": "Échec de l'authentification. Veuillez réessayer."
   },
+  "onboarding": {
+    "title": "Bienvenue sur Niko Niko",
+    "description": "Avant de commencer, veuillez consulter et accepter nos conditions pour continuer à utiliser l'application.",
+    "termsTitle": "Conditions d'utilisation et politique de confidentialité",
+    "termsText": "En utilisant Niko Niko, vous acceptez la collecte et le traitement de vos données d'humeur dans le but de suivre le moral de l'équipe. Vos données sont visibles par les membres de votre équipe et les administrateurs. Vous pouvez exporter ou supprimer vos données à tout moment depuis les paramètres de votre profil.",
+    "termsLink": "Lire les conditions d'utilisation",
+    "privacyLink": "Lire la politique de confidentialité",
+    "agreeLabel": "J'ai lu et j'accepte les conditions d'utilisation et la politique de confidentialité.",
+    "submitButton": "Accepter et continuer",
+    "success": "Bienvenue à bord ! Vous avez accepté les conditions avec succès.",
+    "error": "Échec de l'envoi du consentement. Veuillez réessayer."
+  },
   "dashboard": {
     "title": "Accueil",
     "failedLoadTeams": "Échec du chargement des équipes. Assurez-vous d'être connecté.",

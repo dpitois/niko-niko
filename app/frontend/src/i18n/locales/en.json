@@ -40,6 +40,18 @@
     "signInMicrosoft": "Sign in with Microsoft",
     "authenticationFailed": "Authentication failed. Please try again."
   },
+  "onboarding": {
+    "title": "Welcome to Niko Niko",
+    "description": "Before getting started, please review and accept our policies to continue using the application.",
+    "termsTitle": "Terms of Service & Privacy Policy",
+    "termsText": "By using Niko Niko, you agree to the collection and processing of your mood data for the purpose of team morale tracking. Your data is visible to your team members and administrators. You can export or delete your data at any time from your profile settings.",
+    "termsLink": "Read Terms of Service",
+    "privacyLink": "Read Privacy Policy",
+    "agreeLabel": "I have read and agree to the Terms of Service and Privacy Policy.",
+    "submitButton": "Accept and Continue",
+    "success": "Welcome aboard! You have successfully accepted the terms.",
+    "error": "Failed to submit consent. Please try again."
+  },
   "dashboard": {
     "title": "Home",
     "failedLoadTeams": "Failed to load teams. Make sure you are logged in.",

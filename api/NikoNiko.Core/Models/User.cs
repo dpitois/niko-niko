@@ -47,6 +47,21 @@ public class User
     public bool IsSuperAdmin { get; set; } = false;
 
     /// <summary>
+    /// Indicates whether the user has completed the onboarding process (accepted terms).
+    /// </summary>
+    public bool IsOnboarded { get; set; } = false;
+
+    /// <summary>
+    /// The date and time when the user accepted the terms.
+    /// </summary>
+    public DateTime? ConsentAt { get; set; }
+
+    /// <summary>
+    /// The version of the terms accepted by the user.
+    /// </summary>
+    public string? ConsentVersion { get; set; }
+
+    /// <summary>
     /// The date and time when the user account was created.
     /// </summary>
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

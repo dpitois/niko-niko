@@ -80,6 +80,7 @@ public class TokenServiceTests
         Assert.Equal(user.Email, jwtToken.Claims.First(c => c.Type == JwtRegisteredClaimNames.Email).Value);
         Assert.Equal(user.Name, jwtToken.Claims.First(c => c.Type == JwtRegisteredClaimNames.Name).Value);
         Assert.Equal(user.AvatarUrl, jwtToken.Claims.First(c => c.Type == "avatar_url").Value);
+        Assert.Equal("false", jwtToken.Claims.First(c => c.Type == "is_onboarded").Value);
     }
 
     [Fact]

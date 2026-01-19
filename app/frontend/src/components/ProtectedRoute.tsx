@@ -10,6 +10,7 @@ interface ProtectedRouteProps {
   requiredSuperAdmin?: boolean; // Replaces adminOnly
   requiredTeamAdminOf?: string; // Requires the user to be admin of this teamId
   requiredTeamMemberOf?: string; // Requires the user to be a member of this teamId
+  skipOnboardingCheck?: boolean; // New prop to skip onboarding check
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
@@ -17,8 +18,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   requiredSuperAdmin = false,
   requiredTeamAdminOf,
   requiredTeamMemberOf,
+  skipOnboardingCheck = false,
 }) => {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, isOnboarded } = useAuth();
   const { isSuperAdmin, isTeamAdmin, isTeamMember } = usePermissions();
 
   if (isLoading) {
@@ -33,6 +35,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   if (!user) {
     return <Navigate to="/login" replace />;
+  }
+
+  // Check Onboarding requirement
+  if (!isOnboarded && !skipOnboardingCheck) {
+    return <Navigate to="/onboarding" replace />;
   }
 
   // Check Super Admin requirement

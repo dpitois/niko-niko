@@ -5,4 +5,5 @@ export interface User {
   avatarUrl?: string;
   provider?: string;
   createdAt?: string; // ISO string
+  isOnboarded?: boolean;
 }

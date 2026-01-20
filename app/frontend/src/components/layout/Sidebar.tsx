@@ -1,6 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { NavLink, useNavigate } from 'react-router-dom';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import BugReportIcon from '@mui/icons-material/BugReport';
@@ -398,6 +399,12 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose, handleDrawer
               },
             }}
           >
+            <MenuItem onClick={() => navigate('/profile')}>
+              <ListItemIcon>
+                <AccountCircleIcon fontSize="small" />
+              </ListItemIcon>
+              {t('sidebar.profile')}
+            </MenuItem>
             {repoUrl && (
               <MenuItem component="a" href={repoUrl} target="_blank" rel="noopener noreferrer">
                 <ListItemIcon>

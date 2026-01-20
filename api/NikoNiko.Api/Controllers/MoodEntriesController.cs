@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
+using NikoNiko.Core.DTOs;
 using NikoNiko.Core.DTOs.Mood;
 using NikoNiko.Core.Models;
 using NikoNiko.Data;
@@ -81,6 +82,57 @@ public class MoodEntriesController : ControllerBase
             .ToListAsync();
 
         return Ok(moodEntries);
+    }
+
+    /// <summary>
+    /// Gets the current user's mood history with pagination.
+    /// </summary>
+    /// <param name="page">The page number (1-based).</param>
+    /// <param name="pageSize">The number of items per page.</param>
+    /// <returns>A paged result of MoodEntryDto objects.</returns>
+    [HttpGet("me")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<ActionResult<PagedResult<MoodEntryDto>>> GetMyMoodEntries([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+    {
+        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!Guid.TryParse(userIdString, out var userId))
+        {
+            return Unauthorized("User ID not found or invalid.");
+        }
+
+        if (page < 1) page = 1;
+        if (pageSize < 1) pageSize = 20;
+        if (pageSize > 100) pageSize = 100; // Cap page size
+
+        var query = _context.MoodEntries
+            .Where(me => me.UserId == userId);
+
+        var totalCount = await query.CountAsync();
+
+        var moodEntries = await query
+            .OrderByDescending(me => me.Date)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(me => new MoodEntryDto
+            {
+                Id = me.Id,
+                UserId = me.UserId,
+                SprintId = me.SprintId,
+                Date = me.Date.ToUniversalTime(),
+                Mood = me.Mood
+            })
+            .ToListAsync();
+
+        var result = new PagedResult<MoodEntryDto>
+        {
+            Items = moodEntries,
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize
+        };
+
+        return Ok(result);
     }
 
     /// <summary>

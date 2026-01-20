@@ -28,6 +28,7 @@
     "teams": "Équipes",
     "users": "Utilisateurs",
     "sprints": "Sprints",
+    "profile": "Mon Profil",
     "login": "Connexion",
     "reportBug": "Signaler un bug",
     "mode": "Mode {{mode}}"
@@ -186,6 +187,31 @@
       "errorFill": "Veuillez remplir tous les champs et sélectionner une équipe.",
       "errorDate": "La date de fin doit être postérieure à la date de début.",
       "errorFail": "Échec de la création du sprint. Veuillez réessayer."
+    }
+  },
+  "profile": {
+    "title": "Mon Profil",
+    "tabs": {
+      "general": "Général & Confidentialité",
+      "moodHistory": "Historique d'Humeur"
+    },
+    "general": {
+      "accountInfo": "Informations du Compte",
+      "privacyZone": "Confidentialité & Données",
+      "exportData": "Exporter mes données",
+      "exportTooltip": "Fonctionnalité à venir",
+      "deleteAccount": "Supprimer mon compte",
+      "deleteWarning": "Zone de danger : Cette action est irréversible."
+    },
+    "deleteDialog": {
+      "title": "Supprimer votre compte ?",
+      "content": "Êtes-vous sûr de vouloir supprimer votre compte ? Toutes vos données personnelles seront définitivement supprimées. Si vous êtes le seul administrateur d'une équipe avec d'autres membres, vous devez d'abord transférer la propriété.",
+      "confirm": "Oui, supprimer mon compte",
+      "success": "Compte supprimé avec succès.",
+      "error": "Échec de la suppression du compte."
+    },
+    "history": {
+      "noData": "Aucun historique d'humeur trouvé."
     }
   }
 }

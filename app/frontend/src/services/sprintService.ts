@@ -1,5 +1,6 @@
 import type { CreateSprint } from '@/models/CreateSprint';
 import type { Sprint } from '@/models/Sprint';
+import type { UpdateSprint } from '@/models/UpdateSprint';
 
 import api from './api';
 
@@ -17,6 +18,10 @@ export const getSprintById = async (sprintId: string): Promise<Sprint> => {
 export const createSprint = async (sprint: CreateSprint): Promise<Sprint> => {
   const { data } = await api.post('/sprints', sprint);
   return data;
+};
+
+export const updateSprint = async (sprintId: string, sprint: UpdateSprint): Promise<void> => {
+  await api.put(`/sprints/${sprintId}`, sprint);
 };
 
 export const deleteSprint = async (sprintId: string): Promise<void> => {

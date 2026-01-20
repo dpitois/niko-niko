@@ -187,6 +187,11 @@
       "errorFill": "Please fill in all fields and select a team.",
       "errorDate": "End date must be after start date.",
       "errorFail": "Failed to create sprint. Please try again."
+    },
+    "editDialog": {
+      "title": "Edit Sprint",
+      "success": "Sprint updated successfully!",
+      "errorFail": "Failed to update sprint. Dates might be invalid compared to existing mood entries."
     }
   },
   "profile": {

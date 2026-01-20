@@ -20,11 +20,13 @@ public class UsersController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
     private readonly ITokenService _tokenService;
+    private readonly IUserService _userService;
 
-    public UsersController(ApplicationDbContext context, ITokenService tokenService)
+    public UsersController(ApplicationDbContext context, ITokenService tokenService, IUserService userService)
     {
         _context = context;
         _tokenService = tokenService;
+        _userService = userService;
     }
 
     /// <summary>
@@ -63,6 +65,33 @@ public class UsersController : ControllerBase
         var newToken = _tokenService.CreateToken(user);
 
         return Ok(new { token = newToken });
+    }
+
+    /// <summary>
+    /// Exports the current user's data (Profile, Teams, Mood History) in JSON format.
+    /// </summary>
+    /// <returns>A JSON file download.</returns>
+    [HttpGet("me/export")]
+    [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ExportData()
+    {
+        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!Guid.TryParse(userIdString, out var userId))
+        {
+            return Unauthorized();
+        }
+
+        var exportDto = await _userService.GetExportDataAsync(userId);
+        if (exportDto == null)
+        {
+            return NotFound();
+        }
+
+        var jsonBytes = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(exportDto, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+        var fileName = $"nikoniko-export-{DateTime.UtcNow:yyyyMMdd}.json";
+
+        return File(jsonBytes, "application/json", fileName);
     }
 
     /// <summary>

@@ -38,7 +38,7 @@ import useSWR from 'swr';
 import { useAuth } from '@/context/AuthContext';
 import { MoodValues } from '@/models/MoodType';
 import { getMyMoodHistory } from '@/services/moodService';
-import { deleteMe, getUser } from '@/services/userService';
+import { deleteMe, exportData, getUser } from '@/services/userService';
 
 import PageContainer from '@/components/layout/PageContainer';
 
@@ -78,6 +78,7 @@ const ProfilePage = () => {
   const navigate = useNavigate();
   const [value, setValue] = useState(0);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   // Pagination state
   const [page, setPage] = useState(0);
@@ -120,6 +121,26 @@ const ProfilePage = () => {
       const errorMessage = (error as any).response?.data || t('profile.deleteDialog.error');
       enqueueSnackbar(errorMessage, { variant: 'error' });
       setOpenDeleteDialog(false);
+    }
+  };
+
+  const handleExport = async () => {
+    setIsExporting(true);
+    try {
+      const blob = await exportData();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `nikoniko-export-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Export failed', error);
+      enqueueSnackbar(t('common.error'), { variant: 'error' });
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -232,12 +253,13 @@ const ProfilePage = () => {
                     <span>
                       <Button
                         variant="outlined"
-                        startIcon={<DownloadIcon />}
-                        disabled
+                        startIcon={isExporting ? <CircularProgress size={20} /> : <DownloadIcon />}
+                        disabled={isExporting}
+                        onClick={handleExport}
                         fullWidth
                         sx={{ justifyContent: 'flex-start' }}
                       >
-                        {t('profile.general.exportData')}
+                        {isExporting ? t('common.loading') : t('profile.general.exportData')}
                       </Button>
                     </span>
                   </Tooltip>

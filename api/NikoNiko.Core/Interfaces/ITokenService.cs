@@ -2,7 +2,7 @@ using System.Security.Claims; // Add this using directive
 
 using NikoNiko.Core.Models;
 
-namespace NikoNiko.Services;
+namespace NikoNiko.Core.Interfaces;
 
 public interface ITokenService
 {

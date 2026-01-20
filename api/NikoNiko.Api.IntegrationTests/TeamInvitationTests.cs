@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 using NikoNiko.Core.DTOs.Team.Invitation;
 using NikoNiko.Core.Models;
+using NikoNiko.Core.Interfaces;
 using NikoNiko.Data;
 using NikoNiko.Services;
 

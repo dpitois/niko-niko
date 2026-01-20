@@ -4,6 +4,7 @@ using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using NikoNiko.Core.DTOs.User.Export;
 using NikoNiko.Core.Models;
+using NikoNiko.Core.Interfaces;
 using NikoNiko.Data;
 using NikoNiko.Services;
 

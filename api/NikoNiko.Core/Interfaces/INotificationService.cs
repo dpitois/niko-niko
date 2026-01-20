@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace NikoNiko.Services
+namespace NikoNiko.Core.Interfaces
 {
     public interface INotificationService
     {

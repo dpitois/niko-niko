@@ -17,6 +17,7 @@ using NikoNiko.Core.DTOs.Sprint;
 using NikoNiko.Core.DTOs.Team;
 using NikoNiko.Core.DTOs.User;
 using NikoNiko.Core.Models;
+using NikoNiko.Core.Interfaces;
 using NikoNiko.Data;
 using NikoNiko.Services;
 

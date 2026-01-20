@@ -1,14 +1,9 @@
 using System.Security.Claims;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-
 using NikoNiko.Core.DTOs;
 using NikoNiko.Core.DTOs.Mood;
-using NikoNiko.Core.Models;
-using NikoNiko.Data;
-using NikoNiko.Services;
+using NikoNiko.Core.Interfaces;
 
 namespace NikoNiko.Api.Controllers;
 
@@ -20,20 +15,16 @@ namespace NikoNiko.Api.Controllers;
 [Route("api/[controller]")]
 public class MoodEntriesController : ControllerBase
 {
-    private readonly ApplicationDbContext _context;
-    private readonly INotificationService _notificationService;
+    private readonly IMoodService _moodService;
 
-    public MoodEntriesController(ApplicationDbContext context, INotificationService notificationService)
+    public MoodEntriesController(IMoodService moodService)
     {
-        _context = context;
-        _notificationService = notificationService;
+        _moodService = moodService;
     }
 
     /// <summary>
     /// Gets a list of mood entries.
-    /// Super-admins get all mood entries. Regular users get mood entries from sprints in teams they are a member of.
     /// </summary>
-    /// <returns>A list of MoodEntryDto objects.</returns>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -45,41 +36,13 @@ public class MoodEntriesController : ControllerBase
             return Unauthorized("User ID not found or invalid.");
         }
 
-        IQueryable<Core.Models.MoodEntry> query;
+        var isSuperAdmin = User.HasClaim("is_super_admin", "true");
+        var moodEntries = await _moodService.GetMoodEntriesAsync(userId, isSuperAdmin);
 
-        if (User.HasClaim("is_super_admin", "true"))
+        if (!isSuperAdmin && !moodEntries.Any())
         {
-            query = _context.MoodEntries;
+            return StatusCode(StatusCodes.Status403Forbidden, "You are not a member of any team with mood entries.");
         }
-        else
-        {
-            // Get sprints for teams the current user is in
-            var userSprintsIds = await _context.Sprints
-                .Where(s => s.Team.AdminId == userId || s.Team.TeamUsers.Any(tu => tu.UserId == userId))
-                .Select(s => s.Id)
-                .ToListAsync();
-
-            // If not a super admin and no sprints are found for the user, return Forbidden
-            if (!userSprintsIds.Any())
-            {
-                return StatusCode(StatusCodes.Status403Forbidden, "You are not a member of any team with mood entries.");
-            }
-
-            // Get mood entries for those sprints
-            query = _context.MoodEntries
-                .Where(me => userSprintsIds.Contains(me.SprintId));
-        }
-
-        var moodEntries = await query
-            .Select(me => new MoodEntryDto
-            {
-                Id = me.Id,
-                UserId = me.UserId,
-                SprintId = me.SprintId,
-                Date = me.Date.ToUniversalTime(),
-                Mood = me.Mood
-            })
-            .ToListAsync();
 
         return Ok(moodEntries);
     }
@@ -87,9 +50,6 @@ public class MoodEntriesController : ControllerBase
     /// <summary>
     /// Gets the current user's mood history with pagination.
     /// </summary>
-    /// <param name="page">The page number (1-based).</param>
-    /// <param name="pageSize">The number of items per page.</param>
-    /// <returns>A paged result of MoodEntryDto objects.</returns>
     [HttpGet("me")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -101,46 +61,13 @@ public class MoodEntriesController : ControllerBase
             return Unauthorized("User ID not found or invalid.");
         }
 
-        if (page < 1) page = 1;
-        if (pageSize < 1) pageSize = 20;
-        if (pageSize > 100) pageSize = 100; // Cap page size
-
-        var query = _context.MoodEntries
-            .Where(me => me.UserId == userId);
-
-        var totalCount = await query.CountAsync();
-
-        var moodEntries = await query
-            .OrderByDescending(me => me.Date)
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize)
-            .Select(me => new MoodEntryDto
-            {
-                Id = me.Id,
-                UserId = me.UserId,
-                SprintId = me.SprintId,
-                Date = me.Date.ToUniversalTime(),
-                Mood = me.Mood
-            })
-            .ToListAsync();
-
-        var result = new PagedResult<MoodEntryDto>
-        {
-            Items = moodEntries,
-            TotalCount = totalCount,
-            Page = page,
-            PageSize = pageSize
-        };
-
+        var result = await _moodService.GetMyMoodEntriesAsync(userId, page, pageSize);
         return Ok(result);
     }
 
     /// <summary>
     /// Gets a specific mood entry by its ID.
-    /// A user must be a member of the sprint's team, or a super-admin.
     /// </summary>
-    /// <param name="moodEntryId">The ID of the mood entry.</param>
-    /// <returns>The MoodEntryDto object, or NotFound if the mood entry does not exist.</returns>
     [HttpGet("{moodEntryId}")]
     [Authorize(Policy = "IsTeamMember")] // teamId will be resolved from sprintId
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -149,17 +76,7 @@ public class MoodEntriesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<MoodEntryDto>> GetMoodEntry(Guid moodEntryId)
     {
-        var moodEntry = await _context.MoodEntries
-            .Select(me => new MoodEntryDto
-            {
-                Id = me.Id,
-                UserId = me.UserId,
-                SprintId = me.SprintId,
-                Date = me.Date.ToUniversalTime(),
-                Mood = me.Mood
-            })
-            .FirstOrDefaultAsync(me => me.Id == moodEntryId);
-
+        var moodEntry = await _moodService.GetMoodEntryByIdAsync(moodEntryId);
         if (moodEntry == null)
         {
             return NotFound();
@@ -168,15 +85,12 @@ public class MoodEntriesController : ControllerBase
         return Ok(moodEntry);
     }
 
-
     /// <summary>
     /// Creates a new mood entry.
-    /// A user can only create a mood entry for themselves.
     /// </summary>
-    /// <param name="createMoodEntryDto">The data needed to create a mood entry.</param>
-    /// <returns>The MoodEntryDto of the created mood entry.</returns>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -188,115 +102,36 @@ public class MoodEntriesController : ControllerBase
             return Unauthorized("User ID not found or invalid.");
         }
 
-        if (createMoodEntryDto.UserId != authenticatedUserId)
+        try
         {
-            return StatusCode(403, "You can only create mood entries for yourself.");
-        }
-
-        var sprint = await _context.Sprints.FindAsync(createMoodEntryDto.SprintId);
-        if (sprint == null)
-        {
-            return BadRequest("Sprint not found.");
-        }
-
-        var teamId = sprint.TeamId;
-        // Check strict membership (TeamUser or Team Admin)
-        var isMember = await _context.TeamUsers
-            .AnyAsync(tu => tu.TeamId == teamId && tu.UserId == authenticatedUserId);
-
-        var isTeamAdmin = await _context.Teams
-            .AnyAsync(t => t.Id == teamId && t.AdminId == authenticatedUserId);
-
-        if (!isMember && !isTeamAdmin)
-        {
-            return StatusCode(StatusCodes.Status403Forbidden, "You must be a member of the team to submit a mood entry.");
-        }
-
-        var entryDate = createMoodEntryDto.Date?.ToUniversalTime().Date ?? DateTime.UtcNow.Date;
-
-        // Calculate the user's local date based on the provided timezone offset.
-        // We add the offset (in minutes) to UtcNow to get the user's local time.
-        // For example, Tokyo (UTC+9) has an offset of +540. UtcNow + 540 minutes = Local Time.
-        var userLocalNow = DateTime.UtcNow.AddMinutes(createMoodEntryDto.TimezoneOffset);
-
-        if (entryDate > userLocalNow.Date)
-        {
-            return BadRequest("Mood entry date cannot be in the future (relative to your local time).");
-        }
-
-        if (entryDate < sprint.StartDate.Date)
-        {
-            return BadRequest("Mood entry date cannot be before the sprint start date.");
-        }
-
-        if (entryDate > sprint.EndDate.Date)
-        {
-            return BadRequest("Mood entry date cannot be after the sprint end date.");
-        }
-
-        var existingEntry = await _context.MoodEntries.FirstOrDefaultAsync(me =>
-            me.UserId == createMoodEntryDto.UserId &&
-            me.SprintId == createMoodEntryDto.SprintId &&
-            me.Date.Date == entryDate);
-
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == createMoodEntryDto.UserId);
-        var userEmail = user?.Email ?? "Unknown User";
-        var notificationMessage = $"L'utilisateur {userEmail} vient de renseigner son humeur!";
-
-        if (existingEntry != null)
-        {
-            existingEntry.Mood = createMoodEntryDto.Mood;
-            _context.MoodEntries.Update(existingEntry);
-            await _context.SaveChangesAsync();
-
-            await _notificationService.SendMoodNotificationAsync(userEmail, notificationMessage, createMoodEntryDto.UserId.ToString(), teamId);
-
-            var updatedEntryDto = new MoodEntryDto
+            var (moodEntryDto, isCreated) = await _moodService.CreateOrUpdateMoodEntryAsync(createMoodEntryDto, authenticatedUserId);
+            
+            if (isCreated)
             {
-                Id = existingEntry.Id,
-                UserId = existingEntry.UserId,
-                SprintId = existingEntry.SprintId,
-                Date = existingEntry.Date,
-                Mood = existingEntry.Mood
-            };
-            return Ok(updatedEntryDto);
+                return CreatedAtAction(nameof(GetMoodEntry), new { moodEntryId = moodEntryDto.Id }, moodEntryDto);
+            }
+            else
+            {
+                return Ok(moodEntryDto);
+            }
         }
-        else
+        catch (UnauthorizedAccessException ex)
         {
-            var moodEntry = new MoodEntry
-            {
-                UserId = createMoodEntryDto.UserId,
-                SprintId = createMoodEntryDto.SprintId,
-                Mood = createMoodEntryDto.Mood,
-                Date = entryDate
-            };
-
-            _context.MoodEntries.Add(moodEntry);
-            await _context.SaveChangesAsync();
-
-            await _notificationService.SendMoodNotificationAsync(userEmail, notificationMessage, createMoodEntryDto.UserId.ToString(), teamId);
-
-            var moodEntryDto = new MoodEntryDto
-            {
-                Id = moodEntry.Id,
-                UserId = moodEntry.UserId,
-                SprintId = moodEntry.SprintId,
-                Date = moodEntry.Date,
-                Mood = moodEntry.Mood
-            };
-
-            return CreatedAtAction(nameof(GetMoodEntry), new { moodEntryId = moodEntry.Id }, moodEntryDto);
+            return StatusCode(403, ex.Message);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
         }
     }
 
     /// <summary>
     /// Gets mood entries for a specific sprint, optionally filtered by user ID and date.
-    /// A user must be a member of the sprint's team, or a super-admin.
     /// </summary>
-    /// <param name="sprintId">The ID of the sprint.</param>
-    /// <param name="userId">Optional: The ID of the user.</param>
-    /// <param name="date">Optional: The specific date for the mood entry (YYYY-MM-DD).</param>
-    /// <returns>A list of MoodEntryDto objects.</returns>
     [HttpGet("bysprint/{sprintId}")]
     [Authorize(Policy = "IsTeamMember")] // Policy will check if user is member of the team associated with sprintId
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -316,53 +151,20 @@ public class MoodEntriesController : ControllerBase
 
         var isSuperAdmin = User.HasClaim("is_super_admin", "true");
 
-        var query = _context.MoodEntries.Where(me => me.SprintId == sprintId);
-
-        // If a specific userId is requested, ensure the requesting user has permission to see that user's moods
-        if (userId.HasValue && !isSuperAdmin && userId.Value != authenticatedUserId)
+        try
         {
-            // Verify if the requested userId is a member of the same team as the authenticated user
-            var sprintTeamId = await _context.Sprints
-                .Where(s => s.Id == sprintId)
-                .Select(s => s.TeamId)
-                .FirstOrDefaultAsync();
-
-            var isRequestedUserMember = await _context.TeamUsers
-                .AnyAsync(tu => tu.TeamId == sprintTeamId && tu.UserId == userId.Value);
-
-            if (!isRequestedUserMember)
+            var moodEntries = await _moodService.GetMoodEntriesBySprintAsync(sprintId, userId, date, authenticatedUserId, isSuperAdmin);
+            
+            if (!moodEntries.Any() && (userId.HasValue || date.HasValue))
             {
-                return StatusCode(403, "You can only view moods for users within your teams.");
+                return NotFound($"No mood entries found for sprint {sprintId} with the given criteria.");
             }
-        }
 
-        if (userId.HasValue)
+            return Ok(moodEntries);
+        }
+        catch (UnauthorizedAccessException ex)
         {
-            query = query.Where(me => me.UserId == userId.Value);
+            return StatusCode(403, ex.Message);
         }
-
-        if (date.HasValue)
-        {
-            var utcDate = date.Value.ToUniversalTime().Date;
-            query = query.Where(me => me.Date.Date == utcDate);
-        }
-
-        var moodEntries = await query
-            .Select(me => new MoodEntryDto
-            {
-                Id = me.Id,
-                UserId = me.UserId,
-                SprintId = me.SprintId,
-                Date = me.Date.ToUniversalTime(),
-                Mood = me.Mood
-            })
-            .ToListAsync();
-
-        if (!moodEntries.Any() && (userId.HasValue || date.HasValue))
-        {
-            return NotFound($"No mood entries found for sprint {sprintId} with the given criteria.");
-        }
-
-        return Ok(moodEntries);
     }
 }

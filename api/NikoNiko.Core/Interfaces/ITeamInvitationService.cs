@@ -1,7 +1,7 @@
 using NikoNiko.Core.DTOs.Team.Invitation;
 using NikoNiko.Core.Models;
 
-namespace NikoNiko.Services
+namespace NikoNiko.Core.Interfaces
 {
     public interface ITeamInvitationService
     {

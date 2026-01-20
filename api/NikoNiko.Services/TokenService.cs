@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.Extensions.Configuration; // Assuming IConfiguration is still needed and not moved
 using Microsoft.IdentityModel.Tokens;
 
+using NikoNiko.Core.Interfaces;
 using NikoNiko.Core.Models; // Updated namespace for User
 
 using System.Security.Cryptography;

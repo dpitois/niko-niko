@@ -1,15 +1,8 @@
 using System.Security.Claims;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-
-using NikoNiko.Core.DTOs.Sprint;
 using NikoNiko.Core.DTOs.Team;
-using NikoNiko.Core.DTOs.User;
-using NikoNiko.Core.Models; // Ensure this is explicitly used
-using NikoNiko.Data;
-using NikoNiko.Services;
+using NikoNiko.Core.Interfaces;
 
 namespace NikoNiko.Api.Controllers;
 
@@ -21,23 +14,16 @@ namespace NikoNiko.Api.Controllers;
 [Route("api/[controller]")]
 public class TeamsController : ControllerBase
 {
-    private readonly ApplicationDbContext _context;
-    private readonly INotificationService _notificationService;
     private readonly ITeamService _teamService;
 
-    public TeamsController(ApplicationDbContext context, INotificationService notificationService, ITeamService teamService)
+    public TeamsController(ITeamService teamService)
     {
-        _context = context;
-        _notificationService = notificationService;
         _teamService = teamService;
     }
 
     /// <summary>
     /// Retrieves a list of all teams.
-    /// For regular users, returns only teams where they are members or administrators.
-    /// For super-admins, returns all teams.
     /// </summary>
-    /// <returns>A list of TeamWithSprintsDto objects.</returns>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -50,54 +36,13 @@ public class TeamsController : ControllerBase
         }
 
         var isSuperAdmin = User.HasClaim("is_super_admin", "true");
-
-        IQueryable<Team> baseQuery = _context.Teams
-            .Include(t => t.Admin)
-            .Include(t => t.Sprints)
-            .Include(t => t.TeamUsers)
-            .ThenInclude(tu => tu.User);
-
-        if (!isSuperAdmin)
-        {
-            // For regular users, filter teams to only those they are an admin or member of
-            baseQuery = baseQuery.Where(t => t.AdminId == userId || t.TeamUsers.Any(tu => tu.UserId == userId));
-        }
-
-        var teams = await baseQuery.Select(t => new TeamWithSprintsDto
-        {
-            Id = t.Id,
-            Name = t.Name,
-            AdminId = t.AdminId,
-            AdminName = t.Admin.Name ?? t.Admin.Email,
-            CreatedAt = t.CreatedAt,
-            Sprints = t.Sprints.Select(s => new SprintDto
-            {
-                Id = s.Id,
-                Name = s.Name,
-                StartDate = s.StartDate.ToUniversalTime(),
-                EndDate = s.EndDate.ToUniversalTime(),
-                TeamId = s.TeamId
-            }).ToList(),
-            Members = t.TeamUsers.Select(tu => new UserDto
-            {
-                Id = tu.User.Id,
-                Email = tu.User.Email,
-                Name = tu.User.Name,
-                AvatarUrl = tu.User.AvatarUrl,
-                CreatedAt = tu.User.CreatedAt
-            }).ToList()
-        })
-            .ToListAsync();
-
+        var teams = await _teamService.GetTeamsAsync(userId, isSuperAdmin);
         return Ok(teams);
     }
 
     /// <summary>
     /// Retrieves a specific team by its ID.
-    /// A user must be a team member or a super-admin to access it.
     /// </summary>
-    /// <param name="teamId">The ID of the team.</param>
-    /// <returns>The TeamWithSprintsDto object corresponding to the ID, or NotFound if the team does not exist.</returns>
     [HttpGet("{teamId}")]
     [Authorize(Policy = "IsTeamMember")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -105,37 +50,7 @@ public class TeamsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<TeamWithSprintsDto>> GetTeam(Guid teamId)
     {
-        var team = await _context.Teams
-            .Include(t => t.Admin)
-            .Include(t => t.Sprints)
-            .Include(t => t.TeamUsers)
-            .ThenInclude(tu => tu.User)
-            .Select(t => new TeamWithSprintsDto
-            {
-                Id = t.Id,
-                Name = t.Name,
-                AdminId = t.AdminId,
-                AdminName = t.Admin.Name ?? t.Admin.Email,
-                CreatedAt = t.CreatedAt,
-                Sprints = t.Sprints.Select(s => new SprintDto
-                {
-                    Id = s.Id,
-                    Name = s.Name,
-                    StartDate = s.StartDate.ToUniversalTime(),
-                    EndDate = s.EndDate.ToUniversalTime(),
-                    TeamId = s.TeamId
-                }).ToList(),
-                Members = t.TeamUsers.Select(tu => new UserDto
-                {
-                    Id = tu.User.Id,
-                    Email = tu.User.Email,
-                    Name = tu.User.Name,
-                    AvatarUrl = tu.User.AvatarUrl,
-                    CreatedAt = tu.User.CreatedAt
-                }).ToList()
-            })
-            .FirstOrDefaultAsync(t => t.Id == teamId);
-
+        var team = await _teamService.GetTeamByIdAsync(teamId);
         if (team == null)
         {
             return NotFound();
@@ -146,11 +61,7 @@ public class TeamsController : ControllerBase
 
     /// <summary>
     /// Updates the details of a team.
-    /// Only the team's admin or a super-admin can update a team.
     /// </summary>
-    /// <param name="teamId">The ID of the team to update.</param>
-    /// <param name="updateTeamDto">The updated team data.</param>
-    /// <returns>NoContent if successful, or an error response.</returns>
     [HttpPut("{teamId}")]
     [Authorize(Policy = "IsTeamAdmin")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -159,33 +70,25 @@ public class TeamsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateTeam(Guid teamId, UpdateTeamDto updateTeamDto)
     {
-        var team = await _context.Teams.FindAsync(teamId);
-
-        if (team == null)
-        {
-            return NotFound();
-        }
-
         if (string.IsNullOrWhiteSpace(updateTeamDto.Name))
         {
             return BadRequest("Team name cannot be empty.");
         }
 
-        team.Name = updateTeamDto.Name;
-        await _context.SaveChangesAsync();
-
-        await _notificationService.NotifyTeamRenamedAsync(team.Id, team.Name);
-
-        return NoContent();
+        try
+        {
+            await _teamService.UpdateTeamAsync(teamId, updateTeamDto);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
     }
 
     /// <summary>
     /// Transfers the administration of a team to another user.
-    /// Only the team's admin or a super-admin can perform this action.
     /// </summary>
-    /// <param name="teamId">The ID of the team.</param>
-    /// <param name="updateTeamAdminDto">The data containing the new admin ID.</param>
-    /// <returns>NoContent if successful.</returns>
     [HttpPut("{teamId}/admin")]
     [Authorize(Policy = "IsTeamAdmin")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -194,49 +97,24 @@ public class TeamsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateTeamAdmin(Guid teamId, [FromBody] UpdateTeamAdminDto updateTeamAdminDto)
     {
-        var team = await _context.Teams
-            .Include(t => t.TeamUsers)
-            .FirstOrDefaultAsync(t => t.Id == teamId);
-
-        if (team == null)
+        try
+        {
+            await _teamService.TransferAdminAsync(teamId, updateTeamAdminDto.NewAdminId);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
         {
             return NotFound();
         }
-
-        var newAdminId = updateTeamAdminDto.NewAdminId;
-
-        // Verify that the new admin is a member of the team
-        if (!team.TeamUsers.Any(tu => tu.UserId == newAdminId))
+        catch (InvalidOperationException ex)
         {
-            return BadRequest("The new administrator must be a member of the team.");
+            return BadRequest(ex.Message);
         }
-
-        var oldAdminId = team.AdminId;
-
-        // Update the admin
-        team.AdminId = newAdminId;
-
-        // Safeguard: Ensure the old admin remains a member of the team
-        if (!team.TeamUsers.Any(tu => tu.UserId == oldAdminId))
-        {
-            _context.TeamUsers.Add(new TeamUser
-            {
-                TeamId = teamId,
-                UserId = oldAdminId
-            });
-        }
-
-        await _context.SaveChangesAsync();
-
-        return NoContent();
     }
 
     /// <summary>
     /// Deletes a team.
-    /// Only the team's admin or a super-admin can delete a team.
     /// </summary>
-    /// <param name="teamId">The ID of the team to delete.</param>
-    /// <returns>NoContent if successful, or an error response.</returns>
     [HttpDelete("{teamId}")]
     [Authorize(Policy = "IsTeamAdmin")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -244,25 +122,20 @@ public class TeamsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteTeam(Guid teamId)
     {
-        var team = await _context.Teams.FindAsync(teamId);
-
-        if (team == null)
+        try
+        {
+            await _teamService.DeleteTeamAsync(teamId);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
         {
             return NotFound();
         }
-
-        _context.Teams.Remove(team);
-        await _context.SaveChangesAsync();
-
-        return NoContent();
     }
 
     /// <summary>
-    /// Creates a new team.
-    /// Accessible only by a Super-admin.
+    /// Creates a new team. Accessible only by a Super-admin.
     /// </summary>
-    /// <param name="createTeamDto">The data needed to create a team.</param>
-    /// <returns>The TeamDto object of the created team.</returns>
     [HttpPost]
     [Authorize(Policy = "SuperAdmin")]
     [ProducesResponseType(StatusCodes.Status201Created)]
@@ -276,45 +149,13 @@ public class TeamsController : ControllerBase
             return Unauthorized("User ID not found or invalid.");
         }
 
-        var team = new Team
-        {
-            Name = createTeamDto.Name,
-            AdminId = userId
-        };
-
-        var teamUser = new TeamUser
-        {
-            Team = team,
-            UserId = userId
-        };
-
-        _context.Teams.Add(team);
-        _context.TeamUsers.Add(teamUser);
-        await _context.SaveChangesAsync();
-
-        // Load admin to get the name
-        await _context.Entry(team).Reference(t => t.Admin).LoadAsync();
-
-        var teamDto = new TeamDto
-        {
-            Id = team.Id,
-            Name = team.Name,
-            AdminId = team.AdminId,
-            AdminName = team.Admin.Name ?? team.Admin.Email,
-            CreatedAt = team.CreatedAt
-        };
-
-        return CreatedAtAction(nameof(GetTeam), new { teamId = team.Id }, teamDto);
+        var teamDto = await _teamService.CreateTeamAsync(createTeamDto, userId);
+        return CreatedAtAction(nameof(GetTeam), new { teamId = teamDto.Id }, teamDto);
     }
 
     /// <summary>
     /// Removes a user from a specific team.
-    /// Only the team's admin or a super-admin can remove users.
-    /// A team admin cannot remove themselves.
     /// </summary>
-    /// <param name="teamId">The ID of the team.</param>
-    /// <param name="userId">The ID of the user to remove.</param>
-    /// <returns>NoContent if successful, or an error response.</returns>
     [HttpDelete("{teamId}/users/{userId}")]
     [Authorize(Policy = "IsTeamAdmin")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -323,62 +164,18 @@ public class TeamsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> RemoveUserFromTeam(Guid teamId, Guid userId)
     {
-        var team = await _context.Teams.FindAsync(teamId);
-        if (team == null)
+        try
         {
-            return NotFound("Team not found.");
+            await _teamService.RemoveUserFromTeamAsync(teamId, userId);
+            return NoContent();
         }
-
-        var userToRemove = await _context.Users.FindAsync(userId);
-        if (userToRemove == null)
+        catch (KeyNotFoundException ex)
         {
-            return NotFound("User not found.");
+            return NotFound(ex.Message);
         }
-
-        // Prevent admin from removing themselves via this endpoint (they should delete the team if they want to leave as admin)
-        if (team.AdminId == userId)
+        catch (InvalidOperationException ex)
         {
-            return BadRequest("Cannot remove the team's administrator through this endpoint.");
+            return BadRequest(ex.Message);
         }
-
-        var teamUser = await _context.TeamUsers
-            .FirstOrDefaultAsync(tu => tu.TeamId == teamId && tu.UserId == userId);
-
-        if (teamUser == null)
-        {
-            return NotFound("User is not a member of this team.");
-        }
-
-        // 1. Remove User from Team
-        _context.TeamUsers.Remove(teamUser);
-
-        // 2. Cascade delete mood entries for this team's sprints
-        var teamSprintIds = await _context.Sprints
-            .Where(s => s.TeamId == teamId)
-            .Select(s => s.Id)
-            .ToListAsync();
-
-        if (teamSprintIds.Any())
-        {
-            var moodsToDelete = _context.MoodEntries
-                .Where(m => m.UserId == userId && teamSprintIds.Contains(m.SprintId));
-            _context.MoodEntries.RemoveRange(moodsToDelete);
-        }
-
-        await _context.SaveChangesAsync();
-
-        // Remove from SignalR Group
-        await _notificationService.UpdateUserGroupAsync(userId.ToString(), teamId, false);
-
-        // 3. Check if user is now an orphan (no teams left)
-        var remainingTeamsCount = await _context.TeamUsers.CountAsync(tu => tu.UserId == userId);
-        if (remainingTeamsCount == 0)
-        {
-            // Re-fetch user to ensure we have fresh data if needed, or use 'userToRemove'
-            // 'userToRemove' is already loaded from FindAsync above.
-            await _teamService.CreateDefaultTeamForUserAsync(userToRemove);
-        }
-
-        return NoContent();
     }
 }

@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 
 using NikoNiko.Core.Models; // Updated using directive
 using NikoNiko.Data; // Updated using directive
+using NikoNiko.Core.Interfaces;
 using NikoNiko.Services; // Updated using directive
 
 namespace NikoNiko.Api.Controllers;

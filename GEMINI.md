@@ -36,16 +36,17 @@ This directory contains all the .NET projects that make up the application's bac
     *   `Authorization/`: Manages authorization requirements and handlers based on roles (Team Admin, Team Member).
     *   `appsettings.json`: Application configuration files.
     *   `Program.cs`: API application entry point, service and middleware configuration.
-*   **`NikoNiko.Core/`**: Shared library project. Contains DTOs (Data Transfer Objects) for inter-layer communication, as well as data models (Entity Framework Core entities) that represent the database structure.
+*   **`NikoNiko.Core/`**: Shared library project. Contains DTOs (Data Transfer Objects), data models (Entity Framework Core entities), and service interfaces.
     *   `DTOs/`: Data Transfer Object definitions.
     *   `Models/`: Domain entity definitions.
+    *   `Interfaces/`: Service interface definitions (contracts).
 *   **`NikoNiko.Data/`**: Data access layer. It includes the `ApplicationDbContext` (Entity Framework Core context), entity configurations, and database migrations.
     *   `Migrations/`: History of database schema changes.
 *   **`NikoNiko.Data.PostgreSql/` & `NikoNiko.Data.Sqlite/`**: Library projects containing PostgreSQL and SQLite specific extensions for DbContext configuration, allowing the project to switch between databases.
 *   **`NikoNiko.Notifications/`**: A dedicated backend service for real-time notifications via SignalR. It listens for internal events and broadcasts messages to connected clients.
     *   `Hubs/`: The `NotificationHub` which manages SignalR connections and message broadcasting.
     *   `Controllers/`: A controller for sending notifications (can be used by other backend services).
-*   **`NikoNiko.Services/`**: Business logic layer. Contains interfaces and implementations of services that encapsulate complex business logic (e.g., team invitation management, notification services, token management).
+*   **`NikoNiko.Services/`**: Business logic layer. Contains the concrete **implementations** of services defined in `NikoNiko.Core`. These services encapsulate complex business logic (e.g., team management, mood entry validation, notification triggers).
 *   **`NikoNiko.Api.IntegrationTests/` & `NikoNiko.Notifications.IntegrationTests/`**: Integration test projects for API and notification services.
 
 ### `app/frontend/` (Frontend React)
@@ -233,6 +234,10 @@ If you wish to run frontend and/or backend locally without Docker Compose, follo
 
 ## Development Conventions
 
+*   **Backend Architecture**: Adheres to the **Skinny Controller** pattern.
+    *   **Controllers**: Located in `NikoNiko.Api/Controllers`. They should only handle HTTP concerns: routing, input binding, status codes, and user claims extraction.
+    *   **Services**: Implementations are in `NikoNiko.Services`. All business logic, validations, and data persistence orchestrations must reside here.
+    *   **Interfaces**: All service interfaces must be defined in `NikoNiko.Core/Interfaces` to ensure the Core project remains the central authority for domain contracts.
 *   **Project Structure**: The project is organized into an `api` directory for all .NET backend projects and an `app` directory for the frontend application.
 *   **Frontend Styling**: Material UI (MUI v7) is used for all UI components and styling. Direct CSS modules are deprecated.
 *   **Authentication**: Managed via `AuthContext` and `useAuth` hook for centralized state, using `react-router-dom` for routing and `axios`/`swr` for data fetching.

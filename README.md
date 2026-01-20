@@ -14,6 +14,9 @@ Créer une application **distribuée** et **auto-hébergée** (via Docker) pour 
 ## 2. Stack Technique
 
 - **Backend** : API RESTful en **.NET 10** (WebAPI).
+  - **Architecture** : Pattern **Skinny Controllers** / **Fat Services**.
+  - **Contrats** : Interfaces définies dans `NikoNiko.Core/Interfaces`.
+  - **Logique** : Services implémentés dans `NikoNiko.Services`.
 - **Frontend** : Application **React 19+** avec TypeScript, Material UI, Axios, et SWR.
 - **Base de Données** : **PostgreSQL / SQLite (configurable)**.
 - **Déploiement** : **Docker** (3 services : backend, frontend, db) avec une configuration centralisée dans `docker/`.

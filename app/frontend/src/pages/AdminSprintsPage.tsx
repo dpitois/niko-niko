@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 import TimelineIcon from '@mui/icons-material/Timeline';
 import {
   Box,
@@ -26,6 +27,7 @@ import type { Sprint } from '@/models/Sprint';
 import { deleteSprint } from '@/services/sprintService';
 
 import AdminCreateSprintForm from '@/components/AdminCreateSprintForm';
+import AdminEditSprintDialog from '@/components/AdminEditSprintDialog';
 import PageContainer from '@/components/layout/PageContainer';
 
 const AdminSprintsPage: React.FC = () => {
@@ -35,9 +37,15 @@ const AdminSprintsPage: React.FC = () => {
   const { enqueueSnackbar } = useSnackbar();
 
   const [sprintToDelete, setSprintToDelete] = useState<Sprint | null>(null);
+  const [sprintToEdit, setSprintToEdit] = useState<Sprint | null>(null);
 
   const handleSprintCreated = () => {
     enqueueSnackbar(t('adminSprints.createForm.success'), { variant: 'success' });
+    mutateSprints();
+  };
+
+  const handleSprintUpdated = () => {
+    enqueueSnackbar(t('adminSprints.editDialog.success'), { variant: 'success' });
     mutateSprints();
   };
 
@@ -45,8 +53,16 @@ const AdminSprintsPage: React.FC = () => {
     setSprintToDelete(sprint);
   };
 
+  const handleEditClick = (sprint: Sprint) => {
+    setSprintToEdit(sprint);
+  };
+
   const handleCloseDeleteDialog = () => {
     setSprintToDelete(null);
+  };
+
+  const handleCloseEditDialog = () => {
+    setSprintToEdit(null);
   };
 
   const handleConfirmDelete = async () => {
@@ -119,15 +135,25 @@ const AdminSprintsPage: React.FC = () => {
                     {new Date(sprint.endDate).toLocaleDateString()}
                   </Typography>
 
-                  {/* Delete Button */}
-                  <IconButton
-                    onClick={() => handleDeleteClick(sprint)}
-                    color="error"
-                    size="small"
-                    aria-label="delete"
-                  >
-                    <DeleteIcon />
-                  </IconButton>
+                  {/* Actions */}
+                  <Box sx={{ display: 'flex', gap: 1 }}>
+                    <IconButton
+                      onClick={() => handleEditClick(sprint)}
+                      color="primary"
+                      size="small"
+                      aria-label="edit"
+                    >
+                      <EditIcon />
+                    </IconButton>
+                    <IconButton
+                      onClick={() => handleDeleteClick(sprint)}
+                      color="error"
+                      size="small"
+                      aria-label="delete"
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </Box>
                 </Box>
               </ListItem>
             ))
@@ -136,6 +162,14 @@ const AdminSprintsPage: React.FC = () => {
           )}
         </List>
       )}
+
+      {/* Edit Dialog */}
+      <AdminEditSprintDialog
+        open={sprintToEdit !== null}
+        sprint={sprintToEdit}
+        onClose={handleCloseEditDialog}
+        onSprintUpdated={handleSprintUpdated}
+      />
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={sprintToDelete !== null} onClose={handleCloseDeleteDialog}>

@@ -187,6 +187,11 @@
       "errorFill": "Veuillez remplir tous les champs et sélectionner une équipe.",
       "errorDate": "La date de fin doit être postérieure à la date de début.",
       "errorFail": "Échec de la création du sprint. Veuillez réessayer."
+    },
+    "editDialog": {
+      "title": "Modifier le Sprint",
+      "success": "Sprint mis à jour avec succès !",
+      "errorFail": "Échec de la mise à jour du sprint. Les dates pourraient être invalides par rapport aux entrées d'humeur existantes."
     }
   },
   "profile": {

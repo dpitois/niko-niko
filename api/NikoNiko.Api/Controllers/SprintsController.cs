@@ -169,6 +169,71 @@ public class SprintsController : ControllerBase
     }
 
     /// <summary>
+    /// Updates a sprint.
+    /// Only the team's admin or a super-admin can update a sprint.
+    /// </summary>
+    /// <param name="sprintId">The ID of the sprint to update.</param>
+    /// <param name="updateSprintDto">The new data for the sprint.</param>
+    /// <returns>NoContent if successful, or an error response.</returns>
+    [HttpPut("{sprintId}")]
+    [Authorize(Policy = "IsTeamAdmin")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> UpdateSprint(Guid sprintId, UpdateSprintDto updateSprintDto)
+    {
+        var sprint = await _context.Sprints
+            .Include(s => s.MoodEntries)
+            .FirstOrDefaultAsync(s => s.Id == sprintId);
+
+        if (sprint == null)
+        {
+            return NotFound();
+        }
+
+        if (updateSprintDto.EndDate <= updateSprintDto.StartDate)
+        {
+            ModelState.AddModelError(nameof(updateSprintDto.EndDate), "End date must be after start date.");
+            return BadRequest(ModelState);
+        }
+
+        var newStart = updateSprintDto.StartDate.ToUniversalTime();
+        var newEnd = updateSprintDto.EndDate.ToUniversalTime();
+
+        // Validate date range against existing mood entries
+        if (sprint.MoodEntries.Any())
+        {
+            var minMoodDate = sprint.MoodEntries.Min(m => m.Date);
+            var maxMoodDate = sprint.MoodEntries.Max(m => m.Date);
+
+            if (newStart > minMoodDate)
+            {
+                ModelState.AddModelError(nameof(updateSprintDto.StartDate), $"Cannot set start date after {minMoodDate:yyyy-MM-dd} because there are existing mood entries.");
+            }
+
+            if (newEnd < maxMoodDate)
+            {
+                ModelState.AddModelError(nameof(updateSprintDto.EndDate), $"Cannot set end date before {maxMoodDate:yyyy-MM-dd} because there are existing mood entries.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+        }
+
+        sprint.Name = updateSprintDto.Name;
+        sprint.StartDate = newStart;
+        sprint.EndDate = newEnd;
+
+        await _context.SaveChangesAsync();
+
+        return NoContent();
+    }
+
+    /// <summary>
     /// Deletes a sprint.
     /// Only the team's admin or a super-admin can delete a sprint.
     /// </summary>

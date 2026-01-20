@@ -15,11 +15,11 @@
 - [x] Step 2: Create new Service Interfaces (`ISprintService`, `IMoodService`) in `NikoNiko.Core`.
 - [x] Step 3: Implement `SprintService` and `MoodService` in `NikoNiko.Services` (Empty shells first).
 - [x] Step 4: Register new services in `Program.cs`.
-- [ ] Step 5: Refactor `TeamService` (Move logic from `TeamsController`).
-- [ ] Step 6: Refactor `SprintService` (Move logic from `SprintsController`).
-- [ ] Step 7: Refactor `MoodService` (Move logic from `MoodEntriesController`).
-- [ ] Step 8: Refactor `UserService` (Move logic from `UsersController`).
-- [ ] Verification
+- [x] Step 5: Refactor `TeamService` (Move logic from `TeamsController`).
+- [x] Step 6: Refactor `SprintService` (Move logic from `SprintsController`).
+- [x] Step 7: Refactor `MoodService` (Move logic from `MoodEntriesController`).
+- [x] Step 8: Refactor `UserService` (Move logic from `UsersController`).
+- [x] Verification
 
 ## 3. 📝 Step-by-Step Implementation Details
 
@@ -67,42 +67,46 @@
 
 ### Step 5: Refactor TeamService
 *   **Goal:** Move logic from `TeamsController` to `TeamService`.
+*   **Status:** [x]
 *   **Action:**
     *   Update `ITeamService` with methods: `GetTeamsAsync`, `GetTeamAsync`, `CreateTeamAsync`, `UpdateTeamAsync`, `DeleteTeamAsync`, `TransferAdminAsync`, `RemoveUserFromTeamAsync`.
     *   Implement logic in `TeamService` (copying from Controller).
     *   Inject `ITeamService` into `TeamsController` and replace logic with calls.
-*   **Verification:** Integration Tests for Teams.
+*   **Verification:** Integration Tests for Teams. [PASSED] (14 tests)
 
 ### Step 6: Refactor SprintService
 *   **Goal:** Move logic from `SprintsController` to `SprintService`.
+*   **Status:** [x]
 *   **Action:**
     *   Update `ISprintService` with methods: `GetSprintsAsync`, `GetSprintAsync`, `CreateSprintAsync`, `UpdateSprintAsync`, `DeleteSprintAsync`.
     *   Implement logic in `SprintService` (validation, overlap checks, etc.).
     *   Update `SprintsController` to use `ISprintService`.
-*   **Verification:** Integration Tests for Sprints.
+*   **Verification:** Integration Tests for Sprints. [PASSED] (10 tests)
 
 ### Step 7: Refactor MoodService
 *   **Goal:** Move logic from `MoodEntriesController` to `MoodService`.
+*   **Status:** [x]
 *   **Action:**
     *   Update `IMoodService` with methods: `GetMoodEntriesAsync`, `GetMyMoodEntriesAsync`, `GetMoodEntryAsync`, `CreateMoodEntryAsync`, `GetMoodEntriesBySprintAsync`.
     *   Implement logic in `MoodService` (timezone logic, future date checks, notification calls).
     *   Update `MoodEntriesController` to use `IMoodService`.
-*   **Verification:** Integration Tests for Moods.
+*   **Verification:** Integration Tests for Moods. [PASSED]
 
 ### Step 8: Refactor UserService
 *   **Goal:** Move logic from `UsersController` to `UserService`.
+*   **Status:** [x]
 *   **Action:**
     *   Update `IUserService` with methods: `GetUsersAsync`, `GetUserAsync`, `DeleteUserAsync` (handling team admin checks).
     *   Implement logic in `UserService`.
     *   Update `UsersController` to use `IUserService`.
-*   **Verification:** Integration Tests for Users.
+*   **Verification:** Integration Tests for Users. [PASSED]
 
 ## 4. 🧪 Testing Strategy
 *   Integration Tests: Run all existing integration tests to ensure no regression.
-    *   `dotnet test api/NikoNiko.Api.IntegrationTests/`
-    *   `dotnet test api/NikoNiko.Notifications.IntegrationTests/`
+    *   `dotnet test api/NikoNiko.Api.IntegrationTests/` [PASSED] (54 tests)
+    *   `dotnet test api/NikoNiko.Notifications.IntegrationTests/` [PASSED] (3 tests)
 
 ## 5. ✅ Success Criteria
-*   All interfaces reside in `NikoNiko.Core/Interfaces`.
-*   All Controllers are "Skinny" (mostly just calling services and mapping results).
-*   No logic regression (verified by tests).
+*   All interfaces reside in `NikoNiko.Core/Interfaces`. [YES]
+*   All Controllers are "Skinny" (mostly just calling services and mapping results). [YES]
+*   No logic regression (verified by tests). [YES]

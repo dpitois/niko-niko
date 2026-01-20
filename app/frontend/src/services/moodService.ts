@@ -2,6 +2,7 @@ import dayjs from 'dayjs';
 
 import type { CreateMood } from '@/models/CreateMood';
 import type { Mood } from '@/models/Mood';
+import type { PagedResult } from '@/models/PagedResult';
 
 import api from './api';
 
@@ -37,5 +38,10 @@ export const getMoodEntriesBySprint = async (
     url += `?${params.toString()}`;
   }
   const { data } = await api.get(url);
+  return data;
+};
+
+export const getMyMoodHistory = async (page = 1, pageSize = 20): Promise<PagedResult<Mood>> => {
+  const { data } = await api.get(`/moodentries/me?page=${page}&pageSize=${pageSize}`);
   return data;
 };

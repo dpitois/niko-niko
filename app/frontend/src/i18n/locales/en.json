@@ -28,6 +28,7 @@
     "teams": "Teams",
     "users": "Users",
     "sprints": "Sprints",
+    "profile": "My Profile",
     "login": "Login",
     "reportBug": "Report a Bug",
     "mode": "{{mode}} Mode"
@@ -186,6 +187,31 @@
       "errorFill": "Please fill in all fields and select a team.",
       "errorDate": "End date must be after start date.",
       "errorFail": "Failed to create sprint. Please try again."
+    }
+  },
+  "profile": {
+    "title": "My Profile",
+    "tabs": {
+      "general": "General & Privacy",
+      "moodHistory": "Mood History"
+    },
+    "general": {
+      "accountInfo": "Account Information",
+      "privacyZone": "Privacy & Data",
+      "exportData": "Export My Data",
+      "exportTooltip": "Feature coming soon",
+      "deleteAccount": "Delete My Account",
+      "deleteWarning": "Danger Zone: This action is irreversible."
+    },
+    "deleteDialog": {
+      "title": "Delete Your Account?",
+      "content": "Are you sure you want to delete your account? All your personal data will be permanently removed. If you are the sole admin of a team with other members, you must transfer ownership first.",
+      "confirm": "Yes, Delete My Account",
+      "success": "Account deleted successfully.",
+      "error": "Failed to delete account."
+    },
+    "history": {
+      "noData": "No mood history found."
     }
   }
 }

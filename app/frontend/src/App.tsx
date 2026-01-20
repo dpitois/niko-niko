@@ -9,6 +9,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
+import localizedFormat from 'dayjs/plugin/localizedFormat';
 // notistack imports
 import { SnackbarProvider } from 'notistack';
 
@@ -28,11 +29,14 @@ import DashboardPage from '@/pages/DashboardPage';
 import LoginPage from '@/pages/LoginPage';
 import OnboardingPage from '@/pages/OnboardingPage';
 import PastSprintsPage from '@/pages/PastSprintsPage';
+import ProfilePage from '@/pages/ProfilePage';
 import SprintDetailsPage from '@/pages/SprintDetailsPage';
 
 import './App.css';
 import 'dayjs/locale/fr';
 import 'dayjs/locale/en';
+
+dayjs.extend(localizedFormat);
 
 const ProtectedLayout = () => (
   <ProtectedRoute>
@@ -89,6 +93,7 @@ function App() {
 
               {/* User Dashboard */}
               <Route path="/my-teams" element={<DashboardPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
               <Route path="/teams/:teamId/sprints/:sprintId" element={<SprintDetailsPage />} />
               <Route path="/current-sprints" element={<CurrentSprintsPage />} />
               <Route path="/past-sprints" element={<PastSprintsPage />} />

@@ -146,6 +146,56 @@ public class UsersController : ControllerBase
     }
 
     /// <summary>
+    /// Deletes the current user's account.
+    /// </summary>
+    /// <returns>NoContent if successful, or an error response.</returns>
+    [HttpDelete("me")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> DeleteMe()
+    {
+        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!Guid.TryParse(userIdString, out var userId))
+        {
+            return Unauthorized();
+        }
+
+        var user = await _context.Users.FindAsync(userId);
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        // Check if user is admin of any teams
+        var teamsAsAdmin = await _context.Teams
+            .Include(t => t.TeamUsers)
+            .Where(t => t.AdminId == userId)
+            .ToListAsync();
+
+        if (teamsAsAdmin.Any())
+        {
+            foreach (var team in teamsAsAdmin)
+            {
+                var otherMembersCount = team.TeamUsers.Count(tu => tu.UserId != userId);
+
+                if (otherMembersCount > 0)
+                {
+                    return Conflict($"Cannot delete your account because you are the admin of team '{team.Name}' which has other members. Please transfer ownership or remove members first.");
+                }
+
+                _context.Teams.Remove(team);
+            }
+        }
+
+        _context.Users.Remove(user);
+        await _context.SaveChangesAsync();
+
+        return NoContent();
+    }
+
+    /// <summary>
     /// Deletes a specific user account. Accessible only by super-admins.
     /// A user cannot delete their own account.
     /// </summary>

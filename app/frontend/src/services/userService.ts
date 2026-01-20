@@ -19,3 +19,10 @@ export const deleteUser = async (userId: string): Promise<void> => {
 export const deleteMe = async (): Promise<void> => {
   await api.delete('/users/me');
 };
+
+export const exportData = async (): Promise<Blob> => {
+  const { data } = await api.get('/users/me/export', {
+    responseType: 'blob',
+  });
+  return data;
+};

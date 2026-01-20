@@ -27,6 +27,7 @@ builder.Services.AddControllers();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<ITeamInvitationService, TeamInvitationService>();
 builder.Services.AddScoped<ITeamService, TeamService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 // Add HttpContextAccessor
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();

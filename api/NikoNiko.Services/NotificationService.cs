@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 
 using Microsoft.Extensions.Logging;
 
+using NikoNiko.Core.Interfaces;
+
 namespace NikoNiko.Services
 {
     public class NotificationService : INotificationService

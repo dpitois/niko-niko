@@ -3,6 +3,7 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Extensions.Configuration;
 
 using NikoNiko.Core.Models;
+using NikoNiko.Core.Interfaces;
 using NikoNiko.Services;
 
 using Xunit;

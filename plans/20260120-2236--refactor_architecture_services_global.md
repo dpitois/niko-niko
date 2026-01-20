@@ -11,10 +11,10 @@
 *   **Risks/Unknowns:** Large scale refactoring. Risk of breaking tests or logic if not careful with context (User Claims). Context access in services (e.g. current user ID) might need `IHttpContextAccessor` or passing arguments. The current plan assumes passing arguments (UserId) is better for testability than injecting HttpContext in services.
 
 ## 2. 📋 Checklist
-- [ ] Step 1: Create `Interfaces` folder in `NikoNiko.Core` and move existing interfaces.
-- [ ] Step 2: Create new Service Interfaces (`ISprintService`, `IMoodService`) in `NikoNiko.Core`.
-- [ ] Step 3: Implement `SprintService` and `MoodService` in `NikoNiko.Services` (Empty shells first).
-- [ ] Step 4: Register new services in `Program.cs`.
+- [x] Step 1: Move Interfaces to Core
+- [x] Step 2: Create new Service Interfaces (`ISprintService`, `IMoodService`) in `NikoNiko.Core`.
+- [x] Step 3: Implement `SprintService` and `MoodService` in `NikoNiko.Services` (Empty shells first).
+- [x] Step 4: Register new services in `Program.cs`.
 - [ ] Step 5: Refactor `TeamService` (Move logic from `TeamsController`).
 - [ ] Step 6: Refactor `SprintService` (Move logic from `SprintsController`).
 - [ ] Step 7: Refactor `MoodService` (Move logic from `MoodEntriesController`).
@@ -32,35 +32,38 @@
 
 ### Step 1: Move Interfaces to Core
 *   **Goal:** Centralize abstractions in Core project.
+*   **Status:** [x]
 *   **Action:**
     *   Create directory `api/NikoNiko.Core/Interfaces`.
     *   Move `ITeamService.cs`, `IUserService.cs`, `ITokenService.cs`, `ITeamInvitationService.cs`, `INotificationService.cs` from `api/NikoNiko.Services/` to `api/NikoNiko.Core/Interfaces/`.
     *   Update namespaces in these files to `NikoNiko.Core.Interfaces`.
     *   Update references in `NikoNiko.Services` (implementations) and `NikoNiko.Api` (controllers/program).
-*   **Verification:** Build solution.
+*   **Verification:** Build solution and run tests. [PASSED]
 
 ### Step 2: Define New Interfaces
 *   **Goal:** Define contracts for logic currently in controllers.
+*   **Status:** [x]
 *   **Action:**
     *   Create `api/NikoNiko.Core/Interfaces/ISprintService.cs`.
     *   Create `api/NikoNiko.Core/Interfaces/IMoodService.cs`.
-    *   *Note:* Signatures will mimic controller actions but take `userId` or `isSuperAdmin` as explicit parameters where needed.
-*   **Verification:** File creation.
+*   **Verification:** File creation. [DONE]
 
 ### Step 3: Implement New Services (Shells)
 *   **Goal:** Prepare classes for logic transfer.
+*   **Status:** [x]
 *   **Action:**
     *   Create `api/NikoNiko.Services/SprintService.cs` implementing `ISprintService`.
     *   Create `api/NikoNiko.Services/MoodService.cs` implementing `IMoodService`.
     *   Inject `ApplicationDbContext` into them.
-*   **Verification:** Build solution.
+*   **Verification:** Build solution. [DONE]
 
 ### Step 4: Register Services
 *   **Goal:** Ensure DI container knows about new services.
+*   **Status:** [x]
 *   **Action:**
     *   Modify `api/NikoNiko.Api/Program.cs`: Add `builder.Services.AddScoped<ISprintService, SprintService>();` and `builder.Services.AddScoped<IMoodService, MoodService>();`.
     *   Ensure namespaces are correct.
-*   **Verification:** Build solution.
+*   **Verification:** Build solution. [PASSED]
 
 ### Step 5: Refactor TeamService
 *   **Goal:** Move logic from `TeamsController` to `TeamService`.

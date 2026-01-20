@@ -9,6 +9,7 @@ using NikoNiko.Core.DTOs.Team;
 using NikoNiko.Core.DTOs.User;
 using NikoNiko.Core.Models; // Ensure this is explicitly used
 using NikoNiko.Data;
+using NikoNiko.Core.Interfaces;
 using NikoNiko.Services;
 
 namespace NikoNiko.Api.Controllers;

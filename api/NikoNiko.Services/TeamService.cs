@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 
+using NikoNiko.Core.Interfaces;
 using NikoNiko.Core.Models;
 using NikoNiko.Data;
 

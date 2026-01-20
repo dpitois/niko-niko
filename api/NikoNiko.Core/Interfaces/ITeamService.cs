@@ -1,6 +1,6 @@
 using NikoNiko.Core.Models;
 
-namespace NikoNiko.Services;
+namespace NikoNiko.Core.Interfaces;
 
 public interface ITeamService
 {

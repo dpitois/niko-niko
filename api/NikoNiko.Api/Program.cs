@@ -14,6 +14,7 @@ using NikoNiko.Api.Authorization;
 using NikoNiko.Data;
 using NikoNiko.Data.PostgreSql;
 using NikoNiko.Data.Sqlite;
+using NikoNiko.Core.Interfaces;
 using NikoNiko.Services;
 
 using IAuthorizationHandler = Microsoft.AspNetCore.Authorization.IAuthorizationHandler;
@@ -28,6 +29,8 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<ITeamInvitationService, TeamInvitationService>();
 builder.Services.AddScoped<ITeamService, TeamService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ISprintService, SprintService>();
+builder.Services.AddScoped<IMoodService, MoodService>();
 
 // Add HttpContextAccessor
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();

@@ -8,6 +8,7 @@ using NikoNiko.Core.DTOs;
 using NikoNiko.Core.DTOs.Mood;
 using NikoNiko.Core.Models;
 using NikoNiko.Data;
+using NikoNiko.Core.Interfaces;
 using NikoNiko.Services;
 
 namespace NikoNiko.Api.Controllers;

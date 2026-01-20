@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 using NikoNiko.Core.DTOs.User;
 using NikoNiko.Data;
+using NikoNiko.Core.Interfaces;
 using NikoNiko.Services;
 
 namespace NikoNiko.Api.Controllers;

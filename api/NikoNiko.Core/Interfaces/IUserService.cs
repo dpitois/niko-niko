@@ -1,6 +1,6 @@
 using NikoNiko.Core.DTOs.User.Export;
 
-namespace NikoNiko.Services;
+namespace NikoNiko.Core.Interfaces;
 
 public interface IUserService
 {

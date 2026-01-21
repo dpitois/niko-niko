@@ -1,13 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  Box,
-  Fade,
-  Paper,
-  Popper,
-  Typography,
-  useTheme,
-} from '@mui/material';
+import { Box, Fade, Paper, Popper, Typography, useTheme } from '@mui/material';
 
 import type { ChartDataPoint } from '@/models/ChartData';
 
@@ -16,13 +9,10 @@ interface MoodTrendChartProps {
   showUserTrend?: boolean;
 }
 
-const MoodTrendChart: React.FC<MoodTrendChartProps> = ({
-  chartData,
-  showUserTrend = true,
-}) => {
+const MoodTrendChart: React.FC<MoodTrendChartProps> = ({ chartData, showUserTrend = true }) => {
   const { t } = useTranslation();
   const theme = useTheme();
-  
+
   const [tooltipState, setTooltipState] = useState<{
     anchorEl: HTMLElement | null;
     data: ChartDataPoint | null;
@@ -42,7 +32,7 @@ const MoodTrendChart: React.FC<MoodTrendChartProps> = ({
 
   const getY = (value: number | null) => {
     if (value === null) return null;
-    const normalized = (value - 1) / (3 - 1); 
+    const normalized = (value - 1) / (3 - 1);
     return PADDING_TOP + CHART_HEIGHT - normalized * CHART_HEIGHT;
   };
 
@@ -86,10 +76,10 @@ const MoodTrendChart: React.FC<MoodTrendChartProps> = ({
   };
 
   const linePath = useMemo(() => getCurvePath(validPoints), [validPoints]);
-  
-  const userLinePath = useMemo(() => 
-    getCurvePath(validUserPoints.map(p => ({ x: p.x, y: p.userY }))), 
-    [validUserPoints]
+
+  const userLinePath = useMemo(
+    () => getCurvePath(validUserPoints.map((p) => ({ x: p.x, y: p.userY }))),
+    [validUserPoints],
   );
 
   const areaPath = useMemo(() => {
@@ -172,62 +162,63 @@ const MoodTrendChart: React.FC<MoodTrendChartProps> = ({
           </svg>
 
           {[3, 2, 1].map((val) => {
-              const y = getY(val);
-              const topPercent = y !== null ? (y / VIEWBOX_HEIGHT) * 100 : 0;
-              const icon = val === 3 ? '😊' : val === 2 ? '😐' : '☹️';
-              
-              return (
-                <Typography
-                  key={val}
-                  variant="caption"
-                  sx={{
-                    position: 'absolute',
-                    left: -32,
-                    top: `${topPercent}%`,
-                    transform: 'translateY(-50%)',
-                    fontSize: '1.2rem',
-                    lineHeight: 1,
-                    zIndex: 1,
-                  }}
-                >
-                  {icon}
-                </Typography>
-              );
+            const y = getY(val);
+            const topPercent = y !== null ? (y / VIEWBOX_HEIGHT) * 100 : 0;
+            const icon = val === 3 ? '😊' : val === 2 ? '😐' : '☹️';
+
+            return (
+              <Typography
+                key={val}
+                variant="caption"
+                sx={{
+                  position: 'absolute',
+                  left: -32,
+                  top: `${topPercent}%`,
+                  transform: 'translateY(-50%)',
+                  fontSize: '1.2rem',
+                  lineHeight: 1,
+                  zIndex: 1,
+                }}
+              >
+                {icon}
+              </Typography>
+            );
           })}
 
           {validPoints.map((p, i) => {
-              const leftPercent = (p.x / VIEWBOX_WIDTH) * 100;
-              const topPercent = (p.y / VIEWBOX_HEIGHT) * 100;
+            const leftPercent = (p.x / VIEWBOX_WIDTH) * 100;
+            const topPercent = (p.y / VIEWBOX_HEIGHT) * 100;
 
-              return (
-                <Box
-                  key={`dot-${i}`}
-                  sx={{
-                    position: 'absolute',
-                    left: `${leftPercent}%`,
-                    top: `${topPercent}%`,
-                    width: 16,
-                    height: 16,
-                    borderRadius: '50%',
-                    backgroundColor: theme.palette.background.paper,
-                    border: `2px solid ${theme.palette.primary.main}`,
-                    transform: 'translate(-50%, -50%)',
-                    cursor: 'pointer',
-                    zIndex: 2,
-                    transition: 'transform 0.2s, box-shadow 0.2s',
-                    '&:hover': {
-                       transform: 'translate(-50%, -50%) scale(1.25)',
-                       boxShadow: theme.shadows[3],
-                       zIndex: 3,
-                    }
-                  }}
-                  onMouseEnter={(e) => setTooltipState({ anchorEl: e.currentTarget, data: p.data })}
-                  onMouseLeave={() => setTooltipState({ anchorEl: null, data: null })}
-                />
-              );
+            return (
+              <Box
+                key={`dot-${i}`}
+                sx={{
+                  position: 'absolute',
+                  left: `${leftPercent}%`,
+                  top: `${topPercent}%`,
+                  width: 16,
+                  height: 16,
+                  borderRadius: '50%',
+                  backgroundColor: theme.palette.background.paper,
+                  border: `2px solid ${theme.palette.primary.main}`,
+                  transform: 'translate(-50%, -50%)',
+                  cursor: 'pointer',
+                  zIndex: 2,
+                  transition: 'transform 0.2s, box-shadow 0.2s',
+                  '&:hover': {
+                    transform: 'translate(-50%, -50%) scale(1.25)',
+                    boxShadow: theme.shadows[3],
+                    zIndex: 3,
+                  },
+                }}
+                onMouseEnter={(e) => setTooltipState({ anchorEl: e.currentTarget, data: p.data })}
+                onMouseLeave={() => setTooltipState({ anchorEl: null, data: null })}
+              />
+            );
           })}
 
-          {showUserTrend && validUserPoints.map((p, i) => {
+          {showUserTrend &&
+            validUserPoints.map((p, i) => {
               const leftPercent = (p.x / VIEWBOX_WIDTH) * 100;
               const topPercent = (p.userY / VIEWBOX_HEIGHT) * 100;
 
@@ -248,21 +239,21 @@ const MoodTrendChart: React.FC<MoodTrendChartProps> = ({
                     zIndex: 4,
                     transition: 'transform 0.2s, box-shadow 0.2s',
                     '&:hover': {
-                       transform: 'translate(-50%, -50%) scale(1.25)',
-                       boxShadow: theme.shadows[3],
-                       zIndex: 5,
-                    }
+                      transform: 'translate(-50%, -50%) scale(1.25)',
+                      boxShadow: theme.shadows[3],
+                      zIndex: 5,
+                    },
                   }}
                   onMouseEnter={(e) => setTooltipState({ anchorEl: e.currentTarget, data: p.data })}
                   onMouseLeave={() => setTooltipState({ anchorEl: null, data: null })}
                 />
               );
-          })}
+            })}
 
-          <Popper 
-            open={Boolean(tooltipState.anchorEl)} 
-            anchorEl={tooltipState.anchorEl} 
-            placement="top" 
+          <Popper
+            open={Boolean(tooltipState.anchorEl)}
+            anchorEl={tooltipState.anchorEl}
+            placement="top"
             transition
             modifiers={[
               {
@@ -284,7 +275,7 @@ const MoodTrendChart: React.FC<MoodTrendChartProps> = ({
                     boxShadow: theme.shadows[3],
                   }}
                 >
-                   <Typography variant="caption" display="block" color="text.secondary">
+                  <Typography variant="caption" display="block" color="text.secondary">
                     {t('common.date')}: {tooltipState.data?.displayDate}
                   </Typography>
                   {tooltipState.data?.average !== null && (

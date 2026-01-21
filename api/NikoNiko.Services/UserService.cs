@@ -1,7 +1,9 @@
 using System.Security.Cryptography;
 using System.Text;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+
 using NikoNiko.Core.DTOs.User;
 using NikoNiko.Core.DTOs.User.Export;
 using NikoNiko.Core.Interfaces;
@@ -136,16 +138,16 @@ public class UserService : IUserService
         // Safety check: Cannot delete self via this method if not 'me' endpoint (controller handles 'me' vs 'id' route logic, but service needs safety)
         // Actually, logic is: SuperAdmin deletes OTHER user. User deletes SELF.
         // If isSuperAdmin is true, userId can be anything EXCEPT authenticatedUserId (handled by controller usually, but safe to check here).
-        
+
         if (isSuperAdmin && userId == authenticatedUserId)
         {
-             throw new ArgumentException("You cannot delete your own account via administrative action.");
+            throw new ArgumentException("You cannot delete your own account via administrative action.");
         }
-        
+
         // If not super admin, user can ONLY delete themselves.
         if (!isSuperAdmin && userId != authenticatedUserId)
         {
-             throw new UnauthorizedAccessException("You are not authorized to delete this user.");
+            throw new UnauthorizedAccessException("You are not authorized to delete this user.");
         }
 
         var user = await _context.Users.FindAsync(userId);

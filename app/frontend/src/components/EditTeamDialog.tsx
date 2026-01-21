@@ -107,7 +107,7 @@ const EditTeamDialog: React.FC<EditTeamDialogProps> = ({
               <Typography variant="body2" gutterBottom>
                 {t('adminTeams.editDialog.transferWarning')}
               </Typography>
-              
+
               {transferError && (
                 <Alert severity="error" sx={{ mb: 2 }}>
                   {transferError}

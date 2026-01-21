@@ -57,4 +57,3 @@ export const calculateMoodTrend = (
     }))
     .sort((a, b) => a.date.localeCompare(b.date));
 };
-

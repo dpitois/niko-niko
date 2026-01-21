@@ -3,8 +3,8 @@ using System.Text;
 
 using Microsoft.EntityFrameworkCore;
 
-using NikoNiko.Core.Interfaces;
 using NikoNiko.Core.DTOs.Team.Invitation;
+using NikoNiko.Core.Interfaces;
 using NikoNiko.Core.Models;
 using NikoNiko.Data;
 

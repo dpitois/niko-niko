@@ -142,7 +142,9 @@ const TeamCurrentSprintSection: React.FC<TeamCurrentSprintSectionProps> = ({ tea
 
   const currentSprint = sprints?.find((sprint: Sprint) => {
     const today = dayjs();
-    return today.isSameOrAfter(sprint.startDate, 'day') && today.isSameOrBefore(sprint.endDate, 'day');
+    return (
+      today.isSameOrAfter(sprint.startDate, 'day') && today.isSameOrBefore(sprint.endDate, 'day')
+    );
   });
 
   return (

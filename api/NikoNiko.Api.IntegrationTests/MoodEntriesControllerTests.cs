@@ -7,17 +7,18 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.TestHost;
+
 using Moq;
 
 using NikoNiko.Core.DTOs.Mood;
 using NikoNiko.Core.DTOs.Sprint;
 using NikoNiko.Core.DTOs.Team;
 using NikoNiko.Core.DTOs.User;
-using NikoNiko.Core.Models;
 using NikoNiko.Core.Interfaces;
+using NikoNiko.Core.Models;
 using NikoNiko.Data;
 using NikoNiko.Services;
 

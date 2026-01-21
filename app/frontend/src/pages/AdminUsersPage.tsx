@@ -151,20 +151,21 @@ const AdminUsersPage: React.FC = () => {
         mutate();
       } catch (error: unknown) {
         let errorMessage = t('adminUsers.deleteDialog.fail', { name: userToDeleteName });
-        
+
         if (axios.isAxiosError(error)) {
-           // If the server returns a specific message (e.g. 409 Conflict), use it.
-           // Usually the backend returns just a string for BadRequest/Conflict in my controller update.
-           // But depending on how BadRequest("msg") works, it might be in error.response.data directly or error.response.data.title/message
-           // Based on my controller code: return Conflict($"Cannot delete..."); -> content is plain string or text/plain
-           
-           if (typeof error.response?.data === 'string' && error.response.data) {
-             errorMessage = error.response.data;
-           } else if (error.response?.data?.message) {
-             errorMessage = error.response.data.message;
-           } else if (error.response?.data?.title) { // Sometimes problem details
-             errorMessage = error.response.data.title;
-           }
+          // If the server returns a specific message (e.g. 409 Conflict), use it.
+          // Usually the backend returns just a string for BadRequest/Conflict in my controller update.
+          // But depending on how BadRequest("msg") works, it might be in error.response.data directly or error.response.data.title/message
+          // Based on my controller code: return Conflict($"Cannot delete..."); -> content is plain string or text/plain
+
+          if (typeof error.response?.data === 'string' && error.response.data) {
+            errorMessage = error.response.data;
+          } else if (error.response?.data?.message) {
+            errorMessage = error.response.data.message;
+          } else if (error.response?.data?.title) {
+            // Sometimes problem details
+            errorMessage = error.response.data.title;
+          }
         } else if (error instanceof Error) {
           errorMessage = error.message;
         }

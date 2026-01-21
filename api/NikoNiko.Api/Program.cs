@@ -11,10 +11,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 using NikoNiko.Api.Authorization;
+using NikoNiko.Core.Interfaces;
 using NikoNiko.Data;
 using NikoNiko.Data.PostgreSql;
 using NikoNiko.Data.Sqlite;
-using NikoNiko.Core.Interfaces;
 using NikoNiko.Services;
 
 using IAuthorizationHandler = Microsoft.AspNetCore.Authorization.IAuthorizationHandler;

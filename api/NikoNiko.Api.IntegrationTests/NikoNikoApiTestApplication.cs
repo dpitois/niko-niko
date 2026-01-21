@@ -19,8 +19,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 
-using NikoNiko.Core.Models;
 using NikoNiko.Core.Interfaces;
+using NikoNiko.Core.Models;
 using NikoNiko.Data;
 using NikoNiko.Services;
 

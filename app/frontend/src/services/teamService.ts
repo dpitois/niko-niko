@@ -35,4 +35,3 @@ export const transferTeamAdmin = async (teamId: string, newAdminId: string): Pro
 export const removeUserFromTeam = async (teamId: string, userId: string): Promise<void> => {
   await api.delete(`/teams/${teamId}/users/${userId}`);
 };
-

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+
 using NikoNiko.Core.DTOs;
 using NikoNiko.Core.DTOs.Mood;
 using NikoNiko.Core.Interfaces;

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+
 using NikoNiko.Core.DTOs.Sprint;
 using NikoNiko.Core.DTOs.Team;
 using NikoNiko.Core.DTOs.User;

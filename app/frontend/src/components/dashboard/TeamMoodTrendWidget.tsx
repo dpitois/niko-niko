@@ -1,11 +1,6 @@
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  Card,
-  CardContent,
-  CircularProgress,
-  Typography,
-} from '@mui/material';
+import { Card, CardContent, CircularProgress, Typography } from '@mui/material';
 
 import { useAuth } from '@/context/AuthContext';
 import { useMoods } from '@/hooks/useMoods';
@@ -46,7 +41,9 @@ const TeamMoodTrendWidget: React.FC<TeamMoodTrendWidgetProps> = ({
 
   return (
     <Card sx={{ height: '100%', boxShadow: 3, borderRadius: 2 }}>
-      <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column', pb: '16px !important' }}>
+      <CardContent
+        sx={{ height: '100%', display: 'flex', flexDirection: 'column', pb: '16px !important' }}
+      >
         <Typography variant="h6" gutterBottom align="center" sx={{ fontSize: '1rem' }}>
           {t('dashboard.teamTrend', "Tendance de l'équipe")}
         </Typography>

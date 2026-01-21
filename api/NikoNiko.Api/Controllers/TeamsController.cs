@@ -1,6 +1,8 @@
 using System.Security.Claims;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 using NikoNiko.Core.DTOs.Team;
 using NikoNiko.Core.Interfaces;
 

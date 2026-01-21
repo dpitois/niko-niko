@@ -225,11 +225,7 @@ const ProfilePage = () => {
                 />
                 <TextField
                   label={t('adminUsers.table.createdAt')}
-                  value={
-                    userDetails?.createdAt
-                      ? dayjs(userDetails.createdAt).format('L')
-                      : '...'
-                  }
+                  value={userDetails?.createdAt ? dayjs(userDetails.createdAt).format('L') : '...'}
                   slotProps={{
                     input: {
                       readOnly: true,

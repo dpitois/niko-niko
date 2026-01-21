@@ -23,7 +23,7 @@ export const useMoodMutation = (sprintId: string) => {
     // We compare using the same logic: startOf('day') in local time or just use the backend date string if available
     // Here we use the backend date check logic we established:
     const existingMood = moods.find(
-      (m) => m.userId === userId && dayjs(m.date).startOf('day').isSame(date.startOf('day'))
+      (m) => m.userId === userId && dayjs(m.date).startOf('day').isSame(date.startOf('day')),
     );
 
     // 1. Optimistic Data Construction
@@ -58,7 +58,7 @@ export const useMoodMutation = (sprintId: string) => {
           userId,
         });
       }
-      
+
       // 3. Revalidate
       await mutateMoods();
       return true; // Success

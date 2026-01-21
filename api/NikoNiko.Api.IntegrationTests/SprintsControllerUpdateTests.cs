@@ -2,10 +2,13 @@ using System;
 using System.Net;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+
 using Microsoft.Extensions.DependencyInjection;
+
 using NikoNiko.Core.DTOs.Sprint;
 using NikoNiko.Core.Models;
 using NikoNiko.Data;
+
 using Xunit;
 
 namespace NikoNiko.Api.IntegrationTests;
@@ -48,12 +51,12 @@ public class SprintsControllerUpdateTests
 
         // Assert
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
-        
+
         using var scope = application.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         var updatedSprint = await dbContext.Sprints.FindAsync(sprint.Id);
         Assert.NotNull(updatedSprint);
-        
+
         Assert.Equal("Sprint 1 Updated", updatedSprint.Name);
         Assert.Equal(updateDto.StartDate.ToUniversalTime(), updatedSprint.StartDate);
         Assert.Equal(updateDto.EndDate.ToUniversalTime(), updatedSprint.EndDate);
@@ -69,7 +72,7 @@ public class SprintsControllerUpdateTests
 
         var startDate = GetUtcDate();
         var endDate = GetUtcDate(10);
-        
+
         var createSprintDto = new CreateSprintDto
         {
             Name = "Sprint 1",
@@ -121,7 +124,7 @@ public class SprintsControllerUpdateTests
 
         var startDate = GetUtcDate();
         var endDate = GetUtcDate(10);
-        
+
         var createSprintDto = new CreateSprintDto
         {
             Name = "Sprint 1",
@@ -173,7 +176,7 @@ public class SprintsControllerUpdateTests
 
         var startDate = GetUtcDate();
         var endDate = GetUtcDate(10);
-        
+
         var createSprintDto = new CreateSprintDto
         {
             Name = "Sprint 1",

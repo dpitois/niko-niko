@@ -1,6 +1,8 @@
 using System.Security.Claims;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 using NikoNiko.Core.DTOs;
 using NikoNiko.Core.DTOs.Mood;
 using NikoNiko.Core.Interfaces;
@@ -105,7 +107,7 @@ public class MoodEntriesController : ControllerBase
         try
         {
             var (moodEntryDto, isCreated) = await _moodService.CreateOrUpdateMoodEntryAsync(createMoodEntryDto, authenticatedUserId);
-            
+
             if (isCreated)
             {
                 return CreatedAtAction(nameof(GetMoodEntry), new { moodEntryId = moodEntryDto.Id }, moodEntryDto);
@@ -154,7 +156,7 @@ public class MoodEntriesController : ControllerBase
         try
         {
             var moodEntries = await _moodService.GetMoodEntriesBySprintAsync(sprintId, userId, date, authenticatedUserId, isSuperAdmin);
-            
+
             if (!moodEntries.Any() && (userId.HasValue || date.HasValue))
             {
                 return NotFound($"No mood entries found for sprint {sprintId} with the given criteria.");

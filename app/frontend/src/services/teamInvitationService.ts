@@ -10,7 +10,7 @@ export const teamInvitationService = {
   createTeamInvitation: async (createData: CreateTeamInvitation): Promise<TeamInvitation> => {
     const response = await api.post<TeamInvitation>(
       `${TEAMS_BASE_URL}/${createData.teamId}/invitations`,
-      createData
+      createData,
     );
     return response.data;
   },

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+
 using NikoNiko.Core.DTOs.Sprint;
 using NikoNiko.Core.Interfaces;
 using NikoNiko.Core.Models;
@@ -79,8 +80,8 @@ public class SprintService : ISprintService
         var sprint = new Sprint
         {
             Name = createSprintDto.Name,
-            StartDate = createSprintDto.StartDate.ToUniversalTime(),
-            EndDate = createSprintDto.EndDate.ToUniversalTime(),
+            StartDate = DateTime.SpecifyKind(createSprintDto.StartDate.Date, DateTimeKind.Utc),
+            EndDate = DateTime.SpecifyKind(createSprintDto.EndDate.Date, DateTimeKind.Utc),
             TeamId = createSprintDto.TeamId
         };
 
@@ -113,8 +114,8 @@ public class SprintService : ISprintService
             throw new ArgumentException("End date must be after start date.");
         }
 
-        var newStart = updateSprintDto.StartDate.ToUniversalTime();
-        var newEnd = updateSprintDto.EndDate.ToUniversalTime();
+        var newStart = DateTime.SpecifyKind(updateSprintDto.StartDate.Date, DateTimeKind.Utc);
+        var newEnd = DateTime.SpecifyKind(updateSprintDto.EndDate.Date, DateTimeKind.Utc);
 
         // Validate date range against existing mood entries
         if (sprint.MoodEntries.Any())

@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Box, Divider, Grid,Typography } from '@mui/material';
+import { Box, Divider, Grid, Typography } from '@mui/material';
 
 import { useMoods } from '@/hooks/useMoods';
 import type { User } from '@/models/User';
@@ -52,18 +52,14 @@ const PastSprintDetails: React.FC<PastSprintDetailsProps> = ({
             {t('dashboard.teamTrend')}
           </Typography>
           <Box sx={{ height: 150 }}>
-             <MoodTrendChart chartData={chartData} showUserTrend={false} />
+            <MoodTrendChart chartData={chartData} showUserTrend={false} />
           </Box>
         </Grid>
         <Grid size={{ xs: 12, md: 6 }}>
-           <Typography variant="subtitle1" gutterBottom fontWeight="bold">
-            {t('pastSprints.moodGrid', 'Grille d\'humeurs')}
+          <Typography variant="subtitle1" gutterBottom fontWeight="bold">
+            {t('pastSprints.moodGrid', "Grille d'humeurs")}
           </Typography>
-          <MoodGridDisplay
-            sprintDates={sprintDates}
-            teamMembers={teamMembers}
-            moods={moods}
-          />
+          <MoodGridDisplay sprintDates={sprintDates} teamMembers={teamMembers} moods={moods} />
         </Grid>
       </Grid>
       <Divider sx={{ mt: 4 }} />

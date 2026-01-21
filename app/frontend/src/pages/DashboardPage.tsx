@@ -4,13 +4,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 // Material UI Imports
-import {
-  Box,
-  Button,
-  CircularProgress,
-  Grid,
-  Typography,
-} from '@mui/material';
+import { Box, Button, CircularProgress, Grid, Typography } from '@mui/material';
 import dayjs from 'dayjs';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
@@ -109,7 +103,9 @@ const TeamDashboardSection: React.FC<TeamDashboardSectionProps> = ({ team }) => 
 
   const currentSprint = sprints?.find((sprint: Sprint) => {
     const today = dayjs();
-    return today.isSameOrAfter(sprint.startDate, 'day') && today.isSameOrBefore(sprint.endDate, 'day');
+    return (
+      today.isSameOrAfter(sprint.startDate, 'day') && today.isSameOrBefore(sprint.endDate, 'day')
+    );
   });
 
   return (

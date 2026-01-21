@@ -81,10 +81,15 @@ const PastSprintsPage: React.FC = () => {
 
         return (
           <Box key={team.id} sx={{ mb: 6 }}>
-            <Typography variant="h5" fontWeight="bold" gutterBottom sx={{ borderBottom: 1, borderColor: 'divider', pb: 1, mb: 3 }}>
+            <Typography
+              variant="h5"
+              fontWeight="bold"
+              gutterBottom
+              sx={{ borderBottom: 1, borderColor: 'divider', pb: 1, mb: 3 }}
+            >
               {team.name}
             </Typography>
-            
+
             {pastSprints.map((sprint: Sprint) => (
               <Accordion key={sprint.id} TransitionProps={{ unmountOnExit: true }} sx={{ mb: 1 }}>
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
@@ -93,7 +98,8 @@ const PastSprintsPage: React.FC = () => {
                       {sprint.name}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
-                      {new Date(sprint.startDate).toLocaleDateString()} - {new Date(sprint.endDate).toLocaleDateString()}
+                      {new Date(sprint.startDate).toLocaleDateString()} -{' '}
+                      {new Date(sprint.endDate).toLocaleDateString()}
                     </Typography>
                   </Box>
                 </AccordionSummary>
@@ -110,10 +116,10 @@ const PastSprintsPage: React.FC = () => {
           </Box>
         );
       })}
-      
-      {sortedTeams.every(t => t.sprints.filter(s => dayjs(s.endDate).isBefore(today, 'day')).length === 0) && (
-        <Typography variant="body1">{t('pastSprints.noSprintsFound')}</Typography>
-      )}
+
+      {sortedTeams.every(
+        (t) => t.sprints.filter((s) => dayjs(s.endDate).isBefore(today, 'day')).length === 0,
+      ) && <Typography variant="body1">{t('pastSprints.noSprintsFound')}</Typography>}
     </PageContainer>
   );
 };

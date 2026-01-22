@@ -3,6 +3,9 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions; // Added for Regex
 
+using FluentValidation;
+using FluentValidation.AspNetCore;
+
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
@@ -25,6 +28,8 @@ var config = builder.Configuration;
 // 1. Add services to the container.
 // -----------------------------------------------------------------------------
 builder.Services.AddControllers();
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<ITeamInvitationService, TeamInvitationService>();
 builder.Services.AddScoped<ITeamService, TeamService>();

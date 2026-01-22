@@ -5,6 +5,7 @@ import Button from '@mui/material/Button';
 // Material UI Imports
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
+import axios from 'axios';
 
 import { useAuth } from '@/context/AuthContext';
 import type { CreateTeam } from '@/models/CreateTeam';
@@ -19,10 +20,12 @@ const CreateTeamForm: React.FC<CreateTeamFormProps> = ({ onTeamCreated }) => {
   const { user } = useAuth();
   const [name, setName] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [serverErrors, setServerErrors] = useState<Record<string, string[]>>({});
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setServerErrors({});
 
     if (!name) {
       setError(t('adminTeams.createForm.errorFill'));
@@ -43,8 +46,12 @@ const CreateTeamForm: React.FC<CreateTeamFormProps> = ({ onTeamCreated }) => {
       await createTeam(newTeam);
       onTeamCreated();
       setName('');
-    } catch {
-      setError(t('adminTeams.createForm.errorFail'));
+    } catch (err) {
+      if (axios.isAxiosError(err) && err.response?.status === 400 && err.response.data.errors) {
+        setServerErrors(err.response.data.errors);
+      } else {
+        setError(t('adminTeams.createForm.errorFail'));
+      }
     }
   };
 
@@ -53,7 +60,7 @@ const CreateTeamForm: React.FC<CreateTeamFormProps> = ({ onTeamCreated }) => {
       <Box
         component="form"
         onSubmit={handleSubmit}
-        sx={{ display: 'flex', alignItems: 'center', gap: 2 }}
+        sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}
       >
         <TextField
           label={t('adminTeams.createForm.labelName')}
@@ -63,8 +70,10 @@ const CreateTeamForm: React.FC<CreateTeamFormProps> = ({ onTeamCreated }) => {
           variant="outlined"
           size="small"
           sx={{ flexGrow: 1 }}
+          error={!!serverErrors['Name']}
+          helperText={serverErrors['Name'] ? t(serverErrors['Name'][0]) : ''}
         />
-        <Button type="submit" variant="contained" color="primary">
+        <Button type="submit" variant="contained" color="primary" sx={{ height: '40px' }}>
           {t('adminTeams.createForm.createButton')}
         </Button>
       </Box>

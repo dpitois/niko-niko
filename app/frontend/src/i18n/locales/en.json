@@ -72,6 +72,11 @@
     "averageMood": "Average Mood",
     "yourMood": "Your Mood"
   },
+  "validation": {
+    "required": "This field is required",
+    "maxLength_100": "Must be 100 characters or less",
+    "endDateBeforeStartDate": "End date must be after start date"
+  },
   "mood": {
     "happy": "Happy",
     "neutral": "Neutral",

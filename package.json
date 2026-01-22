@@ -1,0 +1,25 @@
+{
+  "private": true,
+  "name": "nikoniko",
+  "version": "1.0.0",
+  "description": "Create a **distributed** and **self-hosted** (via Docker) application to allow Agile teams to track their daily morale.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dpitois/niko-niko.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "AGPL-3.0-only",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/dpitois/niko-niko/issues"
+  },
+  "homepage": "https://github.com/dpitois/niko-niko#readme",
+  "devDependencies": {
+    "conventional-changelog-cli": "^5.0.0"
+  }
+}

@@ -25,3 +25,9 @@ data/
 # Docker specifics
 docker-compose*.override.yml
 .env
+
+# Release flow artifacts
+plans/
+scripts/
+package.json
+package-lock.json

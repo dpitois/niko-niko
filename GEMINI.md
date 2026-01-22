@@ -252,3 +252,4 @@ If you wish to run frontend and/or backend locally without Docker Compose, follo
 - The user prefers to be given the command to run the development server or start the Azure Function API, instead of being asked for permission to execute it.
 - When launching the project with `docker compose up`, the user prefers the `-d` option to run services in detached mode.
 - **Material UI Grid Syntax**: When using the Material UI Grid component, the correct syntax is `<Grid size={{ xs: 12, sm: 6 }}>`. The `item` prop is deprecated and should not be used.
+- All implementation plans must be written in Markdown and STRICTLY in English. No French or mixed languages in plans.

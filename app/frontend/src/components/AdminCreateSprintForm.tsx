@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Box, Button, Grid, MenuItem, TextField, Typography } from '@mui/material';
 import dayjs from 'dayjs';
+import axios from 'axios';
 
 import type { CreateSprint } from '@/models/CreateSprint';
 import type { TeamDto } from '@/models/Team';
@@ -22,10 +23,12 @@ const AdminCreateSprintForm: React.FC<AdminCreateSprintFormProps> = ({
   const [endDate, setEndDate] = useState('');
   const [selectedTeamId, setSelectedTeamId] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [serverErrors, setServerErrors] = useState<Record<string, string[]>>({});
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setServerErrors({});
 
     if (!name || !startDate || !endDate || !selectedTeamId) {
       setError(t('adminSprints.createForm.errorFill'));
@@ -52,8 +55,12 @@ const AdminCreateSprintForm: React.FC<AdminCreateSprintFormProps> = ({
       setStartDate('');
       setEndDate('');
       setSelectedTeamId('');
-    } catch {
-      setError(t('adminSprints.createForm.errorFail'));
+    } catch (err) {
+      if (axios.isAxiosError(err) && err.response?.status === 400 && err.response.data.errors) {
+        setServerErrors(err.response.data.errors);
+      } else {
+        setError(t('adminSprints.createForm.errorFail'));
+      }
     }
   };
 
@@ -64,7 +71,7 @@ const AdminCreateSprintForm: React.FC<AdminCreateSprintFormProps> = ({
           {error}
         </Typography>
       )}
-      <Grid container spacing={2} alignItems="center">
+      <Grid container spacing={2} alignItems="flex-start">
         <Grid size={{ xs: 12, md: 3 }}>
           <TextField
             select
@@ -74,6 +81,8 @@ const AdminCreateSprintForm: React.FC<AdminCreateSprintFormProps> = ({
             onChange={(e) => setSelectedTeamId(e.target.value)}
             fullWidth
             required
+            error={!!serverErrors['TeamId']}
+            helperText={serverErrors['TeamId'] ? t(serverErrors['TeamId'][0]) : ''}
           >
             {teams.map((team) => (
               <MenuItem key={team.id} value={team.id}>
@@ -91,6 +100,8 @@ const AdminCreateSprintForm: React.FC<AdminCreateSprintFormProps> = ({
             onChange={(e) => setName(e.target.value)}
             fullWidth
             required
+            error={!!serverErrors['Name']}
+            helperText={serverErrors['Name'] ? t(serverErrors['Name'][0]) : ''}
           />
         </Grid>
         <Grid size={{ xs: 6, md: 2 }}>
@@ -105,6 +116,8 @@ const AdminCreateSprintForm: React.FC<AdminCreateSprintFormProps> = ({
             }}
             fullWidth
             required
+            error={!!serverErrors['StartDate']}
+            helperText={serverErrors['StartDate'] ? t(serverErrors['StartDate'][0]) : ''}
           />
         </Grid>
         <Grid size={{ xs: 6, md: 2 }}>
@@ -119,6 +132,8 @@ const AdminCreateSprintForm: React.FC<AdminCreateSprintFormProps> = ({
             }}
             fullWidth
             required
+            error={!!serverErrors['EndDate']}
+            helperText={serverErrors['EndDate'] ? t(serverErrors['EndDate'][0]) : ''}
           />
         </Grid>
         <Grid size={{ xs: 12, md: 2 }}>

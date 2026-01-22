@@ -72,6 +72,11 @@
     "averageMood": "Humeur moyenne",
     "yourMood": "Votre humeur"
   },
+  "validation": {
+    "required": "Ce champ est requis",
+    "maxLength_100": "Doit faire 100 caractères ou moins",
+    "endDateBeforeStartDate": "La date de fin doit être après la date de début"
+  },
   "mood": {
     "happy": "Heureux",
     "neutral": "Neutre",

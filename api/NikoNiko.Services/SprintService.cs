@@ -76,11 +76,6 @@ public class SprintService : ISprintService
             throw new UnauthorizedAccessException("Only team admins or super admins can create sprints.");
         }
 
-        if (createSprintDto.EndDate <= createSprintDto.StartDate)
-        {
-            throw new ArgumentException("End date must be after start date.");
-        }
-
         var sprint = new Sprint
         {
             Name = createSprintDto.Name,
@@ -111,11 +106,6 @@ public class SprintService : ISprintService
         if (sprint == null)
         {
             throw new KeyNotFoundException("Sprint not found.");
-        }
-
-        if (updateSprintDto.EndDate <= updateSprintDto.StartDate)
-        {
-            throw new ArgumentException("End date must be after start date.");
         }
 
         var newStart = updateSprintDto.StartDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);

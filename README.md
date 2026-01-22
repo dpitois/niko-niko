@@ -1,190 +1,143 @@
-# Projet : Niko Niko Calendar
+# Project: Niko Niko Calendar
 
-## 1. Objectif de l'Application
+## 1. Application Objective
 
-Créer une application **distribuée** et **auto-hébergée** (via Docker) pour permettre aux équipes Agile de suivre leur moral quotidien.
+Create a **distributed** and **self-hosted** (via Docker) application to allow Agile teams to track their daily morale.
 
-- **Transparence** : Visualiser l’humeur collective.
-- **Détection précoce** : Identifier les baisses de moral.
-- **Empathie** : Comprendre les défis de l'équipe.
-- **Motivation** : Encourager l'utilisation via la gamification.
+- **Transparency**: Visualize collective mood.
+- **Early Detection**: Identify drops in morale.
+- **Empathy**: Understand team challenges.
+- **Motivation**: Encourage use through gamification.
 
-**Public Cible** : Équipes Agile, Managers, Scrum Masters, et membres de projets.
+**Target Audience**: Agile Teams, Managers, Scrum Masters, and project members.
 
-## 2. Stack Technique
+## 2. Tech Stack
 
-- **Backend** : API RESTful en **.NET 10** (WebAPI).
-  - **Architecture** : Pattern **Skinny Controllers** / **Fat Services**.
-  - **Contrats** : Interfaces définies dans `NikoNiko.Core/Interfaces`.
-  - **Logique** : Services implémentés dans `NikoNiko.Services`.
-- **Frontend** : Application **React 19+** avec TypeScript, Material UI, Axios, et SWR.
-- **Base de Données** : **PostgreSQL / SQLite (configurable)**.
-- **Déploiement** : **Docker** (3 services : backend, frontend, db) avec une configuration centralisée dans `docker/`.
+- **Backend**: RESTful API in **.NET 10** (WebAPI).
+  - **Architecture**: **Skinny Controllers** / **Fat Services** pattern.
+  - **Contracts**: Interfaces defined in `NikoNiko.Core/Interfaces`.
+  - **Logic**: Services implemented in `NikoNiko.Services`.
+- **Frontend**: **React 19+** application with TypeScript, Material UI, Axios, and SWR.
+- **Database**: **PostgreSQL / SQLite (configurable)**.
+- **Deployment**: **Docker** (3 services: backend, frontend, db) with centralized configuration in `docker/`.
 
-## 3. Fonctionnalités Clés
+## 3. Key Features
 
-- **Authentification** : OAuth2 (GitHub, Google, Discord). Microsoft est temporairement désactivé.
-- **Gestion d'Équipes** : Création d'équipes (via le tableau de bord admin), gestion des membres et des invitations (création, acceptation, suppression).
-- **Sprints** : Définition de périodes de travail par les admins et suivi des sprints sur le tableau de bord, y compris la création de sprints et une page dédiée pour la creation de sprint.
-- **Suivi d'Humeur** : Enregistrement quotidien (😊/😐/🙁) par sprint, désormais fonctionnel sur le frontend et mis à jour de manière effective, avec une page dédiée pour la saisie de l'humeur.
-- **Notifications Temps Réel** : SignalR pour notifier les actions importantes.
-- **Gamification** : Attribution de badges pour encourager la participation.
-- **Tableau de Bord** : Vue centralisée des équipes, sprints et calendriers, avec une navigation basique, un tableau de bord d'administration et une page "Mes Équipes" pour l'utilisateur.
-- **Déconnexion utilisateur** : Fonctionnalité de déconnexion implémentée côté frontend.
+- **Authentication**: OAuth2 (GitHub, Google, Discord). Microsoft is temporarily disabled.
+- **Team Management**: Team creation (via admin dashboard), member management, and invitations (creation, acceptance, deletion).
+- **Sprints**: Work period definitions by admins and sprint tracking on the dashboard, including sprint creation and a dedicated sprint creation page.
+- **Mood Tracking**: Daily recording (😊/😐/🙁) per sprint, now functional on the frontend and effectively updated, with a dedicated page for mood entry.
+- **Real-time Notifications**: SignalR for notifying important actions.
+- **Gamification**: Badge attribution to encourage participation.
+- **Dashboard**: Centralized view of teams, sprints, and calendars, with basic navigation, an administration dashboard, and a "My Teams" page for the user.
+- **User Logout**: Logout functionality implemented on the frontend.
 
-## 4. Modèles de Données Principaux
+## 4. Main Data Models
 
-- `User` : Utilisateur avec infos OAuth, équipes et badges.
-- `Team` : Équipe avec un admin, des membres et des sprints.
-- `Sprint` : Période de temps avec des dates de début/fin.
-- `MoodEntry` : Enregistrement d'humeur d'un utilisateur pour une date donnée.
-- `Badge` : Récompense de gamification.
+- `User`: User with OAuth info, teams, and badges.
+- `Team`: Team with an admin, members, and sprints.
+- `Sprint`: Time period with start/end dates.
+- `MoodEntry`: User mood record for a given date.
+- `Badge`: Gamification reward.
 
 ## Roles & Permissions
 
-| Action (Endpoint) | Ressource | `user` | `team-admin` | `super-admin` |
+| Action (Endpoint) | Resource | `user` | `team-admin` | `super-admin` |
 | :--- | :--- | :--- | :--- | :--- |
-| **Équipes** | | | | |
-| `GET /api/teams` | Lister les équipes | Uniquement celles dont il est membre | Uniquement celles dont il est membre/admin | **Toutes** |
-| `GET /api/teams/{id}` | Voir une équipe | Uniquement si membre | Uniquement si membre/admin | **Toutes** |
-| `POST /api/teams` | Créer une équipe | **Non** | ✓ (devient admin) | ✓ (devient admin) |
-| `DELETE /api/teams/{id}`| Supprimer une équipe | Non | **Uniquement son équipe** | **Toutes** |
-| **Utilisateurs** | | | | |
-| `GET /api/users` | Lister les utilisateurs | **Utilisateurs de ses équipes** | **Utilisateurs de ses équipes** | **Tous** |
-| `GET /api/users/{id}` | Voir un utilisateur | **Si dans une équipe commune** | **Si dans une équipe commune** | **Tous** |
-| `DELETE /api/users/{id}`| Supprimer un utilisateur | Non | Non | **Tous** |
-| `DELETE /api/teams/{teamId}/users/{userId}` | Retirer d'une équipe | Non | **Uniquement de son équipe** | **Toutes** |
+| **Teams** | | | | |
+| `GET /api/teams` | List teams | Only those they are a member of | Only those they are a member/admin of | **All** |
+| `GET /api/teams/{id}` | View a team | Only if member | Only if member/admin | **All** |
+| `POST /api/teams` | Create a team | **No** | ✓ (becomes admin) | ✓ (becomes admin) |
+| `DELETE /api/teams/{id}`| Delete a team | No | **Only their team** | **All** |
+| **Users** | | | | |
+| `GET /api/users` | List users | **Users from their teams** | **Users from their teams** | **All** |
+| `GET /api/users/{id}` | View a user | **If in a common team** | **If in a common team** | **All** |
+| `DELETE /api/users/{id}`| Delete a user | No | No | **All** |
+| `DELETE /api/teams/{teamId}/users/{userId}` | Remove from a team | No | **Only from their team** | **All** |
 | **Sprints** | | | | |
-| `GET /api/sprints` | Lister les sprints | **Sprints de ses équipes** | **Sprints de ses équipes** | **Tous** |
-| `POST /api/sprints` | Créer un sprint | Non | **Uniquement pour son équipe** | **Tous** |
-| `DELETE /api/sprints/{id}` | Supprimer un sprint | Non | **Uniquement de son équipe** | **Tous** |
-| **Humeurs (Moods)** | | | | |
-| `GET /api/sprints/{sprintId}/moods`| Lister les humeurs | **Humeurs des membres de son équipe pour ce sprint** | **Humeurs des membres de son équipe pour ce sprint** | **Toutes** |
-| `POST /api/moods` | Créer une humeur | ✓ **Pour soi-même** | ✓ **Pour soi-même** | ✓ **Pour soi-même** |
-| `PUT /api/moods/{id}`| Modifier une humeur | ✓ **Uniquement la sienne**| ✓ **Uniquement la sienne**| ✓ **Uniquement la sienne**|
+| `GET /api/sprints` | List sprints | **Sprints from their teams** | **Sprints from their teams** | **All** |
+| `POST /api/sprints` | Create a sprint | No | **Only for their team** | **All** |
+| `DELETE /api/sprints/{id}` | Delete a sprint | No | **Only from their team** | **All** |
+| **Moods** | | | | |
+| `GET /api/sprints/{sprintId}/moods`| List moods | **Moods of team members for this sprint** | **Moods of team members for this sprint** | **All** |
+| `POST /api/moods` | Create a mood | ✓ **For themselves** | ✓ **For themselves** | ✓ **For themselves** |
+| `PUT /api/moods/{id}`| Modify a mood | ✓ **Only their own**| ✓ **Only their own**| ✓ **Only their own**|
 | **Invitations** | | | | |
-| `GET /api/teams/{teamId}/invitations` | Lister les invitations | Non | **Uniquement de son équipe** | **Toutes** |
-| `POST /api/teams/{teamId}/invitations`| Créer une invitation | Non | **Uniquement pour son équipe** | **Toutes** |
-| `DELETE /api/invitations/{id}` | Supprimer une invitation| Non | **Uniquement de son équipe** | **Toutes** |
+| `GET /api/teams/{teamId}/invitations` | List invitations | No | **Only from their team** | **All** |
+| `POST /api/teams/{teamId}/invitations`| Create an invitation | No | **Only for their team** | **All** |
+| `DELETE /api/invitations/{id}` | Delete an invitation| No | **Only from their team** | **All** |
 
-## 5. Configuration de l'Authentification
+## 5. Authentication Configuration
 
-Pour que l'authentification OAuth 2.0 fonctionne, vous devez configurer les fournisseurs externes.
+For OAuth 2.0 authentication to work, you must configure external providers.
 
-1.  **Créez une application OAuth 2.0** pour chaque fournisseur :
+1.  **Create an OAuth 2.0 application** for each provider:
     *   [GitHub Developer Settings](https://github.com/settings/developers)
     *   [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
     *   [Discord Developer Portal](https://discord.com/developers/applications)
 
-2.  **Configurez les URI de redirection** : Lors de la création de vos applications, utilisez les callbacks suivants pour l'environnement de développement.
-    *   GitHub : `http://localhost:5000/signin-github`
-    *   Google : `http://localhost:5000/signin-google`
-    *   Discord : `http://localhost:5000/signin-discord`
+2.  **Configure Redirect URIs**: When creating your applications, use the following callbacks for the development environment.
+    *   GitHub: `http://localhost:5000/signin-github`
+    *   Google: `http://localhost:5000/signin-google`
+    *   Discord: `http://localhost:5000/signin-discord`
 
-3.  **Mettez à jour `appsettings.json` et votre fichier `.env`** : Remplacez les valeurs de `ClientId` et `ClientSecret` avec les vôtres. Assurez-vous également que la variable `JWT_KEY` est définie dans `.env`.
+3.  **Update `appsettings.json` and your `.env` file**: Replace `ClientId` and `ClientSecret` values with your own. Also ensure the `JWT_KEY` variable is defined in `.env`.
 
     ```json
     "Authentication": {
       "GitHub": {
-        "ClientId": "VOTRE_CLIENT_ID_GITHUB",
-        "ClientSecret": "VOTRE_CLIENT_SECRET_GITHUB"
+        "ClientId": "YOUR_GITHUB_CLIENT_ID",
+        "ClientSecret": "YOUR_GITHUB_CLIENT_SECRET"
       },
       "Google": {
-        "ClientId": "VOTRE_CLIENT_ID_GOOGLE",
-        "ClientSecret": "VOTRE_CLIENT_SECRET_GOOGLE"
+        "ClientId": "YOUR_GOOGLE_CLIENT_ID",
+        "ClientSecret": "YOUR_GOOGLE_CLIENT_SECRET"
       },
       "Discord": {
-        "ClientId": "VOTRE_CLIENT_ID_DISCORD",
-        "ClientSecret": "VOTRE_CLIENT_SECRET_DISCORD"
+        "ClientId": "YOUR_DISCORD_CLIENT_ID",
+        "ClientSecret": "YOUR_DISCORD_CLIENT_SECRET"
       }
-      // Microsoft est temporairement désactivé.
+      // Microsoft is temporarily disabled.
     }
     ```
 
-## 5.1. Configuration de la Base de Données
+## 5.1. Database Configuration
 
-Le projet peut être configuré pour utiliser **PostgreSQL** ou **SQLite**.
+The project can be configured to use **PostgreSQL** or **SQLite**.
 
-- **Pour utiliser SQLite (par défaut dans la branche `feature/back_sqlite`)** :
-  1.  Dans `api/backend/appsettings.json`, assurez-vous que `DatabaseProvider` est défini sur `"SQLite"`.
-  2.  Dans `docker-compose.yml`, le service `db` (PostgreSQL) doit être commenté.
+- **To use SQLite (default in the `feature/back_sqlite` branch)**:
+  1.  In `api/backend/appsettings.json`, ensure that `DatabaseProvider` is set to `"SQLite"`.
+  2.  In `docker-compose.yml`, the `db` service (PostgreSQL) must be commented out.
 
-- **Pour revenir à PostgreSQL** :
-  1.  Dans `api/backend/appsettings.json`, changez `DatabaseProvider` pour `"PostgreSQL"` (ou toute autre valeur que "SQLite").
-  2.  Dans `docker-compose.yml`, décommentez le service `db`.
-  3.  **Note** : Les migrations EF Core sont spécifiques au fournisseur. Pour changer de base de données, vous devrez peut-être supprimer le dossier `Migrations` et en créer de nouvelles.
+- **To switch back to PostgreSQL**:
+  1.  In `api/backend/appsettings.json`, change `DatabaseProvider` to `"PostgreSQL"` (or any value other than "SQLite").
+  2.  In `docker-compose.yml`, uncomment the `db` service.
+  3.  **Note**: EF Core migrations are provider-specific. To change databases, you may need to delete the `Migrations` folder and create new ones.
 
-## 5.2. Gestion des Migrations Entity Framework Core
+## 5.2. Managing Entity Framework Core Migrations
 
-Les migrations EF Core doivent être exécutées à l'intérieur du conteneur `backend` pour assurer l'accès à la base de données SQLite mappée.
+EF Core migrations must be executed inside the `backend` container to ensure access to the mapped SQLite database.
 
-1.  **Assurez-vous que le service `backend` est lancé** (au moins `docker compose up -d backend`).
-2.  **Accédez au shell du conteneur `backend`** :
+1.  **Ensure the `backend` service is running** (at least `docker compose up -d backend`).
+2.  **Access the `backend` container shell**:
     ```bash
     docker compose exec backend bash
     ```
-3.  **Naviguez vers le dossier du projet API** à l'intérieur du conteneur :
+3.  **Navigate to the API project folder** inside the container:
     ```bash
     cd /app/api/NikoNiko.Api
     ```
-4.  **Ajoutez une nouvelle migration** (remplacez `NomDeVotreMigration` par un nom descriptif) :
+4.  **Add a new migration** (replace `YourMigrationName` with a descriptive name):
     ```bash
-    dotnet ef migrations add NomDeVotreMigration --project ../NikoNiko.Data --startup-project .
+    dotnet ef migrations add YourMigrationName --project ../NikoNiko.Data --startup-project .
     ```
-5.  **Les migrations sont appliquées automatiquement** au démarrage du service `backend` via `dbContext.Database.Migrate()` dans `Program.cs`. Vous n'avez pas besoin d'exécuter `dotnet ef database update` manuellement.
-6.  **Quittez le shell du conteneur** :
+5.  **Migrations are applied automatically** at `backend` service startup via `dbContext.Database.Migrate()` in `Program.cs`. You don't need to run `dotnet ef database update` manually.
+6.  **Exit the container shell**:
     ```bash
     exit
     ```
 
-## 6. Plan de Développement
 
-Nous allons construire cette application étape par étape, en commençant par la mise en place de l'environnement de développement, puis en développant le backend et le frontend en parallèle.
-
-- **Étape 1 : Initialisation du Projet**
-  - [x] Mettre en place la structure des dossiers (backend, frontend).
-  - [x] Configurer `docker-compose.yml` pour les services.
-  - [x] Réorganiser la structure du projet en déplaçant le backend dans un répertoire `api` et le frontend dans un répertoire `app`.
-- **Étape 2 : Développement Backend (.NET)**
-  - [x] Créer les modèles de données et la configuration Entity Framework Core.
-  - [x] Mettre en place les migrations de base de données.
-  - [x] Développer les contrôleurs API de base (CRUD).
-  - [x] Implémenter l'authentification OAuth 2.0 (GitHub et Google fonctionnels, Microsoft temporairement désactivé).
-  - [x] Résoudre le problème d'enregistrement des dates UTC dans PostgreSQL.
-  - [x] Mettre à jour l'API MoodEntry pour permettre la mise à jour des entrées existantes et la récupération par sprint/utilisateur/date.
-  - [x] Mise à jour de l'API Team pour inclure les sprints dans les informations d'équipe.
-  - [x] Mettre à jour l'API de création de Mood pour permettre de spécifier une date, avec validation (dans la plage du sprint, pas de date future).
-  - [x] **Intégrer SignalR pour les notifications** :
-    *   Créer un second projet backend (`SignalR.Service`) dédié à la gestion des connexions SignalR.
-    *   Le backend actuel (`backend`) enverra des messages (ex: RabbitMQ ou autre queue légère) suite à des événements.
-    *   Le `SignalR.Service` écoutera ces messages et les dispatchera aux clients connectés via SignalR.
-  - [x] **Gestion des Membres et Invitations d'Équipe (pour les Admins)**:
-    *   [x] Permettre aux admins de lister les membres de leurs équipes.
-    *   [x] Implémenter la création d'invitations d'équipe (liens web).
-    *   [x] Gérer l'acceptation de ces invitations par les utilisateurs pour rejoindre une équipe.
-    *   [x] Implémenter la suppression logique (`soft delete`) des invitations.
-  - [ ] Implémenter la logique de gamification (attribution de badges).
-- **Étape 3 : Développement Frontend (React)**
-  - [x] Initialiser l'application React avec Vite et TypeScript.
-  - [x] Mettre en place l'authentification OAuth (côté client).
-  - [x] Créer les pages et composants principaux (Login, Dashboard, Callback), incluant désormais la gestion des sprints et des humeurs.
-  - [x] Implémenter un tableau de bord d'administration et la création d'équipes.
-  - [x] Ajouter une navigation basique et des styles initiaux.
-  - [x] Intégrer SWR pour la récupération des données.
-  - [x] Rendre la sauvegarde de l'humeur effective avec affichage et mise à jour.
-  - [x] Créer une page dédiée "Mes Équipes" listant les équipes de l'utilisateur avec leurs sprints actifs et une redirection vers la saisie d'humeur.
-  - [x] Implémenter une page dédiée pour la création de sprints.
-  - [x] Implémenter la déconnexion utilisateur.
-  - [x] **Connecter le client SignalR** au `SignalR.Service` pour recevoir les notifications en temps réel.
-  - [x] **Interface de Gestion des Membres et Invitations (pour les Admins)**:
-    *   [x] Développer l'UI pour lister les membres de l'équipe.
-    *   [x] Implémenter le formulaire pour créer des liens d'invitation.
-    *   [x] Gérer la logique côté client pour accepter une invitation via un lien.
-    *   [x] Ajouter le bouton de suppression d'invitation dans l'UI.
-- **Étape 4 : Finalisation et Tests**
-  - [ ] Écrire des tests unitaires et d'intégration.
-  - [ ] Rédiger la documentation finale.
-  - [ ] Valider le workflow de déploiement Docker.
 
 ### 2. Run with Docker Compose
 
@@ -210,7 +163,7 @@ To run in production mode (loads `base` + `prod`, ignoring dev overrides):
 docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 ```
 
-**Note sur la persistance des données PostgreSQL**: Les données de la base de données PostgreSQL sont désormais stockées dans un répertoire local (`./postgres_data`) à côté du fichier `docker-compose.yml`. Cela facilite la sauvegarde et la gestion directe des données de la base de données pour les environnements de développement.
+**Note on PostgreSQL data persistence**: PostgreSQL database data is now stored in a local directory (`./postgres_data`) next to the `docker-compose.yml` file. This facilitates backup and direct management of database data for development environments.
 
 To stop the services:
 
@@ -238,7 +191,7 @@ If you wish to run frontend and/or backend locally without Docker Compose, follo
     ```bash
     dotnet run
     ```
-    The API will typically run on `http://localhost:5000` (or as configured in `launchSettings.json`).
+    The API will typically run on `http://localhost:5000" (or as configured in `launchSettings.json`).
 
 #### Frontend (React)
 
@@ -258,8 +211,8 @@ If you wish to run frontend and/or backend locally without Docker Compose, follo
     ```
     The frontend application will typically be accessible at `http://localhost:5173` (or as configured by Vite).
 
-4. Control every changes using ES Lint:
-   ```bash
-   npm run lint
-   ```
-   Fix any lint or Typescript error.
+4.  Control every change using ES Lint:
+    ```bash
+    npm run lint
+    ```
+    Fix any lint or Typescript error.

@@ -209,7 +209,6 @@
       "accountInfo": "Informations du Compte",
       "privacyZone": "Confidentialité & Données",
       "exportData": "Exporter mes données",
-      "exportTooltip": "Fonctionnalité à venir",
       "deleteAccount": "Supprimer mon compte",
       "deleteWarning": "Zone de danger : Cette action est irréversible."
     },

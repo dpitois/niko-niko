@@ -209,7 +209,6 @@
       "accountInfo": "Account Information",
       "privacyZone": "Privacy & Data",
       "exportData": "Export My Data",
-      "exportTooltip": "Feature coming soon",
       "deleteAccount": "Delete My Account",
       "deleteWarning": "Danger Zone: This action is irreversible."
     },

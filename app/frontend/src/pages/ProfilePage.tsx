@@ -28,7 +28,6 @@ import {
   TablePagination,
   Tabs,
   TextField,
-  Tooltip,
   Typography,
 } from '@mui/material';
 import dayjs from 'dayjs';
@@ -245,20 +244,16 @@ const ProfilePage = () => {
                   <Typography variant="subtitle1" gutterBottom>
                     {t('profile.general.exportData')}
                   </Typography>
-                  <Tooltip title={t('profile.general.exportTooltip')}>
-                    <span>
-                      <Button
-                        variant="outlined"
-                        startIcon={isExporting ? <CircularProgress size={20} /> : <DownloadIcon />}
-                        disabled={isExporting}
-                        onClick={handleExport}
-                        fullWidth
-                        sx={{ justifyContent: 'flex-start' }}
-                      >
-                        {isExporting ? t('common.loading') : t('profile.general.exportData')}
-                      </Button>
-                    </span>
-                  </Tooltip>
+                  <Button
+                    variant="outlined"
+                    startIcon={isExporting ? <CircularProgress size={20} /> : <DownloadIcon />}
+                    disabled={isExporting}
+                    onClick={handleExport}
+                    fullWidth
+                    sx={{ justifyContent: 'flex-start' }}
+                  >
+                    {isExporting ? t('common.loading') : t('profile.general.exportData')}
+                  </Button>
                 </Box>
 
                 <Box sx={{ mt: 2 }}>

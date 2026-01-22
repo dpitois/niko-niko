@@ -111,7 +111,16 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
       <Box
         component="nav"
-        sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }} // Reserve space on desktop, none on mobile
+        sx={{
+          width: { sm: open ? drawerWidth : `calc(${theme.spacing(8)} + 1px)` },
+          flexShrink: { sm: 0 },
+          transition: theme.transitions.create('width', {
+            easing: theme.transitions.easing.sharp,
+            duration: open
+              ? theme.transitions.duration.enteringScreen
+              : theme.transitions.duration.leavingScreen,
+          }),
+        }}
         aria-label="mailbox folders"
       >
         {isMobile ? (
@@ -151,7 +160,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         sx={{
           flexGrow: 1,
           p: 3,
-          width: { sm: `calc(100% - ${drawerWidth}px)` }, // Adjust width calculation
+          minWidth: 0,
           mt: { xs: 7, sm: 0 }, // Add margin top on mobile for AppBar
           overflowX: 'hidden',
         }}

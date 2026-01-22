@@ -73,12 +73,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await api.post('/auth/logout');
     } catch (error) {
       console.error('Logout failed on server:', error);
+    } finally {
+      localStorage.removeItem('jwt_token');
+      setUser(null);
+      setIsSuperAdmin(false);
+      setIsOnboarded(false);
+      setUserTeamRoles({}); // Clear roles on logout
     }
-    localStorage.removeItem('jwt_token');
-    setUser(null);
-    setIsSuperAdmin(false);
-    setIsOnboarded(false);
-    setUserTeamRoles({}); // Clear roles on logout
   }, []);
 
   useEffect(() => {

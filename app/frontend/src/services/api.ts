@@ -41,7 +41,11 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // Prevent recursive refresh attempts for auth-related endpoints
+    const authEndpoints = ['/auth/refresh-token', '/auth/login', '/auth/logout'];
+    const isAuthRequest = authEndpoints.some((url) => originalRequest.url?.includes(url));
+
+    if (error.response?.status === 401 && !originalRequest._retry && !isAuthRequest) {
       if (isRefreshing) {
         return new Promise(function (resolve, reject) {
           failedQueue.push({ resolve, reject });

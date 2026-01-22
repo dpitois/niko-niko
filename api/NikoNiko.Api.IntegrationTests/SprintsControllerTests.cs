@@ -35,8 +35,8 @@ public class SprintsControllerTests
         {
             Name = "New Sprint",
             TeamId = team.Id,
-            StartDate = DateTime.UtcNow.AddDays(1),
-            EndDate = DateTime.UtcNow.AddDays(15)
+            StartDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)),
+            EndDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(15))
         };
 
         // Act
@@ -62,8 +62,8 @@ public class SprintsControllerTests
         {
             Name = "New Sprint",
             TeamId = team.Id,
-            StartDate = DateTime.UtcNow.AddDays(1),
-            EndDate = DateTime.UtcNow.AddDays(15)
+            StartDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)),
+            EndDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(15))
         };
 
         // Act
@@ -84,8 +84,8 @@ public class SprintsControllerTests
         {
             Name = "Test Sprint",
             TeamId = team.Id,
-            StartDate = DateTime.UtcNow.AddDays(1),
-            EndDate = DateTime.UtcNow.AddDays(15)
+            StartDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)),
+            EndDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(15))
         };
         var (teamMember, memberClient, _) = await application.CreateUserAndClient("Team Member");
 
@@ -124,8 +124,8 @@ public class SprintsControllerTests
         {
             Name = "Test Sprint",
             TeamId = team.Id,
-            StartDate = DateTime.UtcNow.AddDays(1),
-            EndDate = DateTime.UtcNow.AddDays(15)
+            StartDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)),
+            EndDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(15))
         };
         var (_, nonMemberClient, _) = await application.CreateUserAndClient("Non Team Member");
 
@@ -153,8 +153,8 @@ public class SprintsControllerTests
         {
             Name = "Sprint to Delete",
             TeamId = team.Id,
-            StartDate = DateTime.UtcNow.AddDays(1),
-            EndDate = DateTime.UtcNow.AddDays(15)
+            StartDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)),
+            EndDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(15))
         };
 
         var createSprintResponse = await adminClient.PostAsJsonAsync("/api/sprints", createSprintDto);
@@ -188,8 +188,8 @@ public class SprintsControllerTests
         {
             Name = "Sprint to Delete",
             TeamId = team.Id,
-            StartDate = DateTime.UtcNow.AddDays(1),
-            EndDate = DateTime.UtcNow.AddDays(15)
+            StartDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(1)),
+            EndDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(15))
         };
 
         var createSprintResponse = await adminClient.PostAsJsonAsync("/api/sprints", createSprintDto);

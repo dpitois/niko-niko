@@ -11,6 +11,8 @@
 ## 2. 📋 Checklist
 - [x] Step 1: Fix `SprintService.cs` (Create & Update) to use `SpecifyKind` instead of `ToUniversalTime`.
 - [x] Step 2: Update `GEMINI.md` with "Calendar Date" handling conventions.
+- [x] Step 3: Fix `SprintService.cs` (GetSprints & GetSprintById) to force UTC Kind on return.
+- [x] Step 4: Fix Frontend `AdminEditSprintDialog.tsx` to avoid timezone shift during date formatting.
 - [ ] Verification: Run `SprintsController` tests.
 
 ## 3. 📝 Step-by-Step Implementation Details
@@ -24,50 +26,25 @@
 
 ### Step 1: Fix `SprintService.cs` Date Handling
 *   **Goal:** Ensure dates are stored as Midnight UTC without timezone shifting.
-*   **Action:**
-    *   Modify `api/NikoNiko.Services/SprintService.cs`:
-        *   In `CreateSprintAsync`:
-            Replace:
-            ```csharp
-            StartDate = createSprintDto.StartDate.ToUniversalTime(),
-            EndDate = createSprintDto.EndDate.ToUniversalTime(),
-            ```
-            With:
-            ```csharp
-            StartDate = DateTime.SpecifyKind(createSprintDto.StartDate.Date, DateTimeKind.Utc),
-            EndDate = DateTime.SpecifyKind(createSprintDto.EndDate.Date, DateTimeKind.Utc),
-            ```
-        *   In `UpdateSprintAsync`:
-            Replace:
-            ```csharp
-            var newStart = updateSprintDto.StartDate.ToUniversalTime();
-            var newEnd = updateSprintDto.EndDate.ToUniversalTime();
-            ```
-            With:
-            ```csharp
-            var newStart = DateTime.SpecifyKind(updateSprintDto.StartDate.Date, DateTimeKind.Utc);
-            var newEnd = DateTime.SpecifyKind(updateSprintDto.EndDate.Date, DateTimeKind.Utc);
-            ```
-*   **Verification:** `dotnet test api/NikoNiko.Api.IntegrationTests`
+*   **Action:** (Completed)
 
 ### Step 2: Document Date Handling Standards
 *   **Goal:** Prevent regression.
+*   **Action:** (Completed)
+
+### Step 3: Fix `SprintService.cs` Retrieval Date Handling
+*   **Goal:** Ensure dates returned by the API have `DateTimeKind.Utc` explicitly set so JSON serialization includes the 'Z' suffix, preventing browser timezone interpretation issues.
 *   **Action:**
-    *   Modify `GEMINI.md`.
-    *   Add section:
-        ```markdown
-        ## Date Handling Standards
-        - **Calendar Dates (Sprints, Birthdays):** Store as `DateTime` at Midnight UTC (`DateTime.SpecifyKind(date, DateTimeKind.Utc)`). Do NOT use `.ToUniversalTime()` as it shifts based on server time.
-        - **Point-in-Time (Logs, Events):** Store as True UTC (`DateTime.UtcNow`).
-        ```
-*   **Verification:** Read file.
+    *   Modify `api/NikoNiko.Services/SprintService.cs`:
+        *   In `GetSprintsAsync`: Retrieve data then project using `SpecifyKind`.
+        *   In `GetSprintByIdAsync`: Retrieve data then project using `SpecifyKind`.
+        *   Note: Since `SpecifyKind` cannot be translated to SQL, we must materialize the query first (e.g. to list) or do client-side evaluation.
+*   **Verification:** Manual check of API response or Integration Test.
 
 ## 4. 🧪 Testing Strategy
-*   **Integration Tests:** Verify `SprintsControllerTests` passes. Since tests might run on a UTC machine (CI), they might not catch the regression natively unless the test explicitly sets a non-UTC kind input.
-*   **Manual Verification (Recommended):**
-    1.  Create a Sprint for "2026-01-21".
-    2.  Check DB/API response. It should be `...T00:00:00Z`.
-    3.  If code used `ToUniversalTime()` on a UTC+1 machine, it would have been `Jan 20 23:00`.
+*   **Integration Tests:** Verify `SprintsControllerTests` passes.
+*   **Manual Verification:** Check API JSON output for 'Z' suffix (e.g., `2026-01-01T00:00:00Z`).
 
 ## 5. ✅ Success Criteria
 *   Sprint Start/End dates remain exactly as input by the user (Calendar Date preserved).
+*   Frontend receives explicit UTC dates.

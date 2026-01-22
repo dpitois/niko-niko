@@ -37,8 +37,8 @@ public class MoodEntriesSecurityTests
         {
             Name = "Test Sprint",
             TeamId = team.Id,
-            StartDate = DateTime.UtcNow.Date,
-            EndDate = DateTime.UtcNow.AddDays(15)
+            StartDate = DateOnly.FromDateTime(DateTime.UtcNow.Date),
+            EndDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(15))
         };
         var createSprintResponse = await adminClient.PostAsJsonAsync("/api/sprints", createSprintDto);
         createSprintResponse.EnsureSuccessStatusCode();
@@ -80,8 +80,8 @@ public class MoodEntriesSecurityTests
         {
             Name = "Test Sprint",
             TeamId = team.Id,
-            StartDate = DateTime.UtcNow.Date,
-            EndDate = DateTime.UtcNow.AddDays(15)
+            StartDate = DateOnly.FromDateTime(DateTime.UtcNow.Date),
+            EndDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(15))
         };
         var createSprintResponse = await adminClient.PostAsJsonAsync("/api/sprints", createSprintDto);
         createSprintResponse.EnsureSuccessStatusCode();

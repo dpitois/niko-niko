@@ -46,8 +46,8 @@ public class TeamsControllerRemoveUserTests
         {
             Name = "Sprint 1",
             TeamId = team.Id,
-            StartDate = DateTime.UtcNow,
-            EndDate = DateTime.UtcNow.AddDays(7)
+            StartDate = DateOnly.FromDateTime(DateTime.UtcNow),
+            EndDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(7))
         };
         var sprintResp = await adminClient.PostAsJsonAsync("/api/sprints", createSprintDto);
         var sprint = await sprintResp.Content.ReadFromJsonAsync<SprintDto>();

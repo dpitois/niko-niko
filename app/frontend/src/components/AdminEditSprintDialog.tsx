@@ -40,9 +40,9 @@ const AdminEditSprintDialog: React.FC<AdminEditSprintDialogProps> = ({
   useEffect(() => {
     if (sprint && open) {
       setName(sprint.name);
-      // Format dates to YYYY-MM-DD for the input type="date"
-      setStartDate(new Date(sprint.startDate).toISOString().split('T')[0]);
-      setEndDate(new Date(sprint.endDate).toISOString().split('T')[0]);
+      
+      setStartDate(sprint.startDate.substring(0, 10));
+      setEndDate(sprint.endDate.substring(0, 10));
       setError(null);
     }
   }, [sprint, open]);

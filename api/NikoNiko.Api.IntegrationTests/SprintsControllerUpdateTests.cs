@@ -15,9 +15,9 @@ namespace NikoNiko.Api.IntegrationTests;
 
 public class SprintsControllerUpdateTests
 {
-    private DateTime GetUtcDate(int addDays = 0)
+    private DateOnly GetUtcDate(int addDays = 0)
     {
-        return DateTime.SpecifyKind(DateTime.UtcNow.Date.AddDays(addDays), DateTimeKind.Utc);
+        return DateOnly.FromDateTime(DateTime.UtcNow.AddDays(addDays));
     }
 
     [Fact]
@@ -58,8 +58,8 @@ public class SprintsControllerUpdateTests
         Assert.NotNull(updatedSprint);
 
         Assert.Equal("Sprint 1 Updated", updatedSprint.Name);
-        Assert.Equal(updateDto.StartDate.ToUniversalTime(), updatedSprint.StartDate);
-        Assert.Equal(updateDto.EndDate.ToUniversalTime(), updatedSprint.EndDate);
+        Assert.Equal(updateDto.StartDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc), updatedSprint.StartDate);
+        Assert.Equal(updateDto.EndDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc), updatedSprint.EndDate);
     }
 
     [Fact]
@@ -93,7 +93,7 @@ public class SprintsControllerUpdateTests
             {
                 SprintId = sprint.Id,
                 UserId = teamAdmin.Id,
-                Date = moodDate,
+                Date = moodDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc),
                 Mood = MoodType.Happy
             });
             await dbContext.SaveChangesAsync();
@@ -145,7 +145,7 @@ public class SprintsControllerUpdateTests
             {
                 SprintId = sprint.Id,
                 UserId = teamAdmin.Id,
-                Date = moodDate,
+                Date = moodDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc),
                 Mood = MoodType.Happy
             });
             await dbContext.SaveChangesAsync();
@@ -197,7 +197,7 @@ public class SprintsControllerUpdateTests
             {
                 SprintId = sprint.Id,
                 UserId = teamAdmin.Id,
-                Date = moodDate,
+                Date = moodDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc),
                 Mood = MoodType.Happy
             });
             await dbContext.SaveChangesAsync();

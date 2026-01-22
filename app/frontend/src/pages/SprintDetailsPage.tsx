@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import { Link as RouterLink } from 'react-router-dom';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import { Box, Breadcrumbs, CircularProgress, Link, Typography } from '@mui/material';
+import dayjs from 'dayjs';
 
 import { useSprint } from '@/hooks/useSprint';
 import { useTeam } from '@/hooks/useTeam';
@@ -49,14 +50,13 @@ const SprintDetailsPage: React.FC = () => {
 
       <Box sx={{ mt: 2 }}>
         <Typography variant="h6" gutterBottom>
-          {new Date(sprint.startDate).toLocaleDateString()} -{' '}
-          {new Date(sprint.endDate).toLocaleDateString()}
+          {dayjs(sprint.startDate).format('L')} - {dayjs(sprint.endDate).format('L')}
         </Typography>
         <Box sx={{ overflowX: 'auto', pb: 2, mt: 3 }}>
           <SprintMoodGrid
             sprintId={sprint.id}
-            sprintStartDate={new Date(sprint.startDate)}
-            sprintEndDate={new Date(sprint.endDate)}
+            sprintStartDate={sprint.startDate}
+            sprintEndDate={sprint.endDate}
             teamMembers={team.members}
           />
         </Box>

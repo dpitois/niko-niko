@@ -6,8 +6,6 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 // Material UI Imports
 import { Box, Button, CircularProgress, Grid, Typography } from '@mui/material';
 import dayjs from 'dayjs';
-import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
-import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 
 import useSprints from '@/hooks/useSprints';
 import useTeams from '@/hooks/useTeams';
@@ -17,9 +15,6 @@ import type { TeamWithMembersAndSprints } from '@/models/Team/TeamWithMembersAnd
 import DailyMoodWidget from '@/components/dashboard/DailyMoodWidget';
 import TeamMoodTrendWidget from '@/components/dashboard/TeamMoodTrendWidget';
 import PageContainer from '@/components/layout/PageContainer';
-
-dayjs.extend(isSameOrAfter);
-dayjs.extend(isSameOrBefore);
 
 const DashboardPage: React.FC = () => {
   const { t } = useTranslation();
@@ -130,8 +125,8 @@ const TeamDashboardSection: React.FC<TeamDashboardSectionProps> = ({ team }) => 
             <Typography variant="subtitle1" color="text.secondary">
               {currentSprint.name}
               <Typography component="span" variant="caption" sx={{ ml: 1 }}>
-                ({new Date(currentSprint.startDate).toLocaleDateString()} -{' '}
-                {new Date(currentSprint.endDate).toLocaleDateString()})
+                ({dayjs(currentSprint.startDate).format('L')} -{' '}
+                {dayjs(currentSprint.endDate).format('L')})
               </Typography>
             </Typography>
           )}

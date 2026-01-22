@@ -6,6 +6,7 @@ import { AuthProvider } from '@/context/AuthContext.tsx';
 
 import App from './App.tsx';
 
+import './utils/dayjsConfig'; // Initialize Day.js configuration
 import './index.css';
 import './i18n/config';
 

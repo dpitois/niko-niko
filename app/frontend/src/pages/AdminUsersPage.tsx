@@ -37,6 +37,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
+import dayjs from 'dayjs';
 import axios from 'axios';
 import { useSnackbar } from 'notistack';
 import useSWR from 'swr';
@@ -271,7 +272,7 @@ const AdminUsersPage: React.FC = () => {
                       </Tooltip>
                     </TableCell>
                     <TableCell>
-                      {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '-'}
+                      {user.createdAt ? dayjs(user.createdAt).format('L') : '-'}
                     </TableCell>
                     <TableCell>
                       <IconButton
@@ -365,7 +366,7 @@ const AdminUsersPage: React.FC = () => {
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
                               {t('adminUsers.invitations.expires', {
-                                date: new Date(invitation.expirationDate).toLocaleDateString(),
+                                date: dayjs(invitation.expirationDate).format('L'),
                               })}
                             </Typography>
                           </Grid>

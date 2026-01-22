@@ -131,7 +131,7 @@ const ProfilePage = () => {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `nikoniko-export-${new Date().toISOString().split('T')[0]}.json`;
+      a.download = `nikoniko-export-${dayjs().format('YYYY-MM-DD')}.json`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);

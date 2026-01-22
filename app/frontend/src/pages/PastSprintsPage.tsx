@@ -12,8 +12,6 @@ import {
   Typography,
 } from '@mui/material';
 import dayjs from 'dayjs';
-import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
-import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 
 import useTeams from '@/hooks/useTeams';
 import type { Sprint } from '@/models/Sprint';
@@ -21,9 +19,6 @@ import type { TeamWithMembersAndSprints } from '@/models/Team/TeamWithMembersAnd
 
 import PageContainer from '@/components/layout/PageContainer';
 import PastSprintDetails from '@/components/sprints/PastSprintDetails';
-
-dayjs.extend(isSameOrAfter);
-dayjs.extend(isSameOrBefore);
 
 const PastSprintsPage: React.FC = () => {
   const { t } = useTranslation();
@@ -98,8 +93,7 @@ const PastSprintsPage: React.FC = () => {
                       {sprint.name}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
-                      {new Date(sprint.startDate).toLocaleDateString()} -{' '}
-                      {new Date(sprint.endDate).toLocaleDateString()}
+                      {dayjs(sprint.startDate).format('L')} - {dayjs(sprint.endDate).format('L')}
                     </Typography>
                   </Box>
                 </AccordionSummary>

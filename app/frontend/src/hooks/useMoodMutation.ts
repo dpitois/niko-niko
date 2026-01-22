@@ -15,9 +15,9 @@ export const useMoodMutation = (sprintId: string) => {
 
     setIsUpdating(true);
 
-    // Safe Date logic: Force 12:00 UTC to avoid timezone shifts on backend
-    const safeDate = new Date(Date.UTC(date.year(), date.month(), date.date(), 12, 0, 0));
-    const safeDateStr = safeDate.toISOString();
+    // Safe Date logic: Force 12:00 to avoid timezone shifts when backend parses it.
+    // Using .toISOString() on a 12:00 local time dayjs object.
+    const safeDateStr = date.startOf('day').add(12, 'hour').toISOString();
 
     // Find existing entry for this specific day
     // We compare using the same logic: startOf('day') in local time or just use the backend date string if available

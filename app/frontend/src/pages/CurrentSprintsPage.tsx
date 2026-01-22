@@ -14,8 +14,6 @@ import {
   Typography,
 } from '@mui/material';
 import dayjs from 'dayjs';
-import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
-import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import { useSnackbar } from 'notistack';
 
 import { useAuth } from '@/context/AuthContext';
@@ -28,9 +26,6 @@ import { transferTeamAdmin, updateTeam } from '@/services/teamService';
 import EditTeamDialog from '@/components/EditTeamDialog';
 import PageContainer from '@/components/layout/PageContainer';
 import SprintMoodGrid from '@/components/sprints/SprintMoodGrid';
-
-dayjs.extend(isSameOrAfter);
-dayjs.extend(isSameOrBefore);
 
 const CurrentSprintsPage: React.FC = () => {
   const { t } = useTranslation();
@@ -179,14 +174,14 @@ const TeamCurrentSprintSection: React.FC<TeamCurrentSprintSectionProps> = ({ tea
         {currentSprint ? (
           <Box>
             <Typography variant="subtitle1" color="text.secondary">
-              {currentSprint.name} ({new Date(currentSprint.startDate).toLocaleDateString()} -{' '}
-              {new Date(currentSprint.endDate).toLocaleDateString()})
+              {currentSprint.name} ({dayjs(currentSprint.startDate).format('L')} -{' '}
+              {dayjs(currentSprint.endDate).format('L')})
             </Typography>
             <Box sx={{ overflowX: 'auto', pb: 2, mt: 2 }}>
               <SprintMoodGrid
                 sprintId={currentSprint.id}
-                sprintStartDate={new Date(currentSprint.startDate)}
-                sprintEndDate={new Date(currentSprint.endDate)}
+                sprintStartDate={currentSprint.startDate}
+                sprintEndDate={currentSprint.endDate}
                 teamMembers={team.members}
               />
             </Box>

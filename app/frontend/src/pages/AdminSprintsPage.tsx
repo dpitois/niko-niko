@@ -19,6 +19,7 @@ import {
   ListItem,
   Typography,
 } from '@mui/material';
+import dayjs from 'dayjs';
 import { useSnackbar } from 'notistack';
 
 import useSprints from '@/hooks/useSprints';
@@ -83,14 +84,6 @@ const AdminSprintsPage: React.FC = () => {
     return teams?.find((t) => t.id === teamId)?.name ?? 'Unknown Team';
   };
 
-  const formatDate = (dateStr: string) => {
-    if (!dateStr) return '';
-    const cleanDate = dateStr.substring(0, 10);
-    const [year, month, day] = cleanDate.split('-').map(Number);
-    // Construct date as local time to avoid timezone shifts
-    return new Date(year, month - 1, day).toLocaleDateString();
-  };
-
   return (
     <PageContainer title={t('adminSprints.title')} icon={<TimelineIcon />}>
       <Box sx={{ mb: 4 }}>
@@ -139,8 +132,7 @@ const AdminSprintsPage: React.FC = () => {
                     color="text.secondary"
                     sx={{ flexGrow: 1, textAlign: 'center', display: { xs: 'none', sm: 'block' } }}
                   >
-                    {formatDate(sprint.startDate)} —{' '}
-                    {formatDate(sprint.endDate)}
+                    {dayjs(sprint.startDate).format('L')} — {dayjs(sprint.endDate).format('L')}
                   </Typography>
 
                   {/* Actions */}

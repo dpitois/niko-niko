@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Box, Button, Grid, MenuItem, TextField, Typography } from '@mui/material';
+import dayjs from 'dayjs';
 
 import type { CreateSprint } from '@/models/CreateSprint';
 import type { TeamDto } from '@/models/Team';
@@ -31,7 +32,7 @@ const AdminCreateSprintForm: React.FC<AdminCreateSprintFormProps> = ({
       return;
     }
 
-    if (new Date(startDate) >= new Date(endDate)) {
+    if (dayjs(startDate).isSameOrAfter(dayjs(endDate), 'day')) {
       setError(t('adminSprints.createForm.errorDate'));
       return;
     }

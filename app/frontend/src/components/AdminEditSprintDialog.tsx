@@ -11,6 +11,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import dayjs from 'dayjs';
 import { isAxiosError } from 'axios';
 
 import type { Sprint } from '@/models/Sprint';
@@ -40,9 +41,9 @@ const AdminEditSprintDialog: React.FC<AdminEditSprintDialogProps> = ({
   useEffect(() => {
     if (sprint && open) {
       setName(sprint.name);
-      
-      setStartDate(sprint.startDate.substring(0, 10));
-      setEndDate(sprint.endDate.substring(0, 10));
+
+      setStartDate(dayjs(sprint.startDate).format('YYYY-MM-DD'));
+      setEndDate(dayjs(sprint.endDate).format('YYYY-MM-DD'));
       setError(null);
     }
   }, [sprint, open]);
@@ -60,7 +61,7 @@ const AdminEditSprintDialog: React.FC<AdminEditSprintDialogProps> = ({
       return;
     }
 
-    if (new Date(startDate) >= new Date(endDate)) {
+    if (dayjs(startDate).isSameOrAfter(dayjs(endDate), 'day')) {
       setError(t('adminSprints.createForm.errorDate'));
       setIsSubmitting(false);
       return;

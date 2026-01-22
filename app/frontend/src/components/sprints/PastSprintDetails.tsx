@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Box, Divider, Grid, Typography } from '@mui/material';
+import dayjs from 'dayjs';
 
 import { useMoods } from '@/hooks/useMoods';
 import type { User } from '@/models/User';
@@ -31,11 +32,12 @@ const PastSprintDetails: React.FC<PastSprintDetailsProps> = ({
 
   const sprintDates = useMemo(() => {
     const dates: Date[] = [];
-    const day = new Date(sprintStartDate);
-    const end = new Date(sprintEndDate);
-    while (day <= end) {
-      dates.push(new Date(day));
-      day.setDate(day.getDate() + 1);
+    let current = dayjs(sprintStartDate).startOf('day');
+    const end = dayjs(sprintEndDate).startOf('day');
+
+    while (current.isSameOrBefore(end)) {
+      dates.push(current.toDate());
+      current = current.add(1, 'day');
     }
     return dates;
   }, [sprintStartDate, sprintEndDate]);

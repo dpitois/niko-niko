@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 using Microsoft.Extensions.Configuration; // Assuming IConfiguration is still needed and not moved
@@ -7,8 +8,6 @@ using Microsoft.IdentityModel.Tokens;
 
 using NikoNiko.Core.Interfaces;
 using NikoNiko.Core.Models; // Updated namespace for User
-
-using System.Security.Cryptography;
 
 namespace NikoNiko.Services;
 

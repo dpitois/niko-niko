@@ -18,12 +18,12 @@ public record SprintDto
     /// <summary>
     /// The start date of the sprint.
     /// </summary>
-    public DateTime StartDate { get; init; }
+    public DateOnly StartDate { get; init; }
 
     /// <summary>
     /// The end date of the sprint.
     /// </summary>
-    public DateTime EndDate { get; init; }
+    public DateOnly EndDate { get; init; }
 
     /// <summary>
     /// The ID of the team this sprint belongs to.

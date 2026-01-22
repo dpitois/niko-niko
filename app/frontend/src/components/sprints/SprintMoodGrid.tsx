@@ -12,8 +12,8 @@ import MoodGridDisplay from './MoodGridDisplay';
 
 interface SprintMoodGridProps {
   sprintId: string;
-  sprintStartDate: Date;
-  sprintEndDate: Date;
+  sprintStartDate: string;
+  sprintEndDate: string;
   teamMembers: User[];
 }
 
@@ -30,10 +30,12 @@ const SprintMoodGrid: React.FC<SprintMoodGridProps> = ({
 
   const sprintDates = useMemo(() => {
     const dates: Date[] = [];
-    const day = new Date(sprintStartDate);
-    while (day <= sprintEndDate) {
-      dates.push(new Date(day));
-      day.setDate(day.getDate() + 1);
+    let current = dayjs(sprintStartDate).startOf('day');
+    const end = dayjs(sprintEndDate).startOf('day');
+
+    while (current.isSameOrBefore(end)) {
+      dates.push(current.toDate());
+      current = current.add(1, 'day');
     }
     return dates;
   }, [sprintStartDate, sprintEndDate]);

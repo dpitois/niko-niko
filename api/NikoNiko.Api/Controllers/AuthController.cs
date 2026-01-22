@@ -11,9 +11,9 @@ using Microsoft.AspNetCore.Http.Extensions; // For UriHelper
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
+using NikoNiko.Core.Interfaces;
 using NikoNiko.Core.Models; // Updated using directive
 using NikoNiko.Data; // Updated using directive
-using NikoNiko.Core.Interfaces;
 using NikoNiko.Services; // Updated using directive
 
 namespace NikoNiko.Api.Controllers;
@@ -313,7 +313,7 @@ public class AuthController : ControllerBase
         }
 
         var newRefreshToken = _tokenService.GenerateRefreshToken(HttpContext.Connection.RemoteIpAddress?.ToString());
-        
+
         // Revoke old token
         oldToken.Revoked = DateTime.UtcNow;
         oldToken.RevokedByIp = HttpContext.Connection.RemoteIpAddress?.ToString();
@@ -517,13 +517,13 @@ public class AuthController : ControllerBase
 
         var jwtToken = _tokenService.CreateToken(user);
         var refreshToken = _tokenService.GenerateRefreshToken(HttpContext.Connection.RemoteIpAddress?.ToString());
-        
+
         // Ensure RefreshTokens collection is initialized (it is in the constructor but good to be safe with EF)
         if (user.RefreshTokens == null) user.RefreshTokens = new List<RefreshToken>();
-        
+
         user.RefreshTokens.Add(refreshToken);
         await _context.SaveChangesAsync();
-        
+
         SetTokenCookie(refreshToken.Token);
 
         // If an invitation token was provided, attempt to accept the invitation

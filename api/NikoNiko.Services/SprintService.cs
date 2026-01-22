@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+
 using NikoNiko.Core.DTOs.Sprint;
 using NikoNiko.Core.Interfaces;
 using NikoNiko.Core.Models;
@@ -29,31 +30,35 @@ public class SprintService : ISprintService
             query = query.Where(s => s.Team.AdminId == userId || s.Team.TeamUsers.Any(tu => tu.UserId == userId));
         }
 
-        return await query
-            .Select(s => new SprintDto
-            {
-                Id = s.Id,
-                Name = s.Name,
-                StartDate = s.StartDate,
-                EndDate = s.EndDate,
-                TeamId = s.TeamId
-            })
-            .ToListAsync();
+        var sprints = await query.ToListAsync();
+
+        return sprints.Select(s => new SprintDto
+        {
+            Id = s.Id,
+            Name = s.Name,
+            StartDate = DateOnly.FromDateTime(s.StartDate),
+            EndDate = DateOnly.FromDateTime(s.EndDate),
+            TeamId = s.TeamId
+        });
     }
 
     public async Task<SprintDto?> GetSprintByIdAsync(Guid sprintId)
     {
-        return await _context.Sprints
-            .Where(s => s.Id == sprintId)
-            .Select(s => new SprintDto
-            {
-                Id = s.Id,
-                Name = s.Name,
-                StartDate = s.StartDate,
-                EndDate = s.EndDate,
-                TeamId = s.TeamId
-            })
-            .FirstOrDefaultAsync();
+        var sprint = await _context.Sprints.FindAsync(sprintId);
+
+        if (sprint == null)
+        {
+            return null;
+        }
+
+        return new SprintDto
+        {
+            Id = sprint.Id,
+            Name = sprint.Name,
+            StartDate = DateOnly.FromDateTime(sprint.StartDate),
+            EndDate = DateOnly.FromDateTime(sprint.EndDate),
+            TeamId = sprint.TeamId
+        };
     }
 
     public async Task<SprintDto> CreateSprintAsync(CreateSprintDto createSprintDto, Guid userId, bool isSuperAdmin)
@@ -79,8 +84,8 @@ public class SprintService : ISprintService
         var sprint = new Sprint
         {
             Name = createSprintDto.Name,
-            StartDate = createSprintDto.StartDate.ToUniversalTime(),
-            EndDate = createSprintDto.EndDate.ToUniversalTime(),
+            StartDate = createSprintDto.StartDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc),
+            EndDate = createSprintDto.EndDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc),
             TeamId = createSprintDto.TeamId
         };
 
@@ -91,8 +96,8 @@ public class SprintService : ISprintService
         {
             Id = sprint.Id,
             Name = sprint.Name,
-            StartDate = sprint.StartDate,
-            EndDate = sprint.EndDate,
+            StartDate = DateOnly.FromDateTime(sprint.StartDate),
+            EndDate = DateOnly.FromDateTime(sprint.EndDate),
             TeamId = sprint.TeamId
         };
     }
@@ -113,8 +118,8 @@ public class SprintService : ISprintService
             throw new ArgumentException("End date must be after start date.");
         }
 
-        var newStart = updateSprintDto.StartDate.ToUniversalTime();
-        var newEnd = updateSprintDto.EndDate.ToUniversalTime();
+        var newStart = updateSprintDto.StartDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
+        var newEnd = updateSprintDto.EndDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
 
         // Validate date range against existing mood entries
         if (sprint.MoodEntries.Any())

@@ -23,25 +23,25 @@ public class MoodEntriesControllerMeTests
         // Arrange
         await using var application = new NikoNikoApiTestApplication();
         var (user, client, _) = await application.CreateUserAndClient("Mood History User");
-        
+
         // Create a team and sprint to associate moods with
         Guid sprintId;
         using (var scope = application.Services.CreateScope())
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             var team = new Team { Id = Guid.NewGuid(), Name = "Team A", AdminId = user.Id };
-            var sprint = new Sprint 
-            { 
-                Id = Guid.NewGuid(), 
-                TeamId = team.Id, 
-                Name = "Sprint 1", 
-                StartDate = DateTime.UtcNow.AddDays(-30), 
-                EndDate = DateTime.UtcNow.AddDays(30) 
+            var sprint = new Sprint
+            {
+                Id = Guid.NewGuid(),
+                TeamId = team.Id,
+                Name = "Sprint 1",
+                StartDate = DateTime.UtcNow.AddDays(-30),
+                EndDate = DateTime.UtcNow.AddDays(30)
             };
-            
+
             dbContext.Teams.Add(team);
             dbContext.Sprints.Add(sprint);
-            
+
             // Create 25 mood entries
             for (int i = 0; i < 25; i++)
             {
@@ -53,7 +53,7 @@ public class MoodEntriesControllerMeTests
                     Mood = MoodType.Happy
                 });
             }
-            
+
             await dbContext.SaveChangesAsync();
             sprintId = sprint.Id;
         }

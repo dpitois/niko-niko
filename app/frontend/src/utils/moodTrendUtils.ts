@@ -1,11 +1,8 @@
 import dayjs from 'dayjs';
-import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 
 import type { ChartDataPoint } from '@/models/ChartData';
 import type { Mood } from '@/models/Mood';
 import { MoodValues } from '@/models/MoodType';
-
-dayjs.extend(isSameOrBefore);
 
 export const calculateMoodTrend = (
   moods: Mood[] | undefined,
@@ -57,4 +54,3 @@ export const calculateMoodTrend = (
     }))
     .sort((a, b) => a.date.localeCompare(b.date));
 };
-

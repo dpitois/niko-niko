@@ -44,7 +44,7 @@ const DailyMoodWidget: React.FC<DailyMoodWidgetProps> = ({
   const theme = useTheme();
 
   const canPost = userTeamRoles[teamId]?.isMember || userTeamRoles[teamId]?.isAdmin;
-  
+
   const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
 
   // Data fetching
@@ -53,7 +53,8 @@ const DailyMoodWidget: React.FC<DailyMoodWidgetProps> = ({
   const { saveMood, isUpdating } = useMoodMutation(sprintId);
 
   const serverMood = moods?.find(
-    (m) => m.userId === user?.sub && dayjs(m.date).startOf('day').isSame(selectedDate.startOf('day'))
+    (m) =>
+      m.userId === user?.sub && dayjs(m.date).startOf('day').isSame(selectedDate.startOf('day')),
   );
 
   const currentMoodValue = serverMood?.mood;
@@ -155,7 +156,7 @@ const DailyMoodWidget: React.FC<DailyMoodWidgetProps> = ({
                       height: 110,
                       '& svg': {
                         fontSize: 80,
-                      }
+                      },
                     }}
                   >
                     {button.icon}

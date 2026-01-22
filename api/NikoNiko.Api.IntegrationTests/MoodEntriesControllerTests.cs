@@ -7,17 +7,18 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.TestHost;
+
 using Moq;
 
 using NikoNiko.Core.DTOs.Mood;
 using NikoNiko.Core.DTOs.Sprint;
 using NikoNiko.Core.DTOs.Team;
 using NikoNiko.Core.DTOs.User;
-using NikoNiko.Core.Models;
 using NikoNiko.Core.Interfaces;
+using NikoNiko.Core.Models;
 using NikoNiko.Data;
 using NikoNiko.Services;
 
@@ -49,8 +50,8 @@ public class MoodEntriesControllerTests
         {
             Name = "Test Sprint",
             TeamId = team.Id,
-            StartDate = DateTime.UtcNow.Date,
-            EndDate = DateTime.UtcNow.AddDays(15)
+            StartDate = DateOnly.FromDateTime(DateTime.UtcNow.Date),
+            EndDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(15))
         };
         var sprintResponse = await client.PostAsJsonAsync("/api/sprints", createSprintDto);
         sprintResponse.EnsureSuccessStatusCode();
@@ -89,8 +90,8 @@ public class MoodEntriesControllerTests
         {
             Name = "Test Sprint",
             TeamId = team.Id,
-            StartDate = DateTime.UtcNow.Date,
-            EndDate = DateTime.UtcNow.AddDays(15)
+            StartDate = DateOnly.FromDateTime(DateTime.UtcNow.Date),
+            EndDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(15))
         };
         var createSprintResponse = await adminClient.PostAsJsonAsync("/api/sprints", createSprintDto);
         createSprintResponse.EnsureSuccessStatusCode();
@@ -136,8 +137,8 @@ public class MoodEntriesControllerTests
         {
             Name = "Test Sprint",
             TeamId = team.Id,
-            StartDate = DateTime.UtcNow.Date,
-            EndDate = DateTime.UtcNow.AddDays(15)
+            StartDate = DateOnly.FromDateTime(DateTime.UtcNow.Date),
+            EndDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(15))
         };
         var createSprintResponse = await adminClient.PostAsJsonAsync("/api/sprints", createSprintDto);
         createSprintResponse.EnsureSuccessStatusCode();
@@ -184,8 +185,8 @@ public class MoodEntriesControllerTests
         {
             Name = "Sprint 1",
             TeamId = team.Id,
-            StartDate = DateTime.UtcNow.Date.AddDays(-1),
-            EndDate = DateTime.UtcNow.Date.AddDays(5)
+            StartDate = DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(-1)),
+            EndDate = DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(5))
         };
         var sprintResp = await client.PostAsJsonAsync("/api/sprints", createSprintDto);
         sprintResp.EnsureSuccessStatusCode();
@@ -227,8 +228,8 @@ public class MoodEntriesControllerTests
         {
             Name = "Sprint 1",
             TeamId = team.Id,
-            StartDate = DateTime.UtcNow.Date.AddDays(-1),
-            EndDate = DateTime.UtcNow.Date.AddDays(5)
+            StartDate = DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(-1)),
+            EndDate = DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(5))
         };
         var sprintResp = await client.PostAsJsonAsync("/api/sprints", createSprintDto);
         sprintResp.EnsureSuccessStatusCode();

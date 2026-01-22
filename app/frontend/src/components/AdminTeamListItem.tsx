@@ -20,7 +20,7 @@ import {
 import { useSnackbar } from 'notistack';
 
 import type { TeamWithMembersAndSprints } from '@/models/Team/TeamWithMembersAndSprints';
-import { removeUserFromTeam,transferTeamAdmin,updateTeam } from '@/services/teamService';
+import { removeUserFromTeam, transferTeamAdmin, updateTeam } from '@/services/teamService';
 
 import EditTeamDialog from './EditTeamDialog';
 

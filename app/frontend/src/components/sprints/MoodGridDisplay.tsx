@@ -144,14 +144,17 @@ const MoodGridDisplay: React.FC<MoodGridDisplayProps> = ({
             </Box>
             {sprintDates.map((date, dateIndex) => {
               const cellDate = dayjs(date);
-              
+
               const displayMoodEntry = moods?.find(
-                (m) => m.userId === member.id && dayjs(m.date).startOf('day').isSame(cellDate.startOf('day'))
+                (m) =>
+                  m.userId === member.id &&
+                  dayjs(m.date).startOf('day').isSame(cellDate.startOf('day')),
               );
 
               const isFuture = cellDate.isAfter(today);
               const isToday = cellDate.isSame(today, 'day');
-              const canEdit = onMoodClick && currentUserId && currentUserId === member.id && !isFuture;
+              const canEdit =
+                onMoodClick && currentUserId && currentUserId === member.id && !isFuture;
 
               return (
                 <Paper

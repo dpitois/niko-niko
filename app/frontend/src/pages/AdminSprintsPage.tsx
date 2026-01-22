@@ -19,6 +19,7 @@ import {
   ListItem,
   Typography,
 } from '@mui/material';
+import dayjs from 'dayjs';
 import { useSnackbar } from 'notistack';
 
 import useSprints from '@/hooks/useSprints';
@@ -131,8 +132,7 @@ const AdminSprintsPage: React.FC = () => {
                     color="text.secondary"
                     sx={{ flexGrow: 1, textAlign: 'center', display: { xs: 'none', sm: 'block' } }}
                   >
-                    {new Date(sprint.startDate).toLocaleDateString()} —{' '}
-                    {new Date(sprint.endDate).toLocaleDateString()}
+                    {dayjs(sprint.startDate).format('L')} — {dayjs(sprint.endDate).format('L')}
                   </Typography>
 
                   {/* Actions */}

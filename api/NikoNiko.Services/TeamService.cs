@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+
 using NikoNiko.Core.DTOs.Sprint;
 using NikoNiko.Core.DTOs.Team;
 using NikoNiko.Core.DTOs.User;
@@ -46,8 +47,8 @@ public class TeamService : ITeamService
             {
                 Id = s.Id,
                 Name = s.Name,
-                StartDate = s.StartDate.ToUniversalTime(),
-                EndDate = s.EndDate.ToUniversalTime(),
+                StartDate = DateOnly.FromDateTime(s.StartDate),
+                EndDate = DateOnly.FromDateTime(s.EndDate),
                 TeamId = s.TeamId
             }).ToList(),
             Members = t.TeamUsers.Select(tu => new UserDto
@@ -79,8 +80,8 @@ public class TeamService : ITeamService
                 {
                     Id = s.Id,
                     Name = s.Name,
-                    StartDate = s.StartDate.ToUniversalTime(),
-                    EndDate = s.EndDate.ToUniversalTime(),
+                    StartDate = DateOnly.FromDateTime(s.StartDate),
+                    EndDate = DateOnly.FromDateTime(s.EndDate),
                     TeamId = s.TeamId
                 }).ToList(),
                 Members = t.TeamUsers.Select(tu => new UserDto

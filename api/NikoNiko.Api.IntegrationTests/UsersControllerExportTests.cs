@@ -1,10 +1,12 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
+
 using Microsoft.Extensions.DependencyInjection;
+
 using NikoNiko.Core.DTOs.User.Export;
-using NikoNiko.Core.Models;
 using NikoNiko.Core.Interfaces;
+using NikoNiko.Core.Models;
 using NikoNiko.Data;
 using NikoNiko.Services;
 
@@ -89,16 +91,16 @@ public class UsersControllerExportTests : IClassFixture<NikoNikoApiTestApplicati
         var exportDto = JsonSerializer.Deserialize<UserExportDto>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
         Assert.NotNull(exportDto);
-        
+
         // Identity Check
         Assert.Equal(user.Name, exportDto.Identity.Username);
-        
+
         // Team Check
         Assert.Single(exportDto.Teams);
         var exportedTeam = exportDto.Teams.First();
         Assert.Equal(team.Name, exportedTeam.Name);
         Assert.NotEqual(team.Id.ToString(), exportedTeam.Id); // ID should be hashed
-        
+
         // Mood Check
         Assert.Single(exportDto.History);
         var exportedMood = exportDto.History.First();

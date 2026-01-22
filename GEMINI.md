@@ -243,6 +243,9 @@ If you wish to run frontend and/or backend locally without Docker Compose, follo
 *   **Authentication**: Managed via `AuthContext` and `useAuth` hook for centralized state, using `react-router-dom` for routing and `axios`/`swr` for data fetching.
 *   **API Calls**: Frontend uses `axios` and `swr` for data fetching.
 *   **Internationalization**: Used `i18next` with centralized JSON files in `src/i18n/locales`. Always use the `useTranslation` hook for text.
+*   **Date Handling Standards**:
+    *   **Calendar Dates (Sprints, Birthdays)**: Store as `DateTime` at Midnight UTC (`DateTime.SpecifyKind(date.Date, DateTimeKind.Utc)`). Do **NOT** use `.ToUniversalTime()` as it shifts based on server time and causes off-by-one errors.
+    *   **Point-in-Time (Logs, Events, MoodEntries Time)**: Store as True UTC (`DateTime.UtcNow`).
 
 ---
 ## Gemini Added Memories

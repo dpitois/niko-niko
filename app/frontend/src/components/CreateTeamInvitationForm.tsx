@@ -90,7 +90,16 @@ const CreateTeamInvitationForm: React.FC<CreateTeamInvitationFormProps> = ({
       </Button>
 
       {invitationLink && (
-        <Box sx={{ mt: 3, p: 2, bgcolor: 'background.paper', borderRadius: '4px', border: '1px solid', borderColor: 'divider' }}>
+        <Box
+          sx={{
+            mt: 3,
+            p: 2,
+            bgcolor: 'background.paper',
+            borderRadius: '4px',
+            border: '1px solid',
+            borderColor: 'divider',
+          }}
+        >
           <Typography variant="subtitle1">
             {t('adminUsers.invitations.createForm.linkLabel')}
           </Typography>

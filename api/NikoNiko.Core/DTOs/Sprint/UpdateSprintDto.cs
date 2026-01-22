@@ -18,11 +18,11 @@ public record UpdateSprintDto
     /// The start date of the sprint.
     /// </summary>
     [Required]
-    public DateTime StartDate { get; init; }
+    public DateOnly StartDate { get; init; }
 
     /// <summary>
     /// The end date of the sprint.
     /// </summary>
     [Required]
-    public DateTime EndDate { get; init; }
+    public DateOnly EndDate { get; init; }
 }

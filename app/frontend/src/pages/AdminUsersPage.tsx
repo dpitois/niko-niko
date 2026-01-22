@@ -37,6 +37,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
+import dayjs from 'dayjs';
 import axios from 'axios';
 import { useSnackbar } from 'notistack';
 import useSWR from 'swr';
@@ -151,20 +152,21 @@ const AdminUsersPage: React.FC = () => {
         mutate();
       } catch (error: unknown) {
         let errorMessage = t('adminUsers.deleteDialog.fail', { name: userToDeleteName });
-        
+
         if (axios.isAxiosError(error)) {
-           // If the server returns a specific message (e.g. 409 Conflict), use it.
-           // Usually the backend returns just a string for BadRequest/Conflict in my controller update.
-           // But depending on how BadRequest("msg") works, it might be in error.response.data directly or error.response.data.title/message
-           // Based on my controller code: return Conflict($"Cannot delete..."); -> content is plain string or text/plain
-           
-           if (typeof error.response?.data === 'string' && error.response.data) {
-             errorMessage = error.response.data;
-           } else if (error.response?.data?.message) {
-             errorMessage = error.response.data.message;
-           } else if (error.response?.data?.title) { // Sometimes problem details
-             errorMessage = error.response.data.title;
-           }
+          // If the server returns a specific message (e.g. 409 Conflict), use it.
+          // Usually the backend returns just a string for BadRequest/Conflict in my controller update.
+          // But depending on how BadRequest("msg") works, it might be in error.response.data directly or error.response.data.title/message
+          // Based on my controller code: return Conflict($"Cannot delete..."); -> content is plain string or text/plain
+
+          if (typeof error.response?.data === 'string' && error.response.data) {
+            errorMessage = error.response.data;
+          } else if (error.response?.data?.message) {
+            errorMessage = error.response.data.message;
+          } else if (error.response?.data?.title) {
+            // Sometimes problem details
+            errorMessage = error.response.data.title;
+          }
         } else if (error instanceof Error) {
           errorMessage = error.message;
         }
@@ -270,7 +272,7 @@ const AdminUsersPage: React.FC = () => {
                       </Tooltip>
                     </TableCell>
                     <TableCell>
-                      {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '-'}
+                      {user.createdAt ? dayjs(user.createdAt).format('L') : '-'}
                     </TableCell>
                     <TableCell>
                       <IconButton
@@ -364,7 +366,7 @@ const AdminUsersPage: React.FC = () => {
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
                               {t('adminUsers.invitations.expires', {
-                                date: new Date(invitation.expirationDate).toLocaleDateString(),
+                                date: dayjs(invitation.expirationDate).format('L'),
                               })}
                             </Typography>
                           </Grid>

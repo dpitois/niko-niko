@@ -9,7 +9,6 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
-import localizedFormat from 'dayjs/plugin/localizedFormat';
 // notistack imports
 import { SnackbarProvider } from 'notistack';
 
@@ -33,10 +32,6 @@ import ProfilePage from '@/pages/ProfilePage';
 import SprintDetailsPage from '@/pages/SprintDetailsPage';
 
 import './App.css';
-import 'dayjs/locale/fr';
-import 'dayjs/locale/en';
-
-dayjs.extend(localizedFormat);
 
 const ProtectedLayout = () => (
   <ProtectedRoute>

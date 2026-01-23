@@ -78,9 +78,11 @@
     "endDateBeforeStartDate": "End date must be after start date"
   },
   "mood": {
+    "veryHappy": "Very Happy",
     "happy": "Happy",
     "neutral": "Neutral",
-    "sad": "Sad"
+    "sad": "Sad",
+    "verySad": "Very Sad"
   },
   "adminTeams": {
     "title": "Admin Teams",

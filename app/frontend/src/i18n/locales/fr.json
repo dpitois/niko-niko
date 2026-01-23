@@ -78,9 +78,11 @@
     "endDateBeforeStartDate": "La date de fin doit être après la date de début"
   },
   "mood": {
+    "veryHappy": "Très Heureux",
     "happy": "Heureux",
     "neutral": "Neutre",
-    "sad": "Triste"
+    "sad": "Triste",
+    "verySad": "Très Triste"
   },
   "adminTeams": {
     "title": "Administration des Équipes",

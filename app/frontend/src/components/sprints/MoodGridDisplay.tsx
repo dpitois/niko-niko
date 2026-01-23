@@ -1,9 +1,11 @@
-import React from 'react';
-import MoodBad from '@mui/icons-material/MoodBad';
+import React, { useState } from 'react';
 import SentimentDissatisfied from '@mui/icons-material/SentimentDissatisfied';
 import SentimentNeutral from '@mui/icons-material/SentimentNeutral';
-import SentimentSatisfiedAlt from '@mui/icons-material/SentimentSatisfiedAlt';
-import { Avatar, Box, Paper, Typography, useTheme } from '@mui/material';
+import SentimentSatisfied from '@mui/icons-material/SentimentSatisfied';
+import SentimentVeryDissatisfied from '@mui/icons-material/SentimentVeryDissatisfied';
+import SentimentVerySatisfied from '@mui/icons-material/SentimentVerySatisfied';
+import type { Theme } from '@mui/material';
+import { Avatar, Box, IconButton, Menu, Paper, Tooltip, Typography, useTheme } from '@mui/material';
 import dayjs from 'dayjs';
 
 import type { Mood } from '@/models/Mood';
@@ -19,29 +21,38 @@ interface MoodGridDisplayProps {
   onMoodClick?: (date: Date, nextMood: MoodType) => void;
 }
 
-const getMoodColor = (moodType: MoodType) => {
+const getMoodColor = (moodType: MoodType, theme: Theme) => {
   switch (moodType) {
+    case MoodValues.VerySad:
+      return theme.palette.error.dark;
     case MoodValues.Sad:
-      return 'red';
+      return theme.palette.error.main;
     case MoodValues.Neutral:
-      return 'orange';
+      return theme.palette.warning.main;
     case MoodValues.Happy:
-      return 'green';
+      return theme.palette.success.light;
+    case MoodValues.VeryHappy:
+      return theme.palette.success.main;
     default:
-      return 'grey';
+      return theme.palette.grey[500];
   }
 };
 
 const getMoodIcon = (moodType: MoodType) => {
+  const sx = { color: 'white' };
   switch (moodType) {
+    case MoodValues.VerySad:
+      return <SentimentVeryDissatisfied sx={sx} />;
     case MoodValues.Sad:
-      return <SentimentDissatisfied sx={{ color: 'white' }} />;
+      return <SentimentDissatisfied sx={sx} />;
     case MoodValues.Neutral:
-      return <SentimentNeutral sx={{ color: 'white' }} />;
+      return <SentimentNeutral sx={sx} />;
     case MoodValues.Happy:
-      return <SentimentSatisfiedAlt sx={{ color: 'white' }} />;
+      return <SentimentSatisfied sx={sx} />;
+    case MoodValues.VeryHappy:
+      return <SentimentVerySatisfied sx={sx} />;
     default:
-      return <MoodBad sx={{ color: 'white' }} />;
+      return null;
   }
 };
 
@@ -54,6 +65,26 @@ const MoodGridDisplay: React.FC<MoodGridDisplayProps> = ({
 }) => {
   const theme = useTheme();
   const today = dayjs().startOf('day');
+
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [activeDate, setActiveDate] = useState<Date | null>(null);
+
+  const handleOpenMenu = (event: React.MouseEvent<HTMLElement>, date: Date) => {
+    setAnchorEl(event.currentTarget);
+    setActiveDate(date);
+  };
+
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+    setActiveDate(null);
+  };
+
+  const handleMoodSelect = (moodType: MoodType) => {
+    if (activeDate && onMoodClick) {
+      onMoodClick(activeDate, moodType);
+    }
+    handleCloseMenu();
+  };
 
   return (
     <Box sx={{ overflowX: 'auto', maxWidth: '100%', pb: 1 }}>
@@ -166,7 +197,7 @@ const MoodGridDisplay: React.FC<MoodGridDisplayProps> = ({
                     alignItems: 'center',
                     justifyContent: 'center',
                     backgroundColor: displayMoodEntry
-                      ? getMoodColor(displayMoodEntry.mood)
+                      ? getMoodColor(displayMoodEntry.mood, theme)
                       : theme.palette.mode === 'dark'
                         ? theme.palette.grey[700]
                         : theme.palette.grey[300],
@@ -180,26 +211,16 @@ const MoodGridDisplay: React.FC<MoodGridDisplayProps> = ({
                     '&:hover': canEdit
                       ? {
                           backgroundColor: displayMoodEntry
-                            ? getMoodColor(displayMoodEntry.mood)
+                            ? getMoodColor(displayMoodEntry.mood, theme)
                             : theme.palette.mode === 'dark'
                               ? theme.palette.grey[600]
                               : theme.palette.grey[400],
                         }
                       : {},
                   }}
-                  onClick={() => {
-                    if (!canEdit || !onMoodClick) return;
-                    const currentMoodValue = displayMoodEntry ? displayMoodEntry.mood : null;
-                    let nextMood: MoodType;
-
-                    if (currentMoodValue === null) {
-                      nextMood = MoodValues.Happy;
-                    } else {
-                      nextMood = ((currentMoodValue + 1) %
-                        Object.keys(MoodValues).length) as MoodType;
-                    }
-
-                    onMoodClick(date, nextMood);
+                  onClick={(e) => {
+                    if (!canEdit) return;
+                    handleOpenMenu(e, date);
                   }}
                 >
                   {displayMoodEntry ? getMoodIcon(displayMoodEntry.mood) : null}
@@ -221,6 +242,34 @@ const MoodGridDisplay: React.FC<MoodGridDisplayProps> = ({
           </Box>
         ))}
       </Box>
+
+      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleCloseMenu}>
+        <Box sx={{ display: 'flex', p: 1, gap: 1 }}>
+          {[
+            MoodValues.VerySad,
+            MoodValues.Sad,
+            MoodValues.Neutral,
+            MoodValues.Happy,
+            MoodValues.VeryHappy,
+          ].map((type) => (
+            <Tooltip key={type} title={type.toString()}>
+              <IconButton
+                onClick={() => handleMoodSelect(type)}
+                sx={{
+                  bgcolor: getMoodColor(type, theme),
+                  color: 'white',
+                  '&:hover': {
+                    bgcolor: getMoodColor(type, theme),
+                    filter: 'brightness(1.2)',
+                  },
+                }}
+              >
+                {getMoodIcon(type)}
+              </IconButton>
+            </Tooltip>
+          ))}
+        </Box>
+      </Menu>
     </Box>
   );
 };

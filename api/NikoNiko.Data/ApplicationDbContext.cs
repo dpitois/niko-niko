@@ -88,10 +88,5 @@ public class ApplicationDbContext : DbContext
         // Add check constraint for Sprint dates
         modelBuilder.Entity<Sprint>()
             .ToTable(t => t.HasCheckConstraint("CK_Sprint_EndDate_After_StartDate", "\"EndDate\" > \"StartDate\""));
-
-        // Configure MoodType enum to be stored as string
-        modelBuilder.Entity<MoodEntry>()
-            .Property(me => me.Mood)
-            .HasConversion<string>();
     }
 }

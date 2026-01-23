@@ -32,7 +32,7 @@ const MoodTrendChart: React.FC<MoodTrendChartProps> = ({ chartData, showUserTren
 
   const getY = (value: number | null) => {
     if (value === null) return null;
-    const normalized = (value - 1) / (3 - 1);
+    const normalized = (value - 1) / (5 - 1);
     return PADDING_TOP + CHART_HEIGHT - normalized * CHART_HEIGHT;
   };
 
@@ -116,7 +116,7 @@ const MoodTrendChart: React.FC<MoodTrendChartProps> = ({ chartData, showUserTren
               </linearGradient>
             </defs>
 
-            {[1, 2, 3].map((val) => {
+            {[1, 2, 3, 4, 5].map((val) => {
               const y = getY(val);
               return (
                 y !== null && (
@@ -161,10 +161,11 @@ const MoodTrendChart: React.FC<MoodTrendChartProps> = ({ chartData, showUserTren
             )}
           </svg>
 
-          {[3, 2, 1].map((val) => {
+          {[5, 4, 3, 2, 1].map((val) => {
             const y = getY(val);
             const topPercent = y !== null ? (y / VIEWBOX_HEIGHT) * 100 : 0;
-            const icon = val === 3 ? '😊' : val === 2 ? '😐' : '☹️';
+            const icons = ['😫', '☹️', '😐', '😊', '🤩'];
+            const icon = icons[val - 1];
 
             return (
               <Typography

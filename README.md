@@ -26,7 +26,7 @@ Create a **distributed** and **self-hosted** (via Docker) application to allow A
 - **Authentication**: OAuth2 (GitHub, Google, Discord). Microsoft is temporarily disabled.
 - **Team Management**: Team creation (via admin dashboard), member management, and invitations (creation, acceptance, deletion).
 - **Sprints**: Work period definitions by admins and sprint tracking on the dashboard, including sprint creation and a dedicated sprint creation page.
-- **Mood Tracking**: Daily recording (😊/😐/🙁) per sprint, now functional on the frontend and effectively updated, with a dedicated page for mood entry.
+- **Mood Tracking**: Daily recording (🤩/😊/😐/☹️/😫) per sprint, now functional on the frontend and effectively updated, with a dedicated page for mood entry.
 - **Real-time Notifications**: SignalR for notifying important actions.
 - **Gamification**: Badge attribution to encourage participation.
 - **Dashboard**: Centralized view of teams, sprints, and calendars, with basic navigation, an administration dashboard, and a "My Teams" page for the user.

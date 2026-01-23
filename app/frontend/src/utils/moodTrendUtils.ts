@@ -2,7 +2,6 @@ import dayjs from 'dayjs';
 
 import type { ChartDataPoint } from '@/models/ChartData';
 import type { Mood } from '@/models/Mood';
-import { MoodValues } from '@/models/MoodType';
 
 export const calculateMoodTrend = (
   moods: Mood[] | undefined,
@@ -29,10 +28,7 @@ export const calculateMoodTrend = (
   moods.forEach((m) => {
     const dateStr = dayjs(m.date).format('YYYY-MM-DD');
     if (moodsByDate[dateStr]) {
-      let score = 0;
-      if (m.mood === MoodValues.Happy) score = 3;
-      else if (m.mood === MoodValues.Neutral) score = 2;
-      else if (m.mood === MoodValues.Sad) score = 1;
+      const score = m.mood + 1;
 
       moodsByDate[dateStr].totalScore += score;
       moodsByDate[dateStr].count += 1;

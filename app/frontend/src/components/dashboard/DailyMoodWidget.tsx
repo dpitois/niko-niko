@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied';
 import SentimentNeutralIcon from '@mui/icons-material/SentimentNeutral';
-import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt';
+import SentimentSatisfiedIcon from '@mui/icons-material/SentimentSatisfied';
+import SentimentVeryDissatisfiedIcon from '@mui/icons-material/SentimentVeryDissatisfied';
+import SentimentVerySatisfiedIcon from '@mui/icons-material/SentimentVerySatisfied';
 import {
   alpha,
   Box,
@@ -72,22 +74,34 @@ const DailyMoodWidget: React.FC<DailyMoodWidgetProps> = ({
 
   const moodButtons = [
     {
+      type: MoodValues.VerySad,
+      icon: <SentimentVeryDissatisfiedIcon />,
+      color: theme.palette.error.dark,
+      label: t('mood.verySad', 'Very Sad'),
+    },
+    {
       type: MoodValues.Sad,
-      icon: <SentimentDissatisfiedIcon sx={{ fontSize: 80 }} />,
+      icon: <SentimentDissatisfiedIcon />,
       color: theme.palette.error.main,
       label: t('mood.sad', 'Sad'),
     },
     {
       type: MoodValues.Neutral,
-      icon: <SentimentNeutralIcon sx={{ fontSize: 80 }} />,
+      icon: <SentimentNeutralIcon />,
       color: theme.palette.warning.main,
       label: t('mood.neutral', 'Neutral'),
     },
     {
       type: MoodValues.Happy,
-      icon: <SentimentSatisfiedAltIcon sx={{ fontSize: 80 }} />,
-      color: theme.palette.success.main,
+      icon: <SentimentSatisfiedIcon />,
+      color: theme.palette.success.light,
       label: t('mood.happy', 'Happy'),
+    },
+    {
+      type: MoodValues.VeryHappy,
+      icon: <SentimentVerySatisfiedIcon />,
+      color: theme.palette.success.main,
+      label: t('mood.veryHappy', 'Very Happy'),
     },
   ];
 
@@ -111,10 +125,10 @@ const DailyMoodWidget: React.FC<DailyMoodWidgetProps> = ({
 
         <Stack
           direction="row"
-          spacing={3}
+          spacing={1}
           justifyContent="center"
           alignItems="center"
-          sx={{ mt: 4, mb: 2, minHeight: 110 }}
+          sx={{ mt: 4, mb: 2, minHeight: 90 }}
         >
           {isLoading ? (
             <CircularProgress size={40} />
@@ -151,11 +165,11 @@ const DailyMoodWidget: React.FC<DailyMoodWidgetProps> = ({
                         color: isSelected ? '#fff' : button.color,
                         transform: 'scale(1.1)',
                       },
-                      p: 2,
-                      width: 110,
-                      height: 110,
+                      p: 1.5,
+                      width: 75,
+                      height: 75,
                       '& svg': {
-                        fontSize: 80,
+                        fontSize: 50,
                       },
                     }}
                   >

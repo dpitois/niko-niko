@@ -26,7 +26,7 @@ Créer une application **distribuée** et **auto-hébergée** (via Docker) pour 
 - **Authentification** : OAuth2 (GitHub, Google, Discord). Microsoft est temporairement désactivé.
 - **Gestion d'Équipes** : Création d'équipes (via le tableau de bord admin), gestion des membres et des invitations (création, acceptation, suppression).
 - **Sprints** : Définition de périodes de travail par les admins et suivi des sprints sur le tableau de bord, y compris la création de sprints et une page dédiée pour la creation de sprint.
-- **Suivi d'Humeur** : Enregistrement quotidien (😊/😐/🙁) par sprint, désormais fonctionnel sur le frontend et mis à jour de manière effective, avec une page dédiée pour la saisie de l'humeur.
+- **Suivi d'Humeur** : Enregistrement quotidien (🤩/😊/😐/☹️/😫) par sprint, désormais fonctionnel sur le frontend et mis à jour de manière effective, avec une page dédiée pour la saisie de l'humeur.
 - **Notifications Temps Réel** : SignalR pour notifier les actions importantes.
 - **Gamification** : Attribution de badges pour encourager la participation.
 - **Tableau de Bord** : Vue centralisée des équipes, sprints et calendriers, avec une navigation basique, un tableau de bord d'administration et une page "Mes Équipes" pour l'utilisateur.

@@ -15,13 +15,12 @@ public class MoodEntry
     /// <summary>
     /// The ID of the user who recorded this mood.
     /// </summary>
-    [Required]
-    public Guid UserId { get; set; }
+    public Guid? UserId { get; set; }
 
     /// <summary>
     /// Navigation property for the user who recorded this mood.
     /// </summary>
-    public User User { get; set; } = null!;
+    public User? User { get; set; }
 
     /// <summary>
     /// The ID of the sprint this mood entry belongs to.

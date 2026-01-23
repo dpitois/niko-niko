@@ -156,6 +156,17 @@ public class UserService : IUserService
             throw new KeyNotFoundException("User not found.");
         }
 
+        // 1. Audit Deletion (GDPR Right to Erasure)
+        // We store a hash of the provider + oauthId to prevent re-registration if needed
+        // or for legal audit without storing PII.
+        var hashedIdentity = ComputeHash($"{user.Provider}:{user.OAuthId}");
+        var deletionLog = new UserDeletionLog
+        {
+            HashedIdentity = hashedIdentity,
+            DeletedAt = DateTime.UtcNow
+        };
+        _context.UserDeletionLogs.Add(deletionLog);
+
         var teamsAsAdmin = await _context.Teams
             .Include(t => t.TeamUsers)
             .Where(t => t.AdminId == userId)
@@ -204,5 +215,12 @@ public class UserService : IUserService
         using var sha256 = SHA256.Create();
         var hashBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(id.ToString()));
         return BitConverter.ToString(hashBytes, 0, 8).Replace("-", "").ToLowerInvariant();
+    }
+
+    private static string ComputeHash(string input)
+    {
+        using var sha256 = SHA256.Create();
+        var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(input));
+        return Convert.ToHexString(bytes).ToLowerInvariant();
     }
 }

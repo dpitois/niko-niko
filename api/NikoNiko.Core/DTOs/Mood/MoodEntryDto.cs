@@ -15,7 +15,7 @@ public record MoodEntryDto
     /// <summary>
     /// The ID of the user who made the entry.
     /// </summary>
-    public Guid UserId { get; init; }
+    public Guid? UserId { get; init; }
 
     /// <summary>
     /// The ID of the sprint for this entry.

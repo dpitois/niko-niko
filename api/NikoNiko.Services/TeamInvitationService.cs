@@ -127,7 +127,7 @@ namespace NikoNiko.Services
                 TeamId = invitation.TeamId,
                 TeamName = invitation.Team!.Name,
                 CreatorUserId = invitation.CreatorUserId,
-                CreatorUserName = invitation.CreatorUser!.Name,
+                CreatorUserName = invitation.CreatorUser?.Name ?? "Deleted User",
                 ExpirationDate = invitation.ExpirationDate,
                 Token = invitation.Token,
                 Status = invitation.Status
@@ -163,7 +163,7 @@ namespace NikoNiko.Services
                     TeamId = ti.TeamId,
                     TeamName = ti.Team!.Name,
                     CreatorUserId = ti.CreatorUserId,
-                    CreatorUserName = ti.CreatorUser!.Name,
+                    CreatorUserName = ti.CreatorUser != null ? ti.CreatorUser.Name : "Deleted User",
                     ExpirationDate = ti.ExpirationDate,
                     Token = ti.Token,
                     Status = ti.Status

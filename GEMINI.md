@@ -81,7 +81,7 @@ Centralized Docker configuration files.
 *   **API Documentation**: Backend includes OpenAPI/Swagger documentation.
 *   **Team Management**: Team creation (via admin dashboard), member management (admin role), team invitation system (creation, acceptance, soft deletion).
 *   **Sprints**: Admin-defined work periods, sprint tracking on the dashboard, dedicated pages for creation and management.
-*   **Mood Tracking**: Daily mood entry (😊/😐/🙁) per sprint, with the option to specify a date (within sprint range, not in the future).
+*   **Mood Tracking**: Daily mood entry (🤩/😊/😐/☹️/😫) per sprint, with the option to specify a date (within sprint range, not in the future).
 *   **Real-time Notifications**: SignalR integration for real-time notifications on important actions.
 *   **Gamification**: Planned badge attribution.
 *   **Dashboard**: Centralized view of teams, sprints, and calendars. Includes navigation, administration dashboard, and "My Teams" page.

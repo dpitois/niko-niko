@@ -18,6 +18,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Badge> Badges { get; set; }
     public DbSet<TeamInvitation> TeamInvitations { get; set; }
     public DbSet<RefreshToken> RefreshTokens { get; set; }
+    public DbSet<UserDeletionLog> UserDeletionLogs { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -55,7 +56,7 @@ public class ApplicationDbContext : DbContext
             .HasOne(ti => ti.CreatorUser)
             .WithMany()
             .HasForeignKey(ti => ti.CreatorUserId)
-            .OnDelete(DeleteBehavior.Restrict); // Prevent deleting a user who created an invitation
+            .OnDelete(DeleteBehavior.SetNull); // Allow user deletion, set CreatorUserId to null
 
         modelBuilder.Entity<TeamInvitation>()
             .HasOne(ti => ti.AcceptedByUser)
@@ -63,6 +64,14 @@ public class ApplicationDbContext : DbContext
             .HasForeignKey(ti => ti.AcceptedByUserId)
             .IsRequired(false) // AcceptedByUser can be null
             .OnDelete(DeleteBehavior.SetNull); // Allow deleting a user who accepted an invitation
+
+        // Configure MoodEntry relationships
+        modelBuilder.Entity<MoodEntry>()
+            .HasOne(m => m.User)
+            .WithMany()
+            .HasForeignKey(m => m.UserId)
+            .IsRequired(false)
+            .OnDelete(DeleteBehavior.SetNull); // Allow user deletion, set UserId to null
 
         // Add unique constraints
         modelBuilder.Entity<User>()

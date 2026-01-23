@@ -14,6 +14,8 @@
     "copyLink": "Copy Link",
     "date": "Date",
     "noData": "No data available",
+    "deletedUser": "Deleted User",
+    "formerMember": "Former Member",
     "logoutDialog": {
       "title": "Confirm Logout",
       "content": "Are you sure you want to log out?",

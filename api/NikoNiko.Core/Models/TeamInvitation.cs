@@ -25,7 +25,7 @@ namespace NikoNiko.Core.Models
         /// <summary>
         /// The ID of the user who created the invitation.
         /// </summary>
-        public Guid CreatorUserId { get; set; }
+        public Guid? CreatorUserId { get; set; }
 
         /// <summary>
         /// Navigation property for the user who created the invitation.

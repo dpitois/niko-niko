@@ -20,7 +20,7 @@ namespace NikoNiko.Core.DTOs.Team.Invitation
         /// <summary>
         /// The ID of the user who created the invitation.
         /// </summary>
-        public Guid CreatorUserId { get; init; }
+        public Guid? CreatorUserId { get; init; }
         /// <summary>
         /// The name of the user who created the invitation.
         /// </summary>

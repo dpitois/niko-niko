@@ -33,6 +33,7 @@
     "profile": "Mon Profil",
     "login": "Connexion",
     "reportBug": "Signaler un bug",
+    "docs": "Documentation",
     "mode": "Mode {{mode}}"
   },
   "login": {

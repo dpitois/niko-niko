@@ -4,4 +4,5 @@ export interface TeamDto {
   adminId: string;
   adminName: string;
   createdAt: string; // Dates are strings over HTTP
+  defaultSprintDuration?: number;
 }

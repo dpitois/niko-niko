@@ -5,11 +5,11 @@ import dayjs from 'dayjs';
 import axios from 'axios';
 
 import type { CreateSprint } from '@/models/CreateSprint';
-import type { TeamDto } from '@/models/Team';
+import type { TeamWithMembersAndSprints } from '@/models/Team/TeamWithMembersAndSprints';
 import { createSprint } from '@/services/sprintService';
 
 interface AdminCreateSprintFormProps {
-  teams: TeamDto[];
+  teams: TeamWithMembersAndSprints[];
   onSprintCreated: () => void;
 }
 
@@ -24,6 +24,29 @@ const AdminCreateSprintForm: React.FC<AdminCreateSprintFormProps> = ({
   const [selectedTeamId, setSelectedTeamId] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [serverErrors, setServerErrors] = useState<Record<string, string[]>>({});
+
+  const handleTeamChange = (teamId: string) => {
+    setSelectedTeamId(teamId);
+    if (!teamId) return;
+
+    const team = teams.find((t) => t.id === teamId);
+    if (!team) return;
+
+    // Find last sprint
+    const lastSprint = team.sprints?.length
+      ? [...team.sprints].sort((a, b) => dayjs(b.endDate).valueOf() - dayjs(a.endDate).valueOf())[0]
+      : null;
+
+    const nextStart = lastSprint ? dayjs(lastSprint.endDate).add(1, 'day') : dayjs();
+    setStartDate(nextStart.format('YYYY-MM-DD'));
+
+    if (team.defaultSprintDuration) {
+      // Subtract 1 day because duration is inclusive
+      setEndDate(nextStart.add(team.defaultSprintDuration - 1, 'day').format('YYYY-MM-DD'));
+    } else {
+      setEndDate('');
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,7 +101,7 @@ const AdminCreateSprintForm: React.FC<AdminCreateSprintFormProps> = ({
             id="team-select"
             label={t('adminSprints.createForm.teamLabel')}
             value={selectedTeamId}
-            onChange={(e) => setSelectedTeamId(e.target.value)}
+            onChange={(e) => handleTeamChange(e.target.value)}
             fullWidth
             required
             error={!!serverErrors['TeamId']}

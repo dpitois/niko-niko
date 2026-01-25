@@ -9,4 +9,9 @@ public record CreateTeamDto
     /// The name of the team.
     /// </summary>
     public string Name { get; init; } = null!;
+
+    /// <summary>
+    /// The default duration of a sprint in days.
+    /// </summary>
+    public int? DefaultSprintDuration { get; init; }
 }

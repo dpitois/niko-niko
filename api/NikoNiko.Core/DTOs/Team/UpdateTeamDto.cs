@@ -9,4 +9,9 @@ public record UpdateTeamDto
     /// The new name of the team.
     /// </summary>
     public required string Name { get; init; }
+
+    /// <summary>
+    /// The default duration of a sprint in days.
+    /// </summary>
+    public int? DefaultSprintDuration { get; init; }
 }

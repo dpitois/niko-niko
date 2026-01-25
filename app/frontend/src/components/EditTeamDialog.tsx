@@ -22,8 +22,9 @@ import type { User } from '@/models/User';
 interface EditTeamDialogProps {
   open: boolean;
   onClose: () => void;
-  onUpdate: (newName: string) => Promise<void>;
+  onUpdate: (newName: string, newDefaultSprintDuration?: number) => Promise<void>;
   currentName: string;
+  currentDefaultSprintDuration?: number;
   members?: User[];
   currentAdminId?: string;
   onTransfer?: (newAdminId: string) => Promise<void>;
@@ -34,26 +35,34 @@ const EditTeamDialog: React.FC<EditTeamDialogProps> = ({
   onClose,
   onUpdate,
   currentName,
+  currentDefaultSprintDuration,
   members,
   currentAdminId,
   onTransfer,
 }) => {
   const { t } = useTranslation();
   const [name, setName] = useState(currentName);
+  const [defaultSprintDuration, setDefaultSprintDuration] = useState<string>(
+    currentDefaultSprintDuration?.toString() || '',
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedAdminId, setSelectedAdminId] = useState<string>('');
   const [transferError, setTransferError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || name === currentName) {
+    const duration = defaultSprintDuration ? parseInt(defaultSprintDuration, 10) : undefined;
+    const nameChanged = name.trim() !== currentName;
+    const durationChanged = duration !== currentDefaultSprintDuration;
+
+    if (!name.trim() || (!nameChanged && !durationChanged)) {
       onClose();
       return;
     }
 
     setIsSubmitting(true);
     try {
-      await onUpdate(name);
+      await onUpdate(name, duration);
       onClose();
     } catch (error) {
       console.error('Failed to update team name:', error);
@@ -79,6 +88,9 @@ const EditTeamDialog: React.FC<EditTeamDialogProps> = ({
 
   const availableMembers = members?.filter((m) => m.id !== currentAdminId) || [];
 
+  const durationInt = defaultSprintDuration ? parseInt(defaultSprintDuration, 10) : undefined;
+  const hasChanges = name.trim() !== currentName || durationInt !== currentDefaultSprintDuration;
+
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle>{t('adminTeams.editDialog.title')}</DialogTitle>
@@ -95,6 +107,18 @@ const EditTeamDialog: React.FC<EditTeamDialogProps> = ({
             onChange={(e) => setName(e.target.value)}
             disabled={isSubmitting}
             required
+            sx={{ mb: 2 }}
+          />
+          <TextField
+            margin="dense"
+            label={t('adminTeams.editDialog.labelDefaultSprintDuration')}
+            type="number"
+            fullWidth
+            variant="outlined"
+            value={defaultSprintDuration}
+            onChange={(e) => setDefaultSprintDuration(e.target.value)}
+            disabled={isSubmitting}
+            slotProps={{ htmlInput: { min: 1 } }}
             sx={{ mb: 2 }}
           />
 
@@ -156,7 +180,7 @@ const EditTeamDialog: React.FC<EditTeamDialogProps> = ({
             type="submit"
             color="primary"
             variant="contained"
-            disabled={isSubmitting || !name.trim() || name === currentName}
+            disabled={isSubmitting || !name.trim() || !hasChanges}
           >
             {t('common.save')}
           </Button>

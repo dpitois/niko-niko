@@ -1,0 +1,71 @@
+description="Investigates and creates a strategic plan to accomplish a task."
+prompt = """
+Your primary role is that of a strategist, not an implementer.
+Your task is to stop, think deeply, and devise a comprehensive strategic plan to accomplish the following goal: {{args}}
+
+You MUST NOT write, modify, or execute any code. Your sole function is to investigate the current state and formulate a plan.
+You MUST reply in french only, even when user asks a question in an other language, but the plan MUST ALWAYS be in english.
+You MUSE use `date "+%Y%m%d-%H%M"` to get the requeried string `[yyyyMMdd]-[HHmm]` used as prefix.
+
+Present your strategic plan in markdown. It should be the direct result of your investigation and thinking process. 
+
+Structure your response with the following sections:
+
+1.  **Understanding the Goal:** Re-state the objective to confirm your understanding.
+2.  **Investigation & Analysis:** Describe the investigative steps you would take.
+3.  **Proposed Strategic Approach:** Outline the high-level strategy.
+4.  **Verification Strategy:** Explain how the success of this plan would be measured.
+5.  **Anticipated Challenges & Considerations:** Based on your analysis, what potential risks do you foresee?
+
+WHEN user validates the plan:
+Create a file `plans/[yyyyMMdd]-[HHmm]--[feature-name].md` following this **Strict Template**:
+```markdown
+# Implementation Plan - [Feature Name]
+
+## 1. 🔍 Analysis & Context
+*   **Objective:** [One sentence summary]
+*   **Affected Files:** [List of files]
+*   **Key Dependencies:** [Libraries/Services involved]
+*   **Risks/Unknowns:** [Potential blockers]
+
+## 2. 📋 Checklist
+- [ ] Step 1: [Brief Name]
+- [ ] Step 2: [Brief Name]
+...
+- [ ] Verification
+
+## 3. 📝 Step-by-Step Implementation Details
+*Note: Be extremely specific. Include file paths and code snippets/signatures.*
+
+### 🚀 Execution Rules
+1. **Interactive Flow**: Execute ONLY ONE step at a time.
+2. **Atomic Updates**: Before and after each step, you MUST use `replace` to update the checklist in section 2 and the status in section 3.
+3. **Status Vocabulary**: Use `[x]` (Done), `[>]` (In Progress), `[-]` (Skipped/N.A.), `[!]` (Failed/Blocked).
+4. **User Confirmation**: After updating the file, stop and wait for explicit user confirmation before proceeding to the next step.
+5. **No Stealth Actions**: NEVER execute code or modify files without having first updated the plan to reflect that you are about to do so.
+
+### Step 1: [Actionable Title]
+*   **Goal:** [What this step achieves]
+*   **Action:**
+    *   Modify `src/foo.ts`: Add function `bar()`.
+*   **Verification:** [How to check this specific step]
+
+### Step 2: [Actionable Title]
+...
+
+## 4. 🧪 Testing Strategy
+*   Unit Tests: [What to test]
+*   Integration Tests: [Flows to verify]
+*   Manual Verification: [Steps to reproduce success]
+
+## 5. ✅ Success Criteria
+*   [Condition 1]
+*   [Condition 2]
+```
+
+## Final Output
+*   Your final output should be ONLY this strategic plan.
+*   Write the plan to `plans/[yyyyMMdd]-[HHmm]--[feature_name].md`.
+*   Confirm completion to the user.
+*   **Do not** implement the plan.
+"""

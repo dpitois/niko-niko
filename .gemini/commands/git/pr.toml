@@ -1,0 +1,42 @@
+description = "Suggest a PR title and description and write it to plans/PR.md"
+prompt = """
+You are a Git expert.
+Based on the changes on the current branch $(git branch --show-current)
+and commits not existing on develop $(git log develop..HEAD --oneline)
+
+Analyze the following state:
+
+--- GIT STATUS ---
+$(git status)
+
+--- GIT DIFF ---
+$(git diff develop...HEAD)
+---
+
+### TASK:
+1. Generate a PR title (Conventional Commits) and a detailed description in English.
+2. You can use, but not mandatory, some emojis.
+3. Create or update the file `plans/PR.md` with this content.
+
+### FILE CONTENT TEMPLATE:
+[Title]
+
+## Summary
+[Brief overview of why this PR exists]
+
+## Key Changes
+- [Change 1]
+- [Change 2]
+
+## Checklist
+- [ ] Tests passed
+- [ ] Documentation updated
+
+### FINAL ACTION:
+- Write the generated content ONLY to the file `plans/PR.md`.
+- Confirm to the user that the file has been created/updated in the TUI.
+- Do not output the markdown directly in the chat if you have written it to the file.
+"""
+
+[options]
+temperature = 0.2

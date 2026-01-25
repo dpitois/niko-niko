@@ -2,7 +2,7 @@
 
 # Configuration
 ARCHIVE_DIR="plans/archive"
-DAYS_THRESHOLD=3
+DAYS_THRESHOLD=1
 
 # Create archive directory if it doesn't exist
 mkdir -p "$ARCHIVE_DIR"

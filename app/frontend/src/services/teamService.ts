@@ -26,7 +26,7 @@ export const deleteTeam = async (teamId: string): Promise<void> => {
 
 export const updateTeam = async (
   teamId: string,
-  data: { name: string; defaultSprintDuration?: number },
+  data: { name: string; defaultSprintDuration?: number; sprintNameTemplate?: string },
 ): Promise<void> => {
   await api.put(`/teams/${teamId}`, data);
 };

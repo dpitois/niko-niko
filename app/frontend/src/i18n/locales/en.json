@@ -113,6 +113,8 @@
       "title": "Edit Team Name",
       "labelName": "Team Name",
       "labelDefaultSprintDuration": "Default Sprint Duration (days)",
+      "labelSprintNameTemplate": "Sprint Name Template",
+      "sprintNameTemplateHelper": "Tags: [yyyy], [yy], [MM], [team], [id]",
       "transferError": "Error transferring administration.",
       "transferWarning": "Warning: Transferring administration is irreversible. You will lose administrative rights to this team.",
       "transferButton": "Transfer Administration",

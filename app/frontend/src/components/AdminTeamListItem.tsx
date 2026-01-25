@@ -35,9 +35,13 @@ const AdminTeamListItem: React.FC<AdminTeamListItemProps> = ({ team, onDelete, o
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
 
-  const handleUpdateName = async (newName: string, newDuration?: number) => {
+  const handleUpdateName = async (newName: string, newDuration?: number, newTemplate?: string) => {
     try {
-      await updateTeam(team.id, { name: newName, defaultSprintDuration: newDuration });
+      await updateTeam(team.id, {
+        name: newName,
+        defaultSprintDuration: newDuration,
+        sprintNameTemplate: newTemplate,
+      });
       enqueueSnackbar(t('dashboard.teamUpdated'), { variant: 'success' });
       if (onUpdate) onUpdate();
     } catch {
@@ -111,6 +115,7 @@ const AdminTeamListItem: React.FC<AdminTeamListItemProps> = ({ team, onDelete, o
         onUpdate={handleUpdateName}
         currentName={team.name}
         currentDefaultSprintDuration={team.defaultSprintDuration}
+        currentSprintNameTemplate={team.sprintNameTemplate}
         members={team.members}
         currentAdminId={team.adminId}
         onTransfer={handleTransferAdmin}

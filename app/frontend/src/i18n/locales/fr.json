@@ -113,6 +113,8 @@
       "title": "Modifier le nom de l'équipe",
       "labelName": "Nom de l'équipe",
       "labelDefaultSprintDuration": "Durée par défaut du sprint (jours)",
+      "labelSprintNameTemplate": "Modèle de nom de sprint",
+      "sprintNameTemplateHelper": "Tags : [yyyy], [yy], [MM], [team], [id]",
       "transferError": "Erreur lors du transfert de l'administration.",
       "transferWarning": "Attention : Le transfert de l'administration est irréversible. Vous perdrez les droits d'administration sur cette équipe.",
       "transferButton": "Transférer l'administration",

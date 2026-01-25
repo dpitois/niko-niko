@@ -44,6 +44,7 @@ public class TeamService : ITeamService
             AdminName = t.Admin.Name ?? t.Admin.Email,
             CreatedAt = t.CreatedAt,
             DefaultSprintDuration = t.DefaultSprintDuration,
+            SprintNameTemplate = t.SprintNameTemplate,
             Sprints = t.Sprints.Select(s => new SprintDto
             {
                 Id = s.Id,
@@ -78,6 +79,7 @@ public class TeamService : ITeamService
                 AdminName = t.Admin.Name ?? t.Admin.Email,
                 CreatedAt = t.CreatedAt,
                 DefaultSprintDuration = t.DefaultSprintDuration,
+                SprintNameTemplate = t.SprintNameTemplate,
                 Sprints = t.Sprints.Select(s => new SprintDto
                 {
                     Id = s.Id,
@@ -137,6 +139,7 @@ public class TeamService : ITeamService
 
         team.Name = updateTeamDto.Name;
         team.DefaultSprintDuration = updateTeamDto.DefaultSprintDuration;
+        team.SprintNameTemplate = updateTeamDto.SprintNameTemplate;
         await _context.SaveChangesAsync();
         await _notificationService.NotifyTeamRenamedAsync(team.Id, team.Name);
     }

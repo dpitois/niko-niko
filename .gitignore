@@ -78,7 +78,19 @@ jspm_packages/
 .DS_Store
 .vscode/
 docker-compose.prod.yml
-.gemini/**
+
+# Gemini Agent
+.gemini/tmp/
+.gemini/cache/
+.gemini/logs/
+.gemini/history/
+.gemini/*.db
+.gemini/secrets.*
+
+# Ensure documentation and custom commands are tracked
+!/AGENTS.md
+!/GEMINI.md
+!.gemini/commands/
 
 # Private planning folder
 plans/*

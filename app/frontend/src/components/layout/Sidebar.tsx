@@ -15,6 +15,7 @@ import HistoryIcon from '@mui/icons-material/History';
 import LanguageIcon from '@mui/icons-material/Language';
 import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
 import PeopleIcon from '@mui/icons-material/People';
 import TimelineIcon from '@mui/icons-material/Timeline';
 import {
@@ -404,6 +405,12 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose, handleDrawer
                 <AccountCircleIcon fontSize="small" />
               </ListItemIcon>
               {t('sidebar.profile')}
+            </MenuItem>
+            <MenuItem component="a" href="/docs/" target="_blank" rel="noopener noreferrer">
+              <ListItemIcon>
+                <MenuBookIcon fontSize="small" />
+              </ListItemIcon>
+              {t('sidebar.docs')}
             </MenuItem>
             {repoUrl && (
               <MenuItem component="a" href={repoUrl} target="_blank" rel="noopener noreferrer">

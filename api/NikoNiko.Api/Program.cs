@@ -261,10 +261,11 @@ await SeedAndSyncSuperAdminRoles(app);
 
 // 2. Configure the HTTP request pipeline.
 // -----------------------------------------------------------------------------
+app.UseSwagger(); // Enable middleware to serve generated Swagger as a JSON endpoint.
+
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(); // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.)
 }
 
 app.MapHealthChecks("/healthz");

@@ -1,0 +1,28 @@
+---
+title: Bienvenue sur Niko Niko Calendar
+description: Documentation officielle de Niko Niko Calendar.
+template: splash
+hero:
+  tagline: Suivez le moral de votre équipe au quotidien.
+  image:
+    file: ../../../assets/houston.webp
+  actions:
+    - text: Guide Utilisateur
+      link: /docs/fr/user-guide/
+      icon: right-arrow
+    - text: Consulter le GitHub
+      link: https://github.com/dpitois/niko-niko
+      icon: external
+      variant: minimal
+---
+
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+
+## Prochaines étapes
+
+<CardGrid stagger>
+	<LinkCard title="Référence API" href="/docs/fr/api-reference/" description="Explorez notre documentation API interactive." />
+	<LinkCard title="Guide Utilisateur" href="/docs/fr/user-guide/" description="Apprenez à utiliser le calendrier." />
+	<LinkCard title="Guide Admin Équipe" href="/docs/fr/team-admin-guide/" description="Gérez vos équipes et vos membres." />
+	<LinkCard title="Guide Super Admin" href="/docs/fr/super-admin-guide/" description="Gestion avancée du système." />
+</CardGrid>

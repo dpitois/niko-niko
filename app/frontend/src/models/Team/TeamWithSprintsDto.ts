@@ -6,6 +6,7 @@ export interface TeamWithSprintsDto {
   name: string;
   adminId: string;
   createdAt: string;
+  defaultSprintDuration?: number;
   sprints: Sprint[];
   members: User[];
 }

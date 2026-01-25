@@ -25,4 +25,9 @@ public record TeamDto
     /// The date and time when the team was created.
     /// </summary>
     public DateTime CreatedAt { get; init; }
+
+    /// <summary>
+    /// The default duration of a sprint in days.
+    /// </summary>
+    public int? DefaultSprintDuration { get; init; }
 }

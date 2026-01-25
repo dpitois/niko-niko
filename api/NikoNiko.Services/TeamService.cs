@@ -43,6 +43,7 @@ public class TeamService : ITeamService
             AdminId = t.AdminId,
             AdminName = t.Admin.Name ?? t.Admin.Email,
             CreatedAt = t.CreatedAt,
+            DefaultSprintDuration = t.DefaultSprintDuration,
             Sprints = t.Sprints.Select(s => new SprintDto
             {
                 Id = s.Id,
@@ -76,6 +77,7 @@ public class TeamService : ITeamService
                 AdminId = t.AdminId,
                 AdminName = t.Admin.Name ?? t.Admin.Email,
                 CreatedAt = t.CreatedAt,
+                DefaultSprintDuration = t.DefaultSprintDuration,
                 Sprints = t.Sprints.Select(s => new SprintDto
                 {
                     Id = s.Id,
@@ -101,7 +103,8 @@ public class TeamService : ITeamService
         var team = new Team
         {
             Name = createTeamDto.Name,
-            AdminId = adminId
+            AdminId = adminId,
+            DefaultSprintDuration = createTeamDto.DefaultSprintDuration
         };
 
         var teamUser = new TeamUser
@@ -122,7 +125,8 @@ public class TeamService : ITeamService
             Name = team.Name,
             AdminId = team.AdminId,
             AdminName = team.Admin.Name ?? team.Admin.Email,
-            CreatedAt = team.CreatedAt
+            CreatedAt = team.CreatedAt,
+            DefaultSprintDuration = team.DefaultSprintDuration
         };
     }
 
@@ -132,6 +136,7 @@ public class TeamService : ITeamService
         if (team == null) throw new KeyNotFoundException("Team not found.");
 
         team.Name = updateTeamDto.Name;
+        team.DefaultSprintDuration = updateTeamDto.DefaultSprintDuration;
         await _context.SaveChangesAsync();
         await _notificationService.NotifyTeamRenamedAsync(team.Id, team.Name);
     }

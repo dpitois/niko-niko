@@ -43,6 +43,11 @@ public class Team
     public List<TeamUser> TeamUsers { get; set; } = new();
 
     /// <summary>
+    /// The default duration of a sprint in days.
+    /// </summary>
+    public int? DefaultSprintDuration { get; set; }
+
+    /// <summary>
     /// Navigation property for the sprints associated with this team.
     /// </summary>
     public List<Sprint> Sprints { get; set; } = new();

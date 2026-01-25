@@ -76,6 +76,7 @@
   },
   "validation": {
     "required": "This field is required",
+    "greaterThanZero": "Must be greater than zero",
     "maxLength_100": "Must be 100 characters or less",
     "endDateBeforeStartDate": "End date must be after start date"
   },
@@ -111,6 +112,7 @@
     "editDialog": {
       "title": "Edit Team Name",
       "labelName": "Team Name",
+      "labelDefaultSprintDuration": "Default Sprint Duration (days)",
       "transferError": "Error transferring administration.",
       "transferWarning": "Warning: Transferring administration is irreversible. You will lose administrative rights to this team.",
       "transferButton": "Transfer Administration",

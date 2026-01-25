@@ -24,8 +24,11 @@ export const deleteTeam = async (teamId: string): Promise<void> => {
   await api.delete(`/teams/${teamId}`);
 };
 
-export const updateTeam = async (teamId: string, name: string): Promise<void> => {
-  await api.put(`/teams/${teamId}`, { name });
+export const updateTeam = async (
+  teamId: string,
+  data: { name: string; defaultSprintDuration?: number },
+): Promise<void> => {
+  await api.put(`/teams/${teamId}`, data);
 };
 
 export const transferTeamAdmin = async (teamId: string, newAdminId: string): Promise<void> => {

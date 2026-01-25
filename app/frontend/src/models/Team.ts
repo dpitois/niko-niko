@@ -5,4 +5,5 @@ export interface TeamDto {
   adminName: string;
   createdAt: string; // Dates are strings over HTTP
   defaultSprintDuration?: number;
+  sprintNameTemplate?: string;
 }

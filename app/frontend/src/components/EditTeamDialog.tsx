@@ -22,9 +22,14 @@ import type { User } from '@/models/User';
 interface EditTeamDialogProps {
   open: boolean;
   onClose: () => void;
-  onUpdate: (newName: string, newDefaultSprintDuration?: number) => Promise<void>;
+  onUpdate: (
+    newName: string,
+    newDefaultSprintDuration?: number,
+    newSprintNameTemplate?: string,
+  ) => Promise<void>;
   currentName: string;
   currentDefaultSprintDuration?: number;
+  currentSprintNameTemplate?: string;
   members?: User[];
   currentAdminId?: string;
   onTransfer?: (newAdminId: string) => Promise<void>;
@@ -36,6 +41,7 @@ const EditTeamDialog: React.FC<EditTeamDialogProps> = ({
   onUpdate,
   currentName,
   currentDefaultSprintDuration,
+  currentSprintNameTemplate,
   members,
   currentAdminId,
   onTransfer,
@@ -45,6 +51,7 @@ const EditTeamDialog: React.FC<EditTeamDialogProps> = ({
   const [defaultSprintDuration, setDefaultSprintDuration] = useState<string>(
     currentDefaultSprintDuration?.toString() || '',
   );
+  const [sprintNameTemplate, setSprintNameTemplate] = useState(currentSprintNameTemplate || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedAdminId, setSelectedAdminId] = useState<string>('');
   const [transferError, setTransferError] = useState<string | null>(null);
@@ -54,15 +61,16 @@ const EditTeamDialog: React.FC<EditTeamDialogProps> = ({
     const duration = defaultSprintDuration ? parseInt(defaultSprintDuration, 10) : undefined;
     const nameChanged = name.trim() !== currentName;
     const durationChanged = duration !== currentDefaultSprintDuration;
+    const templateChanged = sprintNameTemplate !== currentSprintNameTemplate;
 
-    if (!name.trim() || (!nameChanged && !durationChanged)) {
+    if (!name.trim() || (!nameChanged && !durationChanged && !templateChanged)) {
       onClose();
       return;
     }
 
     setIsSubmitting(true);
     try {
-      await onUpdate(name, duration);
+      await onUpdate(name, duration, sprintNameTemplate);
       onClose();
     } catch (error) {
       console.error('Failed to update team name:', error);
@@ -89,7 +97,10 @@ const EditTeamDialog: React.FC<EditTeamDialogProps> = ({
   const availableMembers = members?.filter((m) => m.id !== currentAdminId) || [];
 
   const durationInt = defaultSprintDuration ? parseInt(defaultSprintDuration, 10) : undefined;
-  const hasChanges = name.trim() !== currentName || durationInt !== currentDefaultSprintDuration;
+  const hasChanges =
+    name.trim() !== currentName ||
+    durationInt !== currentDefaultSprintDuration ||
+    sprintNameTemplate !== currentSprintNameTemplate;
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
@@ -119,6 +130,18 @@ const EditTeamDialog: React.FC<EditTeamDialogProps> = ({
             onChange={(e) => setDefaultSprintDuration(e.target.value)}
             disabled={isSubmitting}
             slotProps={{ htmlInput: { min: 1 } }}
+            sx={{ mb: 2 }}
+          />
+          <TextField
+            margin="dense"
+            label={t('adminTeams.editDialog.labelSprintNameTemplate')}
+            type="text"
+            fullWidth
+            variant="outlined"
+            value={sprintNameTemplate}
+            onChange={(e) => setSprintNameTemplate(e.target.value)}
+            disabled={isSubmitting}
+            helperText={t('adminTeams.editDialog.sprintNameTemplateHelper')}
             sx={{ mb: 2 }}
           />
 

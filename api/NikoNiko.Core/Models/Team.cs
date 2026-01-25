@@ -48,6 +48,12 @@ public class Team
     public int? DefaultSprintDuration { get; set; }
 
     /// <summary>
+    /// The template for auto-generating sprint names.
+    /// </summary>
+    [MaxLength(100)]
+    public string? SprintNameTemplate { get; set; }
+
+    /// <summary>
     /// Navigation property for the sprints associated with this team.
     /// </summary>
     public List<Sprint> Sprints { get; set; } = new();

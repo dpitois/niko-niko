@@ -41,7 +41,9 @@ const CreateTeamForm: React.FC<CreateTeamFormProps> = ({ onTeamCreated }) => {
     const newTeam: CreateTeam = {
       name,
       adminId: user.sub,
-      defaultSprintDuration: defaultSprintDuration ? parseInt(defaultSprintDuration, 10) : undefined,
+      defaultSprintDuration: defaultSprintDuration
+        ? parseInt(defaultSprintDuration, 10)
+        : undefined,
     };
 
     try {

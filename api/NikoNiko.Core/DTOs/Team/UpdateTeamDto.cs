@@ -14,4 +14,9 @@ public record UpdateTeamDto
     /// The default duration of a sprint in days.
     /// </summary>
     public int? DefaultSprintDuration { get; init; }
+
+    /// <summary>
+    /// The template for auto-generating sprint names.
+    /// </summary>
+    public string? SprintNameTemplate { get; init; }
 }

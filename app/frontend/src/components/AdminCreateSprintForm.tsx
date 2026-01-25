@@ -40,6 +40,19 @@ const AdminCreateSprintForm: React.FC<AdminCreateSprintFormProps> = ({
     const nextStart = lastSprint ? dayjs(lastSprint.endDate).add(1, 'day') : dayjs();
     setStartDate(nextStart.format('YYYY-MM-DD'));
 
+    if (team.sprintNameTemplate) {
+      let newName = team.sprintNameTemplate;
+      const nextDate = nextStart;
+      newName = newName.replace(/\[yyyy\]/g, nextDate.format('YYYY'));
+      newName = newName.replace(/\[yy\]/g, nextDate.format('YY'));
+      newName = newName.replace(/\[MM\]/g, nextDate.format('MM'));
+      newName = newName.replace(/\[team\]/g, team.name);
+      // Simple ID logic: count + 1
+      const nextId = (team.sprints?.length || 0) + 1;
+      newName = newName.replace(/\[id\]/g, nextId.toString());
+      setName(newName);
+    }
+
     if (team.defaultSprintDuration) {
       // Subtract 1 day because duration is inclusive
       setEndDate(nextStart.add(team.defaultSprintDuration - 1, 'day').format('YYYY-MM-DD'));

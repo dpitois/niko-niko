@@ -15,6 +15,12 @@ export default defineConfig({
       filename: 'stats.html',
     }),
   ],
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './src/test/setup.ts',
+    exclude: ['tests/**', 'node_modules/**'],
+  },
   server: {
     proxy: {
       '/api': {

@@ -76,11 +76,30 @@ public class SprintService : ISprintService
             throw new UnauthorizedAccessException("Only team admins or super admins can create sprints.");
         }
 
+        if (createSprintDto.EndDate < createSprintDto.StartDate)
+        {
+            throw new ArgumentException("End date cannot be before start date.");
+        }
+
+        var startDate = createSprintDto.StartDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
+        var endDate = createSprintDto.EndDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
+
+        // Check for overlapping sprints in the same team
+        var overlappingSprint = await _context.Sprints
+            .AnyAsync(s => s.TeamId == createSprintDto.TeamId &&
+                           s.StartDate < endDate &&
+                           startDate < s.EndDate);
+
+        if (overlappingSprint)
+        {
+            throw new InvalidOperationException("A sprint already exists for this team in the specified date range (overlap detected).");
+        }
+
         var sprint = new Sprint
         {
             Name = createSprintDto.Name,
-            StartDate = createSprintDto.StartDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc),
-            EndDate = createSprintDto.EndDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc),
+            StartDate = startDate,
+            EndDate = endDate,
             TeamId = createSprintDto.TeamId
         };
 

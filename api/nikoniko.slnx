@@ -11,6 +11,7 @@
   <Project Path="NikoNiko.Data/NikoNiko.Data.csproj" />
   <Project Path="NikoNiko.Notifications.IntegrationTests/NikoNiko.Notifications.IntegrationTests.csproj" />
   <Project Path="NikoNiko.Notifications/NikoNiko.Notifications.csproj" />
+  <Project Path="NikoNiko.Services.UnitTests/NikoNiko.Services.UnitTests.csproj" />
   <Project Path="NikoNiko.Services/NikoNiko.Services.csproj" />
   <Project Path="NikoNiko.Api.IntegrationTests/NikoNiko.Api.IntegrationTests.csproj" />
 </Solution>

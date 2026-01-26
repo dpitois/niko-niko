@@ -113,9 +113,13 @@ const TeamCurrentSprintSection: React.FC<TeamCurrentSprintSectionProps> = ({ tea
     return <Typography color="error">{t('common.error')}</Typography>;
   }
 
-  const handleUpdateName = async (newName: string, newDuration?: number) => {
+  const handleUpdateName = async (newName: string, newDuration?: number, newTemplate?: string) => {
     try {
-      await updateTeam(team.id, { name: newName, defaultSprintDuration: newDuration });
+      await updateTeam(team.id, {
+        name: newName,
+        defaultSprintDuration: newDuration,
+        sprintNameTemplate: newTemplate,
+      });
       enqueueSnackbar(t('dashboard.teamUpdated'), { variant: 'success' });
       onUpdate();
     } catch {
@@ -197,6 +201,7 @@ const TeamCurrentSprintSection: React.FC<TeamCurrentSprintSectionProps> = ({ tea
         onUpdate={handleUpdateName}
         currentName={team.name}
         currentDefaultSprintDuration={team.defaultSprintDuration}
+        currentSprintNameTemplate={team.sprintNameTemplate}
         members={team.members}
         currentAdminId={team.adminId}
         onTransfer={handleTransferAdmin}

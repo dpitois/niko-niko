@@ -57,17 +57,14 @@ npm run dev
 # Build for production
 npm run build
 
+# Run linting and formatting (MANDATORY ORDER: lint first, then format)
+npm run lint -- --fix && npm run format
+
 # Run linting
 npm run lint
 
 # Format code
 npm run format
-
-# Check formatting
-npm run check-format
-
-# Preview production build
-npm run preview
 ```
 
 ### Docker Commands

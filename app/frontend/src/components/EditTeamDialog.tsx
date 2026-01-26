@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Alert,
@@ -55,6 +55,14 @@ const EditTeamDialog: React.FC<EditTeamDialogProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedAdminId, setSelectedAdminId] = useState<string>('');
   const [transferError, setTransferError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (open) {
+      setName(currentName);
+      setDefaultSprintDuration(currentDefaultSprintDuration?.toString() || '');
+      setSprintNameTemplate(currentSprintNameTemplate || '');
+    }
+  }, [open, currentName, currentDefaultSprintDuration, currentSprintNameTemplate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -8,6 +8,7 @@
 - **Material UI Grid Syntax**: When using the Material UI Grid component, the correct syntax is `<Grid size={{ xs: 12, sm: 6 }}>`. The `item` prop is deprecated and should not be used.
 - All implementation plans must be written in Markdown and STRICTLY in English. No French or mixed languages in plans.
 - **Third-Party Licensing**: Before adding any new package (NPM, NuGet, etc.), ensure it is compatible with the project's **AGPLv3** license (e.g., MIT, Apache 2.0, BSD). If compatible, the package MUST be added to `THIRD-PARTY-NOTICES.md` with its license details.
+- **Frontend Build Order**: Always run `npm run lint -- --fix` -> `npm run format` -> `npm run build`. This ensures linter auto-fixes are properly formatted.
 
 ## Project Overview
 

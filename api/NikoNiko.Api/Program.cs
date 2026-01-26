@@ -62,8 +62,9 @@ else
 }
 
 // Configure Data Protection
+var dataProtectionPath = config["DataProtection:Path"] ?? "/root/.aspnet/DataProtection-Keys";
 builder.Services.AddDataProtection()
-    .PersistKeysToFileSystem(new DirectoryInfo("/root/.aspnet/DataProtection-Keys"));
+    .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionPath));
 
 // Configure Forwarded Headers
 builder.Services.Configure<ForwardedHeadersOptions>(options =>

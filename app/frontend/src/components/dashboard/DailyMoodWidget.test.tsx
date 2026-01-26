@@ -3,7 +3,6 @@ import { screen, fireEvent } from '@testing-library/react';
 import { render } from '../../test/test-utils';
 import DailyMoodWidget from './DailyMoodWidget';
 import { MoodValues } from '@/models/MoodType';
-import dayjs from 'dayjs';
 
 // Mocks des hooks
 const mockSaveMood = vi.fn();

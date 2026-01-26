@@ -16,6 +16,7 @@ COPY ["api/NikoNiko.Data.Sqlite/NikoNiko.Data.Sqlite.csproj", "api/NikoNiko.Data
 COPY ["api/NikoNiko.Notifications/NikoNiko.Notifications.csproj", "api/NikoNiko.Notifications/"]
 COPY ["api/NikoNiko.Api.IntegrationTests/NikoNiko.Api.IntegrationTests.csproj", "api/NikoNiko.Api.IntegrationTests/"]
 COPY ["api/NikoNiko.Notifications.IntegrationTests/NikoNiko.Notifications.IntegrationTests.csproj", "api/NikoNiko.Notifications.IntegrationTests/"]
+COPY ["api/NikoNiko.Services.UnitTests/NikoNiko.Services.UnitTests.csproj", "api/NikoNiko.Services.UnitTests/"]
 
 # Restore dependencies
 RUN dotnet restore "api/nikoniko.slnx"

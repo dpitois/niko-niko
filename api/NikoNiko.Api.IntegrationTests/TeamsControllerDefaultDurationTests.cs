@@ -54,6 +54,7 @@ public class TeamsControllerDefaultDurationTests
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             var t = await dbContext.Teams.FindAsync(team.Id);
+            Assert.NotNull(t);
             t.DefaultSprintDuration = 14;
             await dbContext.SaveChangesAsync();
         }

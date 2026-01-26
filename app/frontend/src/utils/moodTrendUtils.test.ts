@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { calculateMoodTrend } from './moodTrendUtils';
-import { MoodType } from '@/models/Mood';
+import type { MoodType } from '@/models/MoodType';
 
 // Mock simple de Mood pour les tests
 const createMood = (date: string, moodValue: number, userId: string = 'user1') => ({

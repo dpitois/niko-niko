@@ -119,6 +119,8 @@ public class TeamService : ITeamService
         _context.TeamUsers.Add(teamUser);
         await _context.SaveChangesAsync();
 
+        await _notificationService.UpdateUserGroupAsync(adminId.ToString(), team.Id, true);
+
         await _context.Entry(team).Reference(t => t.Admin).LoadAsync();
 
         return new TeamDto

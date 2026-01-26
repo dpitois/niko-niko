@@ -11,7 +11,7 @@ test.describe('Authentication Flow', () => {
   test('should login successfully via backdoor', async ({ page, request }) => {
     // 1. Get Token via Backdoor
     const loginResponse = await request.post('http://localhost:7000/api/testing/login', {
-      data: 'admin@test.com',
+      data: { email: 'admin@test.com' },
       headers: { 'Content-Type': 'application/json' }
     });
     expect(loginResponse.ok()).toBeTruthy();

@@ -40,13 +40,20 @@ namespace NikoNiko.Api.Controllers
             return Ok(new { message = "E2E Reset Complete" });
         }
 
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] string email)
+        public class LoginRequest
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            public string Email { get; set; }
+        }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginRequest request)
+        {
+            var user = await _context.Users
+                .Include(u => u.TeamUsers)
+                .FirstOrDefaultAsync(u => u.Email == request.Email);
             if (user == null)
             {
-                return NotFound("User not found via Backdoor Login");
+                return NotFound("User not found via Backdoor Login: " + request.Email);
             }
 
             var token = _tokenService.CreateToken(user);
@@ -67,7 +74,19 @@ namespace NikoNiko.Api.Controllers
                 CreatedAt = DateTime.UtcNow
             };
 
-            _context.Users.Add(adminUser);
+            var memberUser = new User
+            {
+                Id = Guid.NewGuid(),
+                OAuthId = "e2e-test-member-id",
+                Email = "member@test.com",
+                Name = "Member Test",
+                Provider = "Local",
+                IsSuperAdmin = false,
+                IsOnboarded = true,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.Users.AddRange(adminUser, memberUser);
             await _context.SaveChangesAsync();
         }
     }

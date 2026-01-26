@@ -1,11 +1,11 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
 
 test.describe('Sprint Management', () => {
   test.beforeEach(async ({ page }) => {
     await page.request.post('/api/testing/reset');
   });
 
-  async function loginAsAdmin(page) {
+  async function loginAsAdmin(page: Page) {
     const loginResponse = await page.request.post('/api/testing/login', {
       data: { email: 'admin@test.com' }
     });

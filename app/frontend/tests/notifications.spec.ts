@@ -1,11 +1,11 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
 
 test.describe('Real-time Notifications (SignalR)', () => {
   test.beforeEach(async ({ page }) => {
     await page.request.post('/api/testing/reset');
   });
 
-  async function loginAs(page, email) {
+  async function loginAs(page: Page, email: string) {
     const loginResponse = await page.request.post('/api/testing/login', {
       data: { email }
     });

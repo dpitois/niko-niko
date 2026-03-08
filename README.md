@@ -24,48 +24,51 @@ Create a **distributed** and **self-hosted** (via Docker) application to allow A
 ## 3. Key Features
 
 - **Authentication**: OAuth2 (GitHub, Google, Discord). Microsoft is temporarily disabled.
-- **Team Management**: Team creation (via admin dashboard), member management, and invitations (creation, acceptance, deletion).
-- **Sprints**: Work period definitions by admins and sprint tracking on the dashboard, including sprint creation and a dedicated sprint creation page.
-- **Mood Tracking**: Daily recording (🤩/😊/😐/☹️/😫) per sprint, now functional on the frontend and effectively updated, with a dedicated page for mood entry.
-- **Real-time Notifications**: SignalR integration for real-time notifications on important actions (team creation, rename, member updates).
-- **Gamification**: Badge attribution to encourage participation.
-- **Dashboard**: Centralized view of teams, sprints, and calendars, with basic navigation, an administration dashboard, and a "My Teams" page for the user.
-- **User Logout**: Logout functionality implemented on the frontend.
+- **Team Management**: Team creation (up to 2 for regular users), member management (invitations), and administrative settings like **Default Sprint Duration** and **Sprint Name Templates**.
+- **Sprints**: Work period definitions with strict validation:
+  - **No overlap**: Sprints for the same team cannot have overlapping dates.
+  - **Duration limit**: Sprints cannot exceed 2 months (62 days).
+- **Mood Tracking**: Daily recording (🤩/😊/😐/☹️/😫) restricted to the current sprint range. Future dates are blocked.
+- **Real-time Notifications**: SignalR integration for real-time updates (team creation, rename, member updates, mood entries).
+- **Gamification**: Badge attribution to reward consistency.
+- **Dashboard**: Centralized view of teams, sprints, and calendars, with simplified navigation for users and administrative views for team leads.
 
 ## 4. Main Data Models
 
-- `User`: User with OAuth info, teams, and badges.
-- `Team`: Team with an admin, members, and sprints.
-- `Sprint`: Time period with start/end dates.
-- `MoodEntry`: User mood record for a given date.
-- `Badge`: Gamification reward.
+- `User`: Profile information and associated OAuth identifiers.
+- `Team`: Collaborative unit with an admin, members, sprints, and **administrative defaults**.
+- `Sprint`: Defined work period linked to a team with start/end dates.
+- `MoodEntry`: Records of user morale linked to a specific date and sprint.
+- `Badge`: Gamification achievements.
 
 ## Roles & Permissions
 
 | Action (Endpoint) | Resource | `user` | `team-admin` | `super-admin` |
 | :--- | :--- | :--- | :--- | :--- |
 | **Teams** | | | | |
-| `GET /api/teams` | List teams | Only those they are a member of | Only those they are a member/admin of | **All** |
-| `GET /api/teams/{id}` | View a team | Only if member | Only if member/admin | **All** |
-| `POST /api/teams` | Create a team | ✓ (Up to 2 teams) | ✓ (Up to 2 teams) | **Unlimited** |
-| `DELETE /api/teams/{id}`| Delete a team | No | **Only their team** | **All** |
+| `GET /api/teams` | List teams | Their teams | Their teams | **All** |
+| `GET /api/teams/{teamId}` | View a team | If member | If member/admin | **All** |
+| `POST /api/teams` | Create a team | ✓ (Up to 2) | ✓ (Up to 2) | **Unlimited** |
+| `PUT /api/teams/{teamId}` | Edit a team | No | **Only their team** | **All** |
+| `DELETE /api/teams/{teamId}`| Delete a team | No | **Only their team** | **All** |
 | **Users** | | | | |
-| `GET /api/users` | List users | **Users from their teams** | **Users from their teams** | **All** |
-| `GET /api/users/{id}` | View a user | **If in a common team** | **If in a common team** | **All** |
-| `DELETE /api/users/{id}`| Delete a user | No | No | **All** |
-| `DELETE /api/teams/{teamId}/users/{userId}` | Remove from a team | No | **Only from their team** | **All** |
+| `GET /api/users` | List users | Team members | Team members | **All** |
+| `DELETE /api/users/me` | Delete account | ✓ **Self only** | ✓ **Self only** | **All** |
+| `DELETE /api/users/{id}` | Delete user | No | No | **All** |
+| `DELETE /api/teams/{teamId}/users/{userId}` | Remove from team| No | **Only from their team** | **All** |
 | **Sprints** | | | | |
-| `GET /api/sprints` | List sprints | **Sprints from their teams** | **Sprints from their teams** | **All** |
+| `GET /api/sprints` | List sprints | Their teams | Their teams | **All** |
 | `POST /api/sprints` | Create a sprint | No | **Only for their team** | **All** |
-| `DELETE /api/sprints/{id}` | Delete a sprint | No | **Only from their team** | **All** |
+| `PUT /api/sprints/{sprintId}` | Edit a sprint | No | **Only for their team** | **All** |
+| `DELETE /api/sprints/{sprintId}` | Delete a sprint | No | **Only from their team** | **All** |
 | **Moods** | | | | |
-| `GET /api/sprints/{sprintId}/moods`| List moods | **Moods of team members for this sprint** | **Moods of team members for this sprint** | **All** |
-| `POST /api/moods` | Create a mood | ✓ **For themselves** | ✓ **For themselves** | ✓ **For themselves** |
+| `GET /api/moods/bysprint/{sprintId}`| List moods | Team members | Team members | **All** |
+| `POST /api/moods` | Record mood | ✓ **Within sprint** | ✓ **Within sprint** | ✓ **Within sprint** |
 | `PUT /api/moods/{id}`| Modify a mood | ✓ **Only their own**| ✓ **Only their own**| ✓ **Only their own**|
 | **Invitations** | | | | |
 | `GET /api/teams/{teamId}/invitations` | List invitations | No | **Only from their team** | **All** |
-| `POST /api/teams/{teamId}/invitations`| Create an invitation | No | **Only for their team** | **All** |
-| `DELETE /api/invitations/{id}` | Delete an invitation| No | **Only from their team** | **All** |
+| `POST /api/teams/{teamId}/invitations`| Create invitation| No | **Only for their team** | **All** |
+| `DELETE /api/teams/{teamId}/invitations/{invitationId}` | Delete invitation| No | **Only from their team** | **All** |
 
 ## 5. Authentication Configuration
 

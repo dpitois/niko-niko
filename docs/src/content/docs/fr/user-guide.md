@@ -44,10 +44,29 @@ Niko Niko Calendar permet à chaque utilisateur de devenir un leader d'équipe. 
 1.  Naviguez vers le menu **Équipes** dans la barre latérale.
 2.  Dans la section **Créer une nouvelle équipe**, entrez un nom descriptif pour votre équipe.
 3.  Choisissez une **Durée de sprint par défaut** (généralement 14 jours pour des sprints bi-hebdomadaires).
-4.  Validez le formulaire. Vous deviendrez automatiquement l'**Administrateur d'Équipe** pour l'équipe nouvellement créée.
+4.  Optionnellement, définissez un **Modèle de nom de sprint** (ex: "Sprint {0}") pour automatiser le nommage.
+5.  Validez le formulaire. Vous deviendrez automatiquement l'**Administrateur d'Équipe** pour l'équipe nouvellement créée.
 
-**Note Importante** : Les utilisateurs réguliers sont limités à être administrateurs d'un **maximum de 2 équipes**. Si vous atteignez cette limite, vous devrez supprimer l'une de vos équipes existantes ou transférer l'administration à un autre membre avant d'en créer une nouvelle.
+**Note Importante** : Les utilisateurs réguliers sont limités à être administrateurs d'un **maximum de 2 équipes**.
 
-## 6. Badges et Gamification
+## 6. Gérer votre Équipe (Pour les Admins)
+
+En tant qu'administrateur d'équipe, vous avez accès au **Tableau de bord d'administration** pour votre équipe :
+
+### Inviter des Membres
+Partagez le lien d'invitation de votre équipe avec vos collègues. Une fois qu'ils auront accepté, ils apparaîtront dans votre liste d'équipe.
+
+### Gérer les Sprints
+Les sprints sont les périodes pendant lesquelles les humeurs sont enregistrées.
+*   **Création** : Vous pouvez créer des sprints manuellement ou laisser le système suggérer le suivant en fonction de vos paramètres par défaut.
+*   **Règles de Validation** : 
+    *   Les sprints **ne peuvent pas se chevaucher**. Vous ne pouvez pas avoir deux sprints actifs en même temps pour une même équipe.
+    *   La durée maximale pour un sprint est de **2 mois (62 jours)**.
+*   **Nommage** : Utilisez un nommage cohérent pour aider votre équipe à suivre sa progression dans le temps.
+
+### Retirer des Membres
+Si un membre quitte votre équipe, vous pouvez le retirer via les paramètres de l'équipe. Notez que cela **ne fait que le retirer de votre équipe** ; cela ne supprime pas son compte global Niko Niko ni son historique d'humeur dans d'autres équipes.
+
+## 7. Badges et Gamification
 
 En enregistrant régulièrement votre humeur, vous pouvez gagner des badges ! Consultez votre profil pour voir vos accomplissements et encouragez vos coéquipiers à participer.

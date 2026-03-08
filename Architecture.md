@@ -57,7 +57,13 @@ The backend is architected following the **Skinny Controller** pattern to ensure
 
 ### Layers:
 *   **API Layer (NikoNiko.Api)**: Handles HTTP concerns (routing, input binding, status codes).
-*   **Business Logic Layer (NikoNiko.Services)**: Contains the concrete implementations of business logic and validations. This layer also enforces quotas, such as the **limit of 2 teams per regular user**.
+*   **Business Logic Layer (NikoNiko.Services)**: Contains the concrete implementations of business logic and validations. Key responsibilities include:
+    *   **Team Quota**: Enforcing the limit of **2 teams per regular user** (configurable via `MAX_TEAMS_PER_USER`).
+    *   **Sprint Validation**:
+        *   **No Overlap**: Preventing the creation or update of sprints that overlap in time for the same team.
+        *   **Duration Limit**: Ensuring a sprint does not exceed **2 months (62 days)**.
+    *   **Mood Entry Validation**: Restricting entries to the current sprint range and preventing future dates.
+    *   **User Management**: Distinguishing between **removing a user from a team** (soft/team-level) and **deleting a user account** (global).
 *   **Core Layer (NikoNiko.Core)**: Defines DTOs, domain models, and service interfaces.
 *   **Data Layer (NikoNiko.Data)**: Manages data access via Entity Framework Core, including migrations and database-specific configurations (PostgreSQL/SQLite).
 

@@ -98,6 +98,10 @@ public class SprintsController : ControllerBase
             ModelState.AddModelError(nameof(createSprintDto.EndDate), ex.Message);
             return BadRequest(ModelState);
         }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     /// <summary>

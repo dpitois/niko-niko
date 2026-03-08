@@ -166,4 +166,73 @@ public class SprintServiceTests
         await act.Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("*overlap*");
     }
+
+    [Fact]
+    public async Task CreateSprintAsync_ShouldThrowInvalidOperation_WhenDatesTouch()
+    {
+        // Arrange
+        var existingSprint = new Sprint
+        {
+            Id = Guid.NewGuid(),
+            Name = "Existing Sprint",
+            StartDate = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+            EndDate = new DateTime(2026, 1, 14, 0, 0, 0, DateTimeKind.Utc),
+            TeamId = _teamId
+        };
+        _context.Sprints.Add(existingSprint);
+        await _context.SaveChangesAsync();
+
+        var dto = new CreateSprintDto
+        {
+            Name = "Touching Sprint",
+            StartDate = new DateOnly(2026, 1, 14), // Starts the same day the previous one ends
+            EndDate = new DateOnly(2026, 1, 28),
+            TeamId = _teamId
+        };
+
+        // Act
+        var act = () => _service.CreateSprintAsync(dto, _adminId, false);
+
+        // Assert
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*overlap*");
+    }
+
+    [Fact]
+    public async Task UpdateSprintAsync_ShouldThrowInvalidOperation_WhenDatesOverlapWithAnotherSprint()
+    {
+        // Arrange
+        var otherSprint = new Sprint
+        {
+            Id = Guid.NewGuid(),
+            Name = "Other Sprint",
+            StartDate = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+            EndDate = new DateTime(2026, 1, 14, 0, 0, 0, DateTimeKind.Utc),
+            TeamId = _teamId
+        };
+        var currentSprint = new Sprint
+        {
+            Id = Guid.NewGuid(),
+            Name = "Current Sprint",
+            StartDate = new DateTime(2026, 1, 15, 0, 0, 0, DateTimeKind.Utc),
+            EndDate = new DateTime(2026, 1, 28, 0, 0, 0, DateTimeKind.Utc),
+            TeamId = _teamId
+        };
+        _context.Sprints.AddRange(otherSprint, currentSprint);
+        await _context.SaveChangesAsync();
+
+        var updateDto = new UpdateSprintDto
+        {
+            Name = "Current Sprint Updated",
+            StartDate = new DateOnly(2026, 1, 14), // Overlaps with otherSprint
+            EndDate = new DateOnly(2026, 1, 28)
+        };
+
+        // Act
+        var act = () => _service.UpdateSprintAsync(currentSprint.Id, updateDto);
+
+        // Assert
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*overlap*");
+    }
 }

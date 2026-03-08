@@ -105,7 +105,7 @@ function App() {
               <Route
                 path="/admin/teams"
                 element={
-                  <ProtectedRoute requiredSuperAdmin={true}>
+                  <ProtectedRoute requiredAnyAdmin={true}>
                     <AdminTeamsPage />
                   </ProtectedRoute>
                 }

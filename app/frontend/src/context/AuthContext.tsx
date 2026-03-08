@@ -15,6 +15,7 @@ interface AuthContextType {
   login: (token: string) => void;
   logout: () => void;
   isLoading: boolean;
+  fetchUserTeamRoles: (userId: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -111,7 +112,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   return (
     <AuthContext.Provider
-      value={{ user, isSuperAdmin, isOnboarded, userTeamRoles, login, logout, isLoading }}
+      value={{
+        user,
+        isSuperAdmin,
+        isOnboarded,
+        userTeamRoles,
+        login,
+        logout,
+        isLoading,
+        fetchUserTeamRoles,
+      }}
     >
       {children}
     </AuthContext.Provider>

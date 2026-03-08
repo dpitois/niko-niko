@@ -206,7 +206,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose, handleDrawer
               </ListItemButton>
               <Collapse in={openAdminMenu} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
-                  {isSuperAdmin && (
+                  {(isSuperAdmin || isAnyTeamAdmin) && (
                     <ListItem disablePadding sx={{ display: 'block' }}>
                       <ListItemButton
                         component={NavLink}

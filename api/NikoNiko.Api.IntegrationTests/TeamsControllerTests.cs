@@ -24,18 +24,64 @@ namespace NikoNiko.Api.IntegrationTests;
 public class TeamsControllerTests
 {
     [Fact]
-    public async Task CreateTeam_AsRegularUser_ReturnsForbidden()
+    public async Task CreateTeam_AsRegularUser_ReturnsCreated()
     {
         // Arrange
         await using var application = new NikoNikoApiTestApplication();
-        var (_, client, _) = await application.CreateUserAndClient("New Team Admin");
+        var (user, client, _) = await application.CreateUserAndClient("New Team Admin");
         var createTeamDto = new CreateTeamDto { Name = "My New Team" };
 
         // Act
         var response = await client.PostAsJsonAsync("/api/teams", createTeamDto);
 
         // Assert
-        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        var team = await response.Content.ReadFromJsonAsync<TeamDto>();
+        Assert.NotNull(team);
+        Assert.Equal("My New Team", team.Name);
+        Assert.Equal(user.Id, team.AdminId);
+    }
+
+    [Fact]
+    public async Task CreateTeam_WhenAtLimit_ReturnsBadRequest()
+    {
+        // Arrange
+        await using var application = new NikoNikoApiTestApplication();
+        var (user, client, _) = await application.CreateUserAndClient("Limited User");
+        
+        // Create 2 teams first (the limit is 2)
+        await application.CreateTeam("Team 1", user.Id);
+        await application.CreateTeam("Team 2", user.Id);
+        
+        var createTeamDto = new CreateTeamDto { Name = "Third Team" };
+
+        // Act
+        var response = await client.PostAsJsonAsync("/api/teams", createTeamDto);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        var message = await response.Content.ReadAsStringAsync();
+        Assert.Contains("maximum number of teams", message);
+    }
+
+    [Fact]
+    public async Task CreateTeam_AsSuperAdmin_AllowsBypassingLimit()
+    {
+        // Arrange
+        await using var application = new NikoNikoApiTestApplication();
+        var (user, client, _) = await application.CreateUserAndClient("Super Admin", isSuperAdmin: true);
+        
+        // Create 2 teams first
+        await application.CreateTeam("Team 1", user.Id);
+        await application.CreateTeam("Team 2", user.Id);
+        
+        var createTeamDto = new CreateTeamDto { Name = "Third Team" };
+
+        // Act
+        var response = await client.PostAsJsonAsync("/api/teams", createTeamDto);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
     }
 
     [Fact]

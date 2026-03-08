@@ -7,7 +7,7 @@ public interface ITeamService
 {
     Task<IEnumerable<TeamWithSprintsDto>> GetTeamsAsync(Guid userId, bool isSuperAdmin);
     Task<TeamWithSprintsDto?> GetTeamByIdAsync(Guid teamId);
-    Task<TeamDto> CreateTeamAsync(CreateTeamDto createTeamDto, Guid adminId);
+    Task<TeamDto> CreateTeamAsync(CreateTeamDto createTeamDto, Guid adminId, bool isSuperAdmin);
     Task UpdateTeamAsync(Guid teamId, UpdateTeamDto updateTeamDto);
     Task TransferAdminAsync(Guid teamId, Guid newAdminId);
     Task DeleteTeamAsync(Guid teamId);

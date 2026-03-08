@@ -92,6 +92,7 @@
   "adminTeams": {
     "title": "Administration des Équipes",
     "createNew": "Créer une nouvelle équipe",
+    "quotaReached": "Vous avez atteint le nombre maximum d'équipes (2). Vous ne pouvez pas créer plus d'équipes.",
     "manageAll": "Gérer toutes les équipes",
     "noTeamsFound": "Aucune équipe trouvée.",
     "deleteFailed": "Échec de la suppression de l'équipe.",

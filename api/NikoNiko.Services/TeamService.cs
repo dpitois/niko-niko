@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 using NikoNiko.Core.DTOs.Sprint;
@@ -15,12 +16,14 @@ public class TeamService : ITeamService
     private readonly ApplicationDbContext _context;
     private readonly ILogger<TeamService> _logger;
     private readonly INotificationService _notificationService;
+    private readonly IConfiguration _configuration;
 
-    public TeamService(ApplicationDbContext context, ILogger<TeamService> logger, INotificationService notificationService)
+    public TeamService(ApplicationDbContext context, ILogger<TeamService> logger, INotificationService notificationService, IConfiguration configuration)
     {
         _context = context;
         _logger = logger;
         _notificationService = notificationService;
+        _configuration = configuration;
     }
 
     public async Task<IEnumerable<TeamWithSprintsDto>> GetTeamsAsync(Guid userId, bool isSuperAdmin)
@@ -100,8 +103,23 @@ public class TeamService : ITeamService
             .FirstOrDefaultAsync(t => t.Id == teamId);
     }
 
-    public async Task<TeamDto> CreateTeamAsync(CreateTeamDto createTeamDto, Guid adminId)
+    public async Task<TeamDto> CreateTeamAsync(CreateTeamDto createTeamDto, Guid adminId, bool isSuperAdmin)
     {
+        if (!isSuperAdmin)
+        {
+            var maxTeamsConfig = _configuration["MAX_TEAMS_PER_USER"];
+            if (!int.TryParse(maxTeamsConfig, out var maxTeams))
+            {
+                maxTeams = 2; // Default if not configured
+            }
+            var currentTeamsCount = await _context.Teams.CountAsync(t => t.AdminId == adminId);
+
+            if (currentTeamsCount >= maxTeams)
+            {
+                throw new InvalidOperationException($"You have reached the maximum number of teams ({maxTeams}).");
+            }
+        }
+
         var team = new Team
         {
             Name = createTeamDto.Name,

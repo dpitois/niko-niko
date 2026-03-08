@@ -136,10 +136,9 @@ public class TeamsController : ControllerBase
     }
 
     /// <summary>
-    /// Creates a new team. Accessible only by a Super-admin.
+    /// Creates a new team.
     /// </summary>
     [HttpPost]
-    [Authorize(Policy = "SuperAdmin")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -151,8 +150,17 @@ public class TeamsController : ControllerBase
             return Unauthorized("User ID not found or invalid.");
         }
 
-        var teamDto = await _teamService.CreateTeamAsync(createTeamDto, userId);
-        return CreatedAtAction(nameof(GetTeam), new { teamId = teamDto.Id }, teamDto);
+        var isSuperAdmin = User.HasClaim("is_super_admin", "true");
+
+        try
+        {
+            var teamDto = await _teamService.CreateTeamAsync(createTeamDto, userId, isSuperAdmin);
+            return CreatedAtAction(nameof(GetTeam), new { teamId = teamDto.Id }, teamDto);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     /// <summary>

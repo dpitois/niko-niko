@@ -79,7 +79,8 @@
     "required": "This field is required",
     "greaterThanZero": "Must be greater than zero",
     "maxLength_100": "Must be 100 characters or less",
-    "endDateBeforeStartDate": "End date must be after start date"
+    "endDateBeforeStartDate": "End date must be after start date",
+    "sprintTooLong": "Sprint duration cannot exceed 2 months (62 days)"
   },
   "mood": {
     "veryHappy": "Very Happy",

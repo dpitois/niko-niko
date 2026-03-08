@@ -14,6 +14,7 @@ public class CreateTeamDtoValidator : AbstractValidator<CreateTeamDto>
 
         RuleFor(x => x.DefaultSprintDuration)
             .GreaterThan(0).WithMessage("validation.greaterThanZero")
+            .LessThanOrEqualTo(62).WithMessage("validation.sprintTooLong")
             .When(x => x.DefaultSprintDuration.HasValue);
     }
 }

@@ -38,12 +38,17 @@ const CreateTeamForm: React.FC<CreateTeamFormProps> = ({ onTeamCreated }) => {
       return;
     }
 
+    const duration = defaultSprintDuration ? parseInt(defaultSprintDuration, 10) : undefined;
+
+    if (duration && duration > 62) {
+      setError(t('validation.sprintTooLong'));
+      return;
+    }
+
     const newTeam: CreateTeam = {
       name,
       adminId: user.sub,
-      defaultSprintDuration: defaultSprintDuration
-        ? parseInt(defaultSprintDuration, 10)
-        : undefined,
+      defaultSprintDuration: duration,
     };
 
     try {

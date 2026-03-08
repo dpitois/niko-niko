@@ -127,4 +127,25 @@ public class TeamsControllerDefaultDurationTests
         // Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
+
+    [Fact]
+    public async Task UpdateTeam_WithDurationTooLong_ReturnsBadRequest()
+    {
+        // Arrange
+        await using var application = new NikoNikoApiTestApplication();
+        var (teamAdmin, client, _) = await application.CreateUserAndClient("Team Admin");
+        var team = await application.CreateTeam("Test Team", teamAdmin.Id);
+
+        var updateTeamDto = new UpdateTeamDto
+        {
+            Name = "Updated Team Name",
+            DefaultSprintDuration = 63 // Too long
+        };
+
+        // Act
+        var response = await client.PutAsJsonAsync($"/api/teams/{team.Id}", updateTeamDto);
+
+        // Assert
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
 }

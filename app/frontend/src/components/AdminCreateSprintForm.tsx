@@ -76,6 +76,11 @@ const AdminCreateSprintForm: React.FC<AdminCreateSprintFormProps> = ({
       return;
     }
 
+    if (dayjs(endDate).isAfter(dayjs(startDate).add(2, 'month'))) {
+      setError(t('validation.sprintTooLong'));
+      return;
+    }
+
     const team = teams.find((t) => t.id === selectedTeamId);
     const hasOverlap = team?.sprints?.some((s) => {
       const sStart = dayjs(s.startDate);

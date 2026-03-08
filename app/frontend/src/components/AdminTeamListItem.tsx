@@ -4,6 +4,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import FaceIcon from '@mui/icons-material/Face';
 import GroupIcon from '@mui/icons-material/Group';
+import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
 import {
   Avatar,
   Box,
@@ -134,12 +135,12 @@ const AdminTeamListItem: React.FC<AdminTeamListItemProps> = ({ team, onDelete, o
                 member.id !== team.adminId && (
                   <IconButton
                     edge="end"
-                    aria-label="delete"
+                    aria-label="remove member"
                     size="small"
                     onClick={() => handleRemoveMember(member.id)}
                     sx={{ color: 'text.secondary', '&:hover': { color: 'error.main' } }}
                   >
-                    <DeleteIcon fontSize="small" />
+                    <PersonRemoveIcon fontSize="small" />
                   </IconButton>
                 )
               }

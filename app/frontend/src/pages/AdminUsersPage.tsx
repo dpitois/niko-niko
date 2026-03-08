@@ -99,7 +99,7 @@ const getProviderIcon = (provider?: string) => {
 const AdminUsersPage: React.FC = () => {
   const { t } = useTranslation();
   const [value, setValue] = useState(0);
-  const { user: currentUser } = useAuth();
+  const { user: currentUser, isSuperAdmin } = useAuth();
   const { users, isLoading: isLoadingUsers, isError: isErrorUsers, mutate } = useUsers();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -275,16 +275,18 @@ const AdminUsersPage: React.FC = () => {
                       {user.createdAt ? dayjs(user.createdAt).format('L') : '-'}
                     </TableCell>
                     <TableCell>
-                      <IconButton
-                        aria-label="delete user"
-                        onClick={() =>
-                          handleDeleteUserClick(user.id, user.name || user.email || 'Unknown User')
-                        }
-                        color="error"
-                        disabled={currentUser?.sub === user.id}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
+                      {isSuperAdmin && (
+                        <IconButton
+                          aria-label="delete user"
+                          onClick={() =>
+                            handleDeleteUserClick(user.id, user.name || user.email || 'Unknown User')
+                          }
+                          color="error"
+                          disabled={currentUser?.sub === user.id}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}

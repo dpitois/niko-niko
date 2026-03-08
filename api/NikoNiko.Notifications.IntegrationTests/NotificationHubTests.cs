@@ -181,7 +181,7 @@ namespace NikoNiko.Notifications.IntegrationTests
             var completedTask = await Task.WhenAny(resultTask, Task.Delay(TimeSpan.FromSeconds(5)));
 
             Assert.True(resultTask.IsCompletedSuccessfully, "User should have received the group notification.");
-            Assert.Equal("Group Message", resultTask.Result);
+            Assert.Equal("Group Message", await resultTask);
 
             await connection.StopAsync();
         }

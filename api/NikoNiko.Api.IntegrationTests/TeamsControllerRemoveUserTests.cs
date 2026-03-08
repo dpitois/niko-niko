@@ -51,6 +51,7 @@ public class TeamsControllerRemoveUserTests
         };
         var sprintResp = await adminClient.PostAsJsonAsync("/api/sprints", createSprintDto);
         var sprint = await sprintResp.Content.ReadFromJsonAsync<SprintDto>();
+        Assert.NotNull(sprint);
 
         // We need to inject the mood manually or use client. 
         // Using context is faster for setup.

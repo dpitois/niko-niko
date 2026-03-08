@@ -212,10 +212,21 @@ app/frontend/
 ```
 
 ### Testing
-- Backend: xUnit integration tests in `*IntegrationTests` projects
-- Use Moq for mocking
-- Test coverage for business logic and API endpoints
-- Single test execution: `dotnet test --filter "TestMethodName"`
+- **Backend Integration Tests**: xUnit tests in `*IntegrationTests` projects.
+    - Use Moq for mocking.
+    - Run: `dotnet test` or `dotnet test --filter "TestMethodName"`.
+- **E2E Tests (Playwright)**: Full-stack functional tests located in `app/frontend/tests/`.
+    - **Run**: `cd app/frontend && npx playwright test` (runs all tests).
+    - **Run UI Mode**: `npx playwright test --ui` (interactive debugger).
+    - **Architecture**:
+        - Tests launch the Backend API on port 7000 and Notification Service on 7001 using `dotnet run`.
+        - Tests launch the Frontend on port 5173 (or available port).
+        - **Database**: Uses a dedicated isolated SQLite DB `api/NikoNiko.Api/nikoniko.e2e.db`.
+        - **Data Reset**: Uses `POST /api/testing/reset` to wipe the DB and seed default users (`admin@test.com`, `member@test.com`) before tests.
+    - **Maintenance**:
+        - **Auth**: Use `loginAs` helper which uses the Backdoor Login (`POST /api/testing/login`) to bypass OAuth.
+        - **SignalR**: `notifications.spec.ts` covers real-time scenarios but is currently **skipped** (`test.skip`) due to environment flakiness. Unskip to debug.
+        - **Backend Changes**: If you modify the DB schema, ensuring `dotnet ef database update` isn't needed (auto-applied), but the `TestingController` might need updates if new required fields are added to User/Team.
 
 ### Security & Authentication
 - OAuth 2.0 (GitHub, Google, Discord)

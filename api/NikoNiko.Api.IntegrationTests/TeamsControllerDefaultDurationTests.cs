@@ -54,6 +54,7 @@ public class TeamsControllerDefaultDurationTests
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             var t = await dbContext.Teams.FindAsync(team.Id);
+            Assert.NotNull(t);
             t.DefaultSprintDuration = 14;
             await dbContext.SaveChangesAsync();
         }
@@ -83,11 +84,11 @@ public class TeamsControllerDefaultDurationTests
         // Arrange
         await using var application = new NikoNikoApiTestApplication();
         var (user, client, _) = await application.CreateUserAndClient("Super Admin", isSuperAdmin: true);
-        
-        var createTeamDto = new CreateTeamDto 
-        { 
-            Name = "New Team", 
-            DefaultSprintDuration = 10 
+
+        var createTeamDto = new CreateTeamDto
+        {
+            Name = "New Team",
+            DefaultSprintDuration = 10
         };
 
         // Act
@@ -114,10 +115,10 @@ public class TeamsControllerDefaultDurationTests
         var (teamAdmin, client, _) = await application.CreateUserAndClient("Team Admin");
         var team = await application.CreateTeam("Test Team", teamAdmin.Id);
 
-        var updateTeamDto = new UpdateTeamDto 
-        { 
-            Name = "Updated Team Name", 
-            DefaultSprintDuration = -5 
+        var updateTeamDto = new UpdateTeamDto
+        {
+            Name = "Updated Team Name",
+            DefaultSprintDuration = -5
         };
 
         // Act

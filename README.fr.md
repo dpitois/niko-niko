@@ -27,7 +27,7 @@ Créer une application **distribuée** et **auto-hébergée** (via Docker) pour 
 - **Gestion d'Équipes** : Création d'équipes (via le tableau de bord admin), gestion des membres et des invitations (création, acceptation, suppression).
 - **Sprints** : Définition de périodes de travail par les admins et suivi des sprints sur le tableau de bord, y compris la création de sprints et une page dédiée pour la creation de sprint.
 - **Suivi d'Humeur** : Enregistrement quotidien (🤩/😊/😐/☹️/😫) par sprint, désormais fonctionnel sur le frontend et mis à jour de manière effective, avec une page dédiée pour la saisie de l'humeur.
-- **Notifications Temps Réel** : SignalR pour notifier les actions importantes.
+- **Notifications Temps Réel** : Intégration de SignalR pour des notifications en temps réel sur les actions importantes (création d'équipe, renommage, mises à jour des membres).
 - **Gamification** : Attribution de badges pour encourager la participation.
 - **Tableau de Bord** : Vue centralisée des équipes, sprints et calendriers, avec une navigation basique, un tableau de bord d'administration et une page "Mes Équipes" pour l'utilisateur.
 - **Déconnexion utilisateur** : Fonctionnalité de déconnexion implémentée côté frontend.
@@ -47,7 +47,7 @@ Créer une application **distribuée** et **auto-hébergée** (via Docker) pour 
 | **Équipes** | | | | |
 | `GET /api/teams` | Lister les équipes | Uniquement celles dont il est membre | Uniquement celles dont il est membre/admin | **Toutes** |
 | `GET /api/teams/{id}` | Voir une équipe | Uniquement si membre | Uniquement si membre/admin | **Toutes** |
-| `POST /api/teams` | Créer une équipe | **Non** | ✓ (devient admin) | ✓ (devient admin) |
+| `POST /api/teams` | Créer une équipe | ✓ (Max 2 équipes) | ✓ (Max 2 équipes) | **Illimité** |
 | `DELETE /api/teams/{id}`| Supprimer une équipe | Non | **Uniquement son équipe** | **Toutes** |
 | **Utilisateurs** | | | | |
 | `GET /api/users` | Lister les utilisateurs | **Utilisateurs de ses équipes** | **Utilisateurs de ses équipes** | **Tous** |

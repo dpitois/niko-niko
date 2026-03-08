@@ -38,6 +38,16 @@ The core feature of Niko Niko Calendar is tracking your daily morale.
 
 You can view the collective mood of your team by navigating to the team's calendar view. This helps in understanding the overall team sentiment and identifying trends.
 
-## 5. Badges and Gamification
+## 5. Creating Your Own Team
+
+Niko Niko Calendar allows every user to be a team leader. You can create your own teams to track morale with your colleagues or friends.
+1.  Navigate to the **Teams** menu in the sidebar.
+2.  In the **Create New Team** section, enter a descriptive name for your team.
+3.  Choose a **Default Sprint Duration** (usually 14 days for bi-weekly sprints).
+4.  Submit the form. You will automatically become the **Team Admin** for the newly created team.
+
+**Important Note**: Regular users are limited to being administrators of a **maximum of 2 teams**. If you reach this limit, you will need to delete one of your existing teams or transfer administration to another member before creating a new one.
+
+## 6. Badges and Gamification
 
 By consistently recording your mood, you can earn badges! Check your profile to see your achievements and encourage your teammates to participate.

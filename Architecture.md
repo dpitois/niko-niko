@@ -57,7 +57,7 @@ The backend is architected following the **Skinny Controller** pattern to ensure
 
 ### Layers:
 *   **API Layer (NikoNiko.Api)**: Handles HTTP concerns (routing, input binding, status codes).
-*   **Business Logic Layer (NikoNiko.Services)**: Contains the concrete implementations of business logic and validations.
+*   **Business Logic Layer (NikoNiko.Services)**: Contains the concrete implementations of business logic and validations. This layer also enforces quotas, such as the **limit of 2 teams per regular user**.
 *   **Core Layer (NikoNiko.Core)**: Defines DTOs, domain models, and service interfaces.
 *   **Data Layer (NikoNiko.Data)**: Manages data access via Entity Framework Core, including migrations and database-specific configurations (PostgreSQL/SQLite).
 
@@ -97,6 +97,8 @@ erDiagram
         Guid Id
         string Name
         Guid AdminId
+        int DefaultSprintDuration
+        string SprintNameTemplate
         DateTime CreatedAt
     }
 

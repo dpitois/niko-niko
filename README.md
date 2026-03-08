@@ -27,7 +27,7 @@ Create a **distributed** and **self-hosted** (via Docker) application to allow A
 - **Team Management**: Team creation (via admin dashboard), member management, and invitations (creation, acceptance, deletion).
 - **Sprints**: Work period definitions by admins and sprint tracking on the dashboard, including sprint creation and a dedicated sprint creation page.
 - **Mood Tracking**: Daily recording (🤩/😊/😐/☹️/😫) per sprint, now functional on the frontend and effectively updated, with a dedicated page for mood entry.
-- **Real-time Notifications**: SignalR for notifying important actions.
+- **Real-time Notifications**: SignalR integration for real-time notifications on important actions (team creation, rename, member updates).
 - **Gamification**: Badge attribution to encourage participation.
 - **Dashboard**: Centralized view of teams, sprints, and calendars, with basic navigation, an administration dashboard, and a "My Teams" page for the user.
 - **User Logout**: Logout functionality implemented on the frontend.
@@ -47,7 +47,7 @@ Create a **distributed** and **self-hosted** (via Docker) application to allow A
 | **Teams** | | | | |
 | `GET /api/teams` | List teams | Only those they are a member of | Only those they are a member/admin of | **All** |
 | `GET /api/teams/{id}` | View a team | Only if member | Only if member/admin | **All** |
-| `POST /api/teams` | Create a team | **No** | ✓ (becomes admin) | ✓ (becomes admin) |
+| `POST /api/teams` | Create a team | ✓ (Up to 2 teams) | ✓ (Up to 2 teams) | **Unlimited** |
 | `DELETE /api/teams/{id}`| Delete a team | No | **Only their team** | **All** |
 | **Users** | | | | |
 | `GET /api/users` | List users | **Users from their teams** | **Users from their teams** | **All** |

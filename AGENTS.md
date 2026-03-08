@@ -9,6 +9,7 @@ Niko Niko Calendar is a distributed, self-hosted Docker application for Agile te
 - **Frontend**: React 19 + TypeScript + Vite with Material UI v7
 - **Database**: PostgreSQL (production) or SQLite (development/portable)
 - **Real-time**: SignalR for notifications
+- **Team Management**: Any authenticated user can create up to 2 teams. SuperAdmins have no limit.
 
 ## Build Commands
 
@@ -276,6 +277,7 @@ VITE_GITHUB_REPO_URL=https://github.com/your-repo
 
 # Admin
 SUPER_ADMINS=user@example.com
+MAX_TEAMS_PER_USER=2
 ```
 
 ### Database Configuration

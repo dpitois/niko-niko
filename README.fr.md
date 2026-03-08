@@ -24,48 +24,51 @@ Créer une application **distribuée** et **auto-hébergée** (via Docker) pour 
 ## 3. Fonctionnalités Clés
 
 - **Authentification** : OAuth2 (GitHub, Google, Discord). Microsoft est temporairement désactivé.
-- **Gestion d'Équipes** : Création d'équipes (via le tableau de bord admin), gestion des membres et des invitations (création, acceptation, suppression).
-- **Sprints** : Définition de périodes de travail par les admins et suivi des sprints sur le tableau de bord, y compris la création de sprints et une page dédiée pour la creation de sprint.
-- **Suivi d'Humeur** : Enregistrement quotidien (🤩/😊/😐/☹️/😫) par sprint, désormais fonctionnel sur le frontend et mis à jour de manière effective, avec une page dédiée pour la saisie de l'humeur.
-- **Notifications Temps Réel** : SignalR pour notifier les actions importantes.
+- **Gestion d'Équipes** : Création d'équipes (jusqu'à 2 pour les utilisateurs réguliers), gestion des membres (invitations) et paramètres administratifs comme la **Durée de Sprint par Défaut** et les **Modèles de Nom de Sprint**.
+- **Sprints** : Définition de périodes de travail avec validation stricte :
+  - **Pas de chevauchement** : Les sprints d'une même équipe ne peuvent pas avoir de dates communes.
+  - **Limite de durée** : Un sprint ne peut pas dépasser 2 mois (62 jours).
+- **Suivi d'Humeur** : Enregistrement quotidien (🤩/😊/😐/☹️/😫) restreint à la période du sprint en cours. Les dates futures sont bloquées.
+- **Notifications Temps Réel** : Intégration de SignalR pour des notifications en temps réel sur les actions importantes (création d'équipe, renommage, mises à jour des membres, entrées d'humeur).
 - **Gamification** : Attribution de badges pour encourager la participation.
-- **Tableau de Bord** : Vue centralisée des équipes, sprints et calendriers, avec une navigation basique, un tableau de bord d'administration et une page "Mes Équipes" pour l'utilisateur.
-- **Déconnexion utilisateur** : Fonctionnalité de déconnexion implémentée côté frontend.
+- **Tableau de Bord** : Vue centralisée des équipes, sprints et calendriers, avec une navigation simplifiée pour les utilisateurs et des vues administratives pour les chefs d'équipe.
 
 ## 4. Modèles de Données Principaux
 
-- `User` : Utilisateur avec infos OAuth, équipes et badges.
-- `Team` : Équipe avec un admin, des membres et des sprints.
-- `Sprint` : Période de temps avec des dates de début/fin.
-- `MoodEntry` : Enregistrement d'humeur d'un utilisateur pour une date donnée.
-- `Badge` : Récompense de gamification.
+- `User` : Informations de profil et identifiants OAuth associés.
+- `Team` : Unité collaborative avec un administrateur, des membres, des sprints et des **paramètres par défaut**.
+- `Sprint` : Période de travail définie liée à une équipe avec des dates de début/fin.
+- `MoodEntry` : Enregistrements du moral des utilisateurs liés à une date et un sprint spécifiques.
+- `Badge` : Récompenses de gamification.
 
-## Roles & Permissions
+## Rôles & Permissions
 
 | Action (Endpoint) | Ressource | `user` | `team-admin` | `super-admin` |
 | :--- | :--- | :--- | :--- | :--- |
 | **Équipes** | | | | |
-| `GET /api/teams` | Lister les équipes | Uniquement celles dont il est membre | Uniquement celles dont il est membre/admin | **Toutes** |
-| `GET /api/teams/{id}` | Voir une équipe | Uniquement si membre | Uniquement si membre/admin | **Toutes** |
-| `POST /api/teams` | Créer une équipe | **Non** | ✓ (devient admin) | ✓ (devient admin) |
-| `DELETE /api/teams/{id}`| Supprimer une équipe | Non | **Uniquement son équipe** | **Toutes** |
+| `GET /api/teams` | Liste les équipes | Ses équipes | Ses équipes | **Toutes** |
+| `GET /api/teams/{teamId}` | Voir une équipe | Si membre | Si membre/admin | **Toutes** |
+| `POST /api/teams` | Créer une équipe | ✓ (Max 2) | ✓ (Max 2) | **Illimité** |
+| `PUT /api/teams/{teamId}` | Modifier une équipe | Non | **Seulement son équipe** | **Toutes** |
+| `DELETE /api/teams/{teamId}`| Supprimer une équipe | Non | **Seulement son équipe** | **Toutes** |
 | **Utilisateurs** | | | | |
-| `GET /api/users` | Lister les utilisateurs | **Utilisateurs de ses équipes** | **Utilisateurs de ses équipes** | **Tous** |
-| `GET /api/users/{id}` | Voir un utilisateur | **Si dans une équipe commune** | **Si dans une équipe commune** | **Tous** |
-| `DELETE /api/users/{id}`| Supprimer un utilisateur | Non | Non | **Tous** |
-| `DELETE /api/teams/{teamId}/users/{userId}` | Retirer d'une équipe | Non | **Uniquement de son équipe** | **Toutes** |
+| `GET /api/users` | Liste les utilisateurs | Membres d'équipe | Membres d'équipe | **Tous** |
+| `DELETE /api/users/me` | Supprimer son compte| ✓ **Soi-même** | ✓ **Soi-même** | **Tous** |
+| `DELETE /api/users/{id}` | Supprimer utilisat. | Non | Non | **Tous** |
+| `DELETE /api/teams/{teamId}/users/{userId}` | Retirer d'une équipe | Non | **Seulement de son équipe** | **Toutes** |
 | **Sprints** | | | | |
-| `GET /api/sprints` | Lister les sprints | **Sprints de ses équipes** | **Sprints de ses équipes** | **Tous** |
-| `POST /api/sprints` | Créer un sprint | Non | **Uniquement pour son équipe** | **Tous** |
-| `DELETE /api/sprints/{id}` | Supprimer un sprint | Non | **Uniquement de son équipe** | **Tous** |
+| `GET /api/sprints` | Liste les sprints | Leurs équipes | Leurs équipes | **Tous** |
+| `POST /api/sprints` | Créer un sprint | Non | **Seulement pour son équipe** | **Tous** |
+| `PUT /api/sprints/{sprintId}` | Modifier un sprint | Non | **Seulement pour son équipe** | **Tous** |
+| `DELETE /api/sprints/{sprintId}` | Supprimer un sprint | Non | **Seulement de son équipe** | **Tous** |
 | **Humeurs (Moods)** | | | | |
-| `GET /api/sprints/{sprintId}/moods`| Lister les humeurs | **Humeurs des membres de son équipe pour ce sprint** | **Humeurs des membres de son équipe pour ce sprint** | **Toutes** |
-| `POST /api/moods` | Créer une humeur | ✓ **Pour soi-même** | ✓ **Pour soi-même** | ✓ **Pour soi-même** |
+| `GET /api/moods/bysprint/{sprintId}`| Lister les humeurs | Membres d'équipe | Membres d'équipe | **Toutes** |
+| `POST /api/moods` | Enregistrer humeur | ✓ **Dans le sprint** | ✓ **Dans le sprint** | ✓ **Dans le sprint** |
 | `PUT /api/moods/{id}`| Modifier une humeur | ✓ **Uniquement la sienne**| ✓ **Uniquement la sienne**| ✓ **Uniquement la sienne**|
 | **Invitations** | | | | |
-| `GET /api/teams/{teamId}/invitations` | Lister les invitations | Non | **Uniquement de son équipe** | **Toutes** |
-| `POST /api/teams/{teamId}/invitations`| Créer une invitation | Non | **Uniquement pour son équipe** | **Toutes** |
-| `DELETE /api/invitations/{id}` | Supprimer une invitation| Non | **Uniquement de son équipe** | **Toutes** |
+| `GET /api/teams/{teamId}/invitations` | Lister les invitations | Non | **Seulement pour son équipe** | **Toutes** |
+| `POST /api/teams/{teamId}/invitations`| Créer une invit | Non | **Seulement pour son équipe** | **Toutes** |
+| `DELETE /api/teams/{teamId}/invitations/{invitationId}` | Supprimer invit | Non | **Seulement de son équipe** | **Toutes** |
 
 ## 5. Configuration de l'Authentification
 

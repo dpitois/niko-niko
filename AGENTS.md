@@ -9,6 +9,7 @@ Niko Niko Calendar is a distributed, self-hosted Docker application for Agile te
 - **Frontend**: React 19 + TypeScript + Vite with Material UI v7
 - **Database**: PostgreSQL (production) or SQLite (development/portable)
 - **Real-time**: SignalR for notifications
+- **Team Management**: Any authenticated user can create up to 2 teams. SuperAdmins have no limit.
 
 ## Build Commands
 
@@ -234,6 +235,23 @@ app/frontend/
 - Role-based authorization (Team Admin, Team Member)
 - HttpOnly cookies for refresh tokens
 
+## Business Logic & Constraints
+
+### Team Management
+- **Quotas**: Regular users are limited to **2 teams** (configurable via `MAX_TEAMS_PER_USER`). SuperAdmins have no limit.
+- **Admin Transfer**: Team ownership can be transferred to another member.
+- **User Removal**: Removing a user from a team does not delete their global account.
+
+### Sprint Management
+- **No Overlap**: Multiple sprints for the same team cannot have overlapping dates. Validation is enforced at the service level.
+- **Max Duration**: A single sprint cannot exceed **2 months (62 days)**.
+- **Default Settings**: Teams store `DefaultSprintDuration` and `SprintNameTemplate` to automate sprint creation.
+
+### Mood Tracking
+- **Date Range**: Mood entries must fall within an active sprint's date range.
+- **Future Dates**: Users cannot record moods for future dates.
+- **Anonymity**: While entries are linked to users in the DB, the team view is collective.
+
 ### Database Management
 - EF Core migrations auto-apply on startup
 - Create migrations locally with `dotnet ef migrations add`
@@ -276,6 +294,7 @@ VITE_GITHUB_REPO_URL=https://github.com/your-repo
 
 # Admin
 SUPER_ADMINS=user@example.com
+MAX_TEAMS_PER_USER=2
 ```
 
 ### Database Configuration

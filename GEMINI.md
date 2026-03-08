@@ -18,7 +18,7 @@ The Niko Niko Calendar is a distributed and self-hosted (via Docker) application
 
 ## Key Features & Domain Logic
 
-*   **Team Management**: Team creation (via admin dashboard), member management (admin role), team invitation system (creation, acceptance, soft deletion).
+*   **Team Management**: Every authenticated user can create their own teams (up to 2). Member management and team invitation system (creation, acceptance, soft deletion) are available for team admins.
 *   **Sprints**: Admin-defined work periods (usually 2 weeks), sprint tracking on the dashboard.
 *   **Mood Tracking**:
     *   Daily mood entry (🤩/😊/😐/☹️/😫).

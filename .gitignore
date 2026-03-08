@@ -61,7 +61,7 @@ jspm_packages/
 
 # Project-specific
 # Data Protection Keys (sensitive, should not be in source control)
-/dataprotection_keys/
+**/dataprotection_keys/
 
 # Database
 /data/

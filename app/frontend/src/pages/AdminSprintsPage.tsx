@@ -167,6 +167,7 @@ const AdminSprintsPage: React.FC = () => {
       <AdminEditSprintDialog
         open={sprintToEdit !== null}
         sprint={sprintToEdit}
+        allSprints={sprints || []}
         onClose={handleCloseEditDialog}
         onSprintUpdated={handleSprintUpdated}
       />

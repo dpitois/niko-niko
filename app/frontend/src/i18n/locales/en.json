@@ -200,11 +200,13 @@
       "success": "Sprint created successfully!",
       "errorFill": "Please fill in all fields and select a team.",
       "errorDate": "End date must be after start date.",
+      "errorOverlap": "This sprint overlaps with another sprint of the same team.",
       "errorFail": "Failed to create sprint. Please try again."
     },
     "editDialog": {
       "title": "Edit Sprint",
       "success": "Sprint updated successfully!",
+      "errorOverlap": "This sprint overlaps with another sprint of the same team.",
       "errorFail": "Failed to update sprint. Dates might be invalid compared to existing mood entries."
     }
   },

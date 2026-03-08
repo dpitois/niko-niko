@@ -85,12 +85,7 @@ public class SprintService : ISprintService
         var endDate = createSprintDto.EndDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
 
         // Check for overlapping sprints in the same team
-        var overlappingSprint = await _context.Sprints
-            .AnyAsync(s => s.TeamId == createSprintDto.TeamId &&
-                           s.StartDate < endDate &&
-                           startDate < s.EndDate);
-
-        if (overlappingSprint)
+        if (await IsOverlapAsync(createSprintDto.TeamId, startDate, endDate))
         {
             throw new InvalidOperationException("A sprint already exists for this team in the specified date range (overlap detected).");
         }
@@ -147,11 +142,26 @@ public class SprintService : ISprintService
             }
         }
 
+        // Check for overlapping sprints in the same team
+        if (await IsOverlapAsync(sprint.TeamId, newStart, newEnd, sprintId))
+        {
+            throw new InvalidOperationException("A sprint already exists for this team in the specified date range (overlap detected).");
+        }
+
         sprint.Name = updateSprintDto.Name;
         sprint.StartDate = newStart;
         sprint.EndDate = newEnd;
 
         await _context.SaveChangesAsync();
+    }
+
+    private async Task<bool> IsOverlapAsync(Guid teamId, DateTime start, DateTime end, Guid? excludeSprintId = null)
+    {
+        return await _context.Sprints
+            .AnyAsync(s => s.TeamId == teamId &&
+                           (excludeSprintId == null || s.Id != excludeSprintId) &&
+                           s.StartDate <= end &&
+                           start <= s.EndDate);
     }
 
     public async Task DeleteSprintAsync(Guid sprintId)

@@ -20,6 +20,7 @@ import { updateSprint } from '@/services/sprintService';
 
 interface AdminEditSprintDialogProps {
   sprint: Sprint | null;
+  allSprints: Sprint[];
   open: boolean;
   onClose: () => void;
   onSprintUpdated: () => void;
@@ -27,6 +28,7 @@ interface AdminEditSprintDialogProps {
 
 const AdminEditSprintDialog: React.FC<AdminEditSprintDialogProps> = ({
   sprint,
+  allSprints,
   open,
   onClose,
   onSprintUpdated,
@@ -63,6 +65,21 @@ const AdminEditSprintDialog: React.FC<AdminEditSprintDialogProps> = ({
 
     if (dayjs(startDate).isSameOrAfter(dayjs(endDate), 'day')) {
       setError(t('adminSprints.createForm.errorDate'));
+      setIsSubmitting(false);
+      return;
+    }
+
+    const hasOverlap = allSprints.some((s) => {
+      if (s.id === sprint.id || s.teamId !== sprint.teamId) return false;
+      const sStart = dayjs(s.startDate);
+      const sEnd = dayjs(s.endDate);
+      const newStart = dayjs(startDate);
+      const newEnd = dayjs(endDate);
+      return sStart.isSameOrBefore(newEnd, 'day') && newStart.isSameOrBefore(sEnd, 'day');
+    });
+
+    if (hasOverlap) {
+      setError(t('adminSprints.editDialog.errorOverlap'));
       setIsSubmitting(false);
       return;
     }

@@ -76,6 +76,20 @@ const AdminCreateSprintForm: React.FC<AdminCreateSprintFormProps> = ({
       return;
     }
 
+    const team = teams.find((t) => t.id === selectedTeamId);
+    const hasOverlap = team?.sprints?.some((s) => {
+      const sStart = dayjs(s.startDate);
+      const sEnd = dayjs(s.endDate);
+      const newStart = dayjs(startDate);
+      const newEnd = dayjs(endDate);
+      return sStart.isSameOrBefore(newEnd, 'day') && newStart.isSameOrBefore(sEnd, 'day');
+    });
+
+    if (hasOverlap) {
+      setError(t('adminSprints.createForm.errorOverlap'));
+      return;
+    }
+
     const newSprint: CreateSprint = {
       name,
       startDate,

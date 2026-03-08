@@ -92,6 +92,7 @@
   "adminTeams": {
     "title": "Admin Teams",
     "createNew": "Create New Team",
+    "quotaReached": "You have reached the maximum number of teams (2). You cannot create more teams.",
     "manageAll": "Manage All Teams",
     "noTeamsFound": "No teams found.",
     "deleteFailed": "Failed to delete team.",

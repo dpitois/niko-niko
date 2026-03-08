@@ -60,15 +60,14 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose, handleDrawerOpen }) => {
-  const { user, logout, isSuperAdmin, userTeamRoles } = useAuth();
+  const { user, logout } = useAuth();
   const { toggleColorMode, mode } = useColorMode();
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
 
   const repoUrl = import.meta.env.VITE_GITHUB_REPO_URL;
 
-  const isAnyTeamAdmin = Object.values(userTeamRoles).some((role) => role.isAdmin);
-  const showAdminMenu = isSuperAdmin || isAnyTeamAdmin;
+  const showAdminMenu = !!user; // Show Admin menu to everyone so they can access "Teams"
 
   const [openAdminMenu, setOpenAdminMenu] = React.useState(false);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -206,30 +205,28 @@ const Sidebar: React.FC<SidebarProps> = ({ open, handleDrawerClose, handleDrawer
               </ListItemButton>
               <Collapse in={openAdminMenu} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
-                  {(isSuperAdmin || isAnyTeamAdmin) && (
-                    <ListItem disablePadding sx={{ display: 'block' }}>
-                      <ListItemButton
-                        component={NavLink}
-                        to="/admin/teams"
+                  <ListItem disablePadding sx={{ display: 'block' }}>
+                    <ListItemButton
+                      component={NavLink}
+                      to="/admin/teams"
+                      sx={{
+                        minHeight: 48,
+                        justifyContent: open ? 'initial' : 'center',
+                        px: open ? 4.5 : 2.5, // Indent for sub-items
+                      }}
+                    >
+                      <ListItemIcon
                         sx={{
-                          minHeight: 48,
-                          justifyContent: open ? 'initial' : 'center',
-                          px: open ? 4.5 : 2.5, // Indent for sub-items
+                          minWidth: 0,
+                          mr: open ? 3 : 'auto',
+                          justifyContent: 'center',
                         }}
                       >
-                        <ListItemIcon
-                          sx={{
-                            minWidth: 0,
-                            mr: open ? 3 : 'auto',
-                            justifyContent: 'center',
-                          }}
-                        >
-                          <GroupWorkIcon />
-                        </ListItemIcon>
-                        <ListItemText primary={t('sidebar.teams')} sx={{ opacity: open ? 1 : 0 }} />
-                      </ListItemButton>
-                    </ListItem>
-                  )}
+                        <GroupWorkIcon />
+                      </ListItemIcon>
+                      <ListItemText primary={t('sidebar.teams')} sx={{ opacity: open ? 1 : 0 }} />
+                    </ListItemButton>
+                  </ListItem>
 
                   <ListItem disablePadding sx={{ display: 'block' }}>
                     <ListItemButton

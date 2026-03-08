@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import GroupWorkIcon from '@mui/icons-material/GroupWork';
-import { Box, CircularProgress, Divider, Typography } from '@mui/material';
+import { Alert, Box, CircularProgress, Divider, Typography } from '@mui/material';
 import { useSnackbar } from 'notistack';
 
 import { useAuth } from '@/context/AuthContext';
@@ -15,13 +15,16 @@ import PageContainer from '@/components/layout/PageContainer';
 
 const AdminTeamsPage: React.FC = () => {
   const { t } = useTranslation();
-  const { isSuperAdmin } = useAuth();
+  const { user, isSuperAdmin } = useAuth();
   const { teams, isLoading, isError, mutate } = useTeams();
   const { enqueueSnackbar } = useSnackbar();
 
   const handleTeamUpdated = () => {
     mutate();
   };
+
+  const adminedTeamsCount = teams?.filter((t) => t.adminId === user?.sub).length || 0;
+  const canCreateTeam = isSuperAdmin || adminedTeamsCount < 2;
 
   const handleDeleteTeam = async (teamId: string) => {
     try {
@@ -34,13 +37,17 @@ const AdminTeamsPage: React.FC = () => {
 
   return (
     <PageContainer title={t('adminTeams.title')} icon={<GroupWorkIcon />}>
-      {isSuperAdmin && (
+      {canCreateTeam ? (
         <Box sx={{ mb: 4 }}>
           <Typography variant="h5" component="h2" gutterBottom>
             {t('adminTeams.createNew')}
           </Typography>
           <CreateTeamForm onTeamCreated={handleTeamUpdated} />
         </Box>
+      ) : (
+        <Alert severity="info" sx={{ mb: 4 }}>
+          {t('adminTeams.quotaReached')}
+        </Alert>
       )}
 
       <Divider sx={{ my: 4 }} />

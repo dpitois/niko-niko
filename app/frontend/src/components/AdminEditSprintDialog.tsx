@@ -69,6 +69,12 @@ const AdminEditSprintDialog: React.FC<AdminEditSprintDialogProps> = ({
       return;
     }
 
+    if (dayjs(endDate).isAfter(dayjs(startDate).add(2, 'month'))) {
+      setError(t('validation.sprintTooLong'));
+      setIsSubmitting(false);
+      return;
+    }
+
     const hasOverlap = allSprints.some((s) => {
       if (s.id === sprint.id || s.teamId !== sprint.teamId) return false;
       const sStart = dayjs(s.startDate);

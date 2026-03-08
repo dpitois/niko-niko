@@ -79,7 +79,8 @@
     "required": "Ce champ est requis",
     "greaterThanZero": "Doit être supérieur à zéro",
     "maxLength_100": "Doit faire 100 caractères ou moins",
-    "endDateBeforeStartDate": "La date de fin doit être après la date de début"
+    "endDateBeforeStartDate": "La date de fin doit être après la date de début",
+    "sprintTooLong": "La durée du sprint ne peut pas dépasser 2 mois (62 jours)"
   },
   "mood": {
     "veryHappy": "Très Heureux",

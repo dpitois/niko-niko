@@ -53,6 +53,7 @@ const EditTeamDialog: React.FC<EditTeamDialogProps> = ({
   );
   const [sprintNameTemplate, setSprintNameTemplate] = useState(currentSprintNameTemplate || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [selectedAdminId, setSelectedAdminId] = useState<string>('');
   const [transferError, setTransferError] = useState<string | null>(null);
 
@@ -61,12 +62,20 @@ const EditTeamDialog: React.FC<EditTeamDialogProps> = ({
       setName(currentName);
       setDefaultSprintDuration(currentDefaultSprintDuration?.toString() || '');
       setSprintNameTemplate(currentSprintNameTemplate || '');
+      setError(null);
     }
   }, [open, currentName, currentDefaultSprintDuration, currentSprintNameTemplate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     const duration = defaultSprintDuration ? parseInt(defaultSprintDuration, 10) : undefined;
+
+    if (duration && duration > 62) {
+      setError(t('validation.sprintTooLong'));
+      return;
+    }
+
     const nameChanged = name.trim() !== currentName;
     const durationChanged = duration !== currentDefaultSprintDuration;
     const templateChanged = sprintNameTemplate !== currentSprintNameTemplate;
@@ -82,6 +91,7 @@ const EditTeamDialog: React.FC<EditTeamDialogProps> = ({
       onClose();
     } catch (error) {
       console.error('Failed to update team name:', error);
+      setError(t('common.error'));
     } finally {
       setIsSubmitting(false);
     }
@@ -115,6 +125,11 @@ const EditTeamDialog: React.FC<EditTeamDialogProps> = ({
       <DialogTitle>{t('adminTeams.editDialog.title')}</DialogTitle>
       <form onSubmit={handleSubmit}>
         <DialogContent>
+          {error && (
+            <Typography color="error" variant="body2" sx={{ mb: 2 }}>
+              {error}
+            </Typography>
+          )}
           <TextField
             autoFocus
             margin="dense"

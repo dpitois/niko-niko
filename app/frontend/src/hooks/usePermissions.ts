@@ -11,6 +11,10 @@ export const usePermissions = () => {
     return userTeamRoles[teamId]?.isMember || false;
   };
 
+  const isAnyTeamAdmin = (): boolean => {
+    return Object.values(userTeamRoles).some((role) => role.isAdmin);
+  };
+
   const canCreateTeam = (): boolean => {
     // Only super admins can create teams based on backend policy
     return isSuperAdmin;
@@ -40,6 +44,7 @@ export const usePermissions = () => {
   return {
     isSuperAdmin,
     isTeamAdmin,
+    isAnyTeamAdmin,
     isTeamMember,
     canCreateTeam,
     canManageTeam,

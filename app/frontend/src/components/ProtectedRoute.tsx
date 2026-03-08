@@ -8,6 +8,7 @@ import { usePermissions } from '@/hooks/usePermissions';
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requiredSuperAdmin?: boolean; // Replaces adminOnly
+  requiredAnyAdmin?: boolean; // Requires the user to be a Super Admin or a Team Admin
   requiredTeamAdminOf?: string; // Requires the user to be admin of this teamId
   requiredTeamMemberOf?: string; // Requires the user to be a member of this teamId
   skipOnboardingCheck?: boolean; // New prop to skip onboarding check
@@ -16,12 +17,13 @@ interface ProtectedRouteProps {
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
   requiredSuperAdmin = false,
+  requiredAnyAdmin = false,
   requiredTeamAdminOf,
   requiredTeamMemberOf,
   skipOnboardingCheck = false,
 }) => {
   const { user, isLoading, isOnboarded } = useAuth();
-  const { isSuperAdmin, isTeamAdmin, isTeamMember } = usePermissions();
+  const { isSuperAdmin, isAnyTeamAdmin, isTeamAdmin, isTeamMember } = usePermissions();
 
   if (isLoading) {
     return (
@@ -44,17 +46,22 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // Check Super Admin requirement
   if (requiredSuperAdmin && !isSuperAdmin) {
-    return <Navigate to="/dashboard" replace />; // Redirect if not super admin
+    return <Navigate to="/my-teams" replace />; // Redirect if not super admin
+  }
+
+  // Check Any Admin requirement (Super Admin or any Team Admin)
+  if (requiredAnyAdmin && !isSuperAdmin && !isAnyTeamAdmin()) {
+    return <Navigate to="/my-teams" replace />;
   }
 
   // Check Team Admin requirement
   if (requiredTeamAdminOf && !isTeamAdmin(requiredTeamAdminOf)) {
-    return <Navigate to="/dashboard" replace />; // Redirect if not team admin
+    return <Navigate to="/my-teams" replace />; // Redirect if not team admin
   }
 
   // Check Team Member requirement
   if (requiredTeamMemberOf && !isTeamMember(requiredTeamMemberOf)) {
-    return <Navigate to="/dashboard" replace />; // Redirect if not team member
+    return <Navigate to="/my-teams" replace />; // Redirect if not team member
   }
 
   return <>{children}</>;

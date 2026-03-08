@@ -4,6 +4,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import FaceIcon from '@mui/icons-material/Face';
 import GroupIcon from '@mui/icons-material/Group';
+import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
 import {
   Avatar,
   Box,
@@ -19,6 +20,7 @@ import {
 } from '@mui/material';
 import { useSnackbar } from 'notistack';
 
+import { useAuth } from '@/context/AuthContext';
 import type { TeamWithMembersAndSprints } from '@/models/Team/TeamWithMembersAndSprints';
 import { removeUserFromTeam, transferTeamAdmin, updateTeam } from '@/services/teamService';
 
@@ -34,6 +36,7 @@ const AdminTeamListItem: React.FC<AdminTeamListItemProps> = ({ team, onDelete, o
   const { t } = useTranslation();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
+  const { user: currentUser, fetchUserTeamRoles } = useAuth();
 
   const handleUpdateName = async (newName: string, newDuration?: number, newTemplate?: string) => {
     try {
@@ -54,6 +57,12 @@ const AdminTeamListItem: React.FC<AdminTeamListItemProps> = ({ team, onDelete, o
     try {
       await transferTeamAdmin(team.id, newAdminId);
       enqueueSnackbar(t('adminTeams.teamAdminTransferred'), { variant: 'success' });
+
+      // Refresh roles to update the sidebar if the user is no longer an admin of any team
+      if (currentUser?.sub) {
+        await fetchUserTeamRoles(currentUser.sub);
+      }
+
       if (onUpdate) onUpdate();
     } catch {
       enqueueSnackbar(t('adminTeams.teamAdminTransferFailed'), { variant: 'error' });
@@ -134,12 +143,12 @@ const AdminTeamListItem: React.FC<AdminTeamListItemProps> = ({ team, onDelete, o
                 member.id !== team.adminId && (
                   <IconButton
                     edge="end"
-                    aria-label="delete"
+                    aria-label="remove member"
                     size="small"
                     onClick={() => handleRemoveMember(member.id)}
                     sx={{ color: 'text.secondary', '&:hover': { color: 'error.main' } }}
                   >
-                    <DeleteIcon fontSize="small" />
+                    <PersonRemoveIcon fontSize="small" />
                   </IconButton>
                 )
               }

@@ -8,16 +8,19 @@ using Microsoft.IdentityModel.Tokens;
 
 using NikoNiko.Core.Interfaces;
 using NikoNiko.Core.Models; // Updated namespace for User
+using NikoNiko.Data;
 
 namespace NikoNiko.Services;
 
 public class TokenService : ITokenService
 {
     private readonly IConfiguration _config;
+    private readonly ApplicationDbContext _context;
 
-    public TokenService(IConfiguration config)
+    public TokenService(IConfiguration config, ApplicationDbContext context)
     {
         _config = config;
+        _context = context;
     }
 
     public string CreateToken(User user)
@@ -45,6 +48,13 @@ public class TokenService : ITokenService
         if (user.IsSuperAdmin)
         {
             claims.Add(new Claim("is_super_admin", "true"));
+        }
+
+        // Check if user is an admin of any team
+        var isTeamAdmin = _context.Teams.Any(t => t.AdminId == user.Id);
+        if (isTeamAdmin)
+        {
+            claims.Add(new Claim("is_team_admin", "true"));
         }
 
         claims.Add(new Claim("is_onboarded", user.IsOnboarded ? "true" : "false"));

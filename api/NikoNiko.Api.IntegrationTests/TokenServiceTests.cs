@@ -1,18 +1,23 @@
 using System.IdentityModel.Tokens.Jwt;
 
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
 using NikoNiko.Core.Interfaces;
 using NikoNiko.Core.Models;
+using NikoNiko.Data;
 using NikoNiko.Services;
 
 using Xunit;
 
 namespace NikoNiko.Api.IntegrationTests;
 
-public class TokenServiceTests
+public class TokenServiceTests : IDisposable
 {
     private readonly IConfiguration _configuration;
+    private readonly SqliteConnection _connection;
+    private readonly ApplicationDbContext _context;
     private readonly TokenService _tokenService;
 
     public TokenServiceTests()
@@ -27,7 +32,22 @@ public class TokenServiceTests
             .AddInMemoryCollection(inMemorySettings!)
             .Build();
 
-        _tokenService = new TokenService(_configuration);
+        _connection = new SqliteConnection("DataSource=:memory:");
+        _connection.Open();
+
+        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseSqlite(_connection)
+            .Options;
+        _context = new ApplicationDbContext(options);
+        _context.Database.EnsureCreated();
+
+        _tokenService = new TokenService(_configuration, _context);
+    }
+
+    public void Dispose()
+    {
+        _context.Dispose();
+        _connection.Close();
     }
 
     [Fact]
